@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZENO (銭・禅・善) — Japanese Proof-of-Contribution Sovereign Neo-Bank</title>
+  <meta name="description" content="A sovereign neo-bank rooted in Japanese merchant philosophy (Sanpo Yoshi), spatial mindfulness (Ma), and immutable golden auditability (Kintsugi). Synthesizing VAKED with Foken.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <!-- Open Graph -->
+  <meta property="og:title" content="ZENO (銭・禅・善) — Japanese Neo-Bank">
+  <meta property="og:description" content="Double-entry Kintsugi ledger, continuous micro-streaming, Foken proof-of-contribution bridge, and autonomous AI agent accounts.">
+  <meta property="og:image" content="https://zeno.vaked.dev/og.svg">
+  <meta property="og:url" content="https://zeno.vaked.dev/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Google Fonts: Shippori Mincho & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="zeno-nav">
+    <a href="#" class="brand-wrap">
+      <img src="favicon.svg" alt="ZENO Emblem" class="brand-emblem">
+      <div>
+        <div class="brand-title">ZENO 銭</div>
+        <div class="brand-sub">Sovereign Neo-Bank</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button id="btn-audio-toggle" class="btn-pill" title="Toggle tactile soundscape">🔔 Sound On</button>
+      <a href="https://github.com/peterlodri-sec/zeno.vaked.dev" target="_blank" rel="noopener noreferrer" class="btn-pill">GitHub</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-kanji">銭 · 禅 · 善</div>
+    <h1 class="hero-title">ZENO NEO-BANK</h1>
+    <p class="hero-desc">
+      A sovereign neo-bank that breathes like a garden, accounts like an abacus, settles like water, and values true human & agentic contribution above debt.
+    </p>
+
+    <!-- Real-time Dynamic Ticker -->
+    <div class="ticker-banner">
+      <div class="ticker-item">
+        <span class="ticker-label">Settlement Velocity</span>
+        <span id="ticker-streaming-rate" class="ticker-value teal">¥55.00/s</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-label">Active Micro-Stream Flow</span>
+        <span id="ticker-stream-volume" class="ticker-value gold">¥0.00</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-label">Ledger Architecture</span>
+        <span class="ticker-value">Kintsugi SHA-256</span>
+      </div>
+      <div class="ticker-item">
+        <span class="ticker-label">Contribution Gate</span>
+        <span class="ticker-value teal">Foken Net-Utility</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav" aria-label="Neo-bank sections">
+      <button class="tab-btn active" data-tab="accounts">口座一覧 (Accounts)</button>
+      <button class="tab-btn" data-tab="foken">貢献鋳造 (Foken Gate)</button>
+      <button class="tab-btn" data-tab="streaming">水流決済 (Streaming)</button>
+      <button class="tab-btn" data-tab="agents">自律口座 (Agent Banking)</button>
+      <button class="tab-btn" data-tab="ledger">金継ぎ台帳 (Ledger Explorer)</button>
+      <button class="tab-btn" data-tab="philosophy">設計思想 (Philosophy & Spec)</button>
+    </nav>
+  </section>
+
+  <!-- Main Viewports -->
+  <main class="zeno-main">
+
+    <!-- 1. ACCOUNTS VIEW -->
+    <div id="tab-accounts" class="tab-pane active">
+      <div class="card-grid">
+        
+        <!-- Personal Account -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div class="card-title">Alice Tanaka</div>
+            <span class="badge badge-personal">個人 (Personal)</span>
+          </div>
+          <div class="balance-large" id="balance-usr_alice">¥250,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">usr_alice</code> · JPY Vault</div>
+        </div>
+
+        <!-- Contributor Account -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div class="card-title">Péter Lódri</div>
+            <span class="badge badge-contributor">貢献者 (Contributor)</span>
+          </div>
+          <div class="balance-large" id="balance-cnt_0x71c8" style="color:var(--color-gold);">¥50,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">cnt_0x71c8</code> · +50 JPY/s inbound stream</div>
+        </div>
+
+        <!-- Autonomous Agent Account -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div class="card-title">Crush Reasoner</div>
+            <span class="badge badge-agent">自律 (AI Agent)</span>
+          </div>
+          <div class="balance-large" id="balance-agt_crush_reasoner" style="color:var(--color-violet);">¥35,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">agt_crush_reasoner</code> · Daily Cap: ¥50,000</div>
+        </div>
+
+        <!-- Guild Treasury -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div class="card-title">VAKED Core Guild</div>
+            <span class="badge badge-personal">組合 (Guild)</span>
+          </div>
+          <div class="balance-large" id="balance-gld_vaked_core">¥1,200,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">gld_vaked_core</code> · Mujin Mutual Pool</div>
+        </div>
+
+        <!-- Universal Treasury -->
+        <div class="zeno-card" style="grid-column: 1 / -1;">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div class="card-title">Universal Treasury Reserve (公庫)</div>
+            <span class="badge badge-treasury">公庫 (Equity)</span>
+          </div>
+          <div class="balance-large" id="balance-treasury:universal" style="color:var(--color-teal);">¥15,800,000.0000</div>
+          <div class="balance-sub">100% segregated fiat backing + Foken proof-of-contribution equity pool.</div>
+        </div>
+
+      </div>
+
+      <!-- Quick Transfer Widget -->
+      <div class="zeno-card">
+        <div class="card-title" style="margin-bottom:1rem;">⚡ 振替実行 (Instant Double-Entry Transfer)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">
+          <div class="form-group">
+            <label class="form-label" for="tx-from">From Account</label>
+            <select id="tx-from" class="form-select">
+              <option value="usr_alice">Alice Personal (usr_alice)</option>
+              <option value="gld_vaked_core">VAKED Core Guild (gld_vaked_core)</option>
+              <option value="cnt_0x71c8">Péter Lódri (cnt_0x71c8)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tx-to">To Account</label>
+            <select id="tx-to" class="form-select">
+              <option value="cnt_0x71c8">Péter Lódri (cnt_0x71c8)</option>
+              <option value="agt_crush_reasoner">Crush Reasoner (agt_crush_reasoner)</option>
+              <option value="usr_alice">Alice Personal (usr_alice)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tx-amount">Amount (¥ JPY)</label>
+            <input type="number" id="tx-amount" class="form-input" value="1000" min="1" step="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tx-memo">Memo</label>
+            <input type="text" id="tx-memo" class="form-input" placeholder="Constellation work allocation">
+          </div>
+        </div>
+        <button id="btn-execute-transfer" class="btn-primary" style="margin-top:0.5rem;">
+          Sign & Seal Transaction with Kintsugi Witness
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. FOKEN PROOF-OF-CONTRIBUTION GATE -->
+    <div id="tab-foken" class="tab-pane">
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-header">
+          <div class="card-title">Foken Proof-of-Contribution Valuation Gate (貢献鋳造門)</div>
+          <div style="display:flex;gap:0.5rem;">
+            <button id="btn-load-valid-sample" class="btn-pill">Load Valid Work (PASS)</button>
+            <button id="btn-load-bad-sample" class="btn-pill">Load Refactor Churn (FAIL)</button>
+          </div>
+        </div>
+        <p style="color:var(--color-text-dim);margin-bottom:1rem;font-size:0.85rem;">
+          In Zeno, monetary balance expansion does not emerge from debt. Contributors submit verifiable invoices evaluated by the deterministic Foken net-utility formula:
+          <br>
+          <code class="code-snippet">net = futureWorkAvoidedHours − (workAddedHours + 1.5 × maintenanceDebtHours)</code>
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="invoice-json-input">Foken Invoice Payload (JSON Draft-07)</label>
+          <textarea id="invoice-json-input" class="form-textarea" rows="12"></textarea>
+        </div>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <button id="btn-evaluate-gate" class="btn-primary" style="flex:1;">
+            Run Foken Deterministic Valuation Gate
+          </button>
+          <button id="btn-consensus-mint" class="btn-primary" style="flex:1;background:var(--color-teal);display:none;">
+            Simulate Reviewer Quorum (>50%) & Mint to Account
+          </button>
+        </div>
+
+        <div id="gate-verdict-box" class="verdict-box"></div>
+      </div>
+    </div>
+
+    <!-- 3. STREAMING VIEW -->
+    <div id="tab-streaming" class="tab-pane">
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:1rem;">水流決済 — Continuous Micro-Streaming Rails</div>
+        <p style="color:var(--color-text-dim);font-size:0.85rem;margin-bottom:1.5rem;">
+          Money flows continuously like water in an Edo aqueduct. Zero payroll delay. Settle at monitor refresh rate.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="background:var(--bg-elevated);padding:1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+            <div>
+              <div style="font-weight:700;color:var(--color-gold);">Guild → Péter Lódri (Architecture & DO Loop)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-dim);">ID: stm_guild_to_cnt · Rate: 50.00 JPY/sec (50,000,000 µJPY/s)</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge" style="background:rgba(98,230,201,0.15);color:var(--color-teal);">STREAMING ACTIVE</span>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-elevated);padding:1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+            <div>
+              <div style="font-weight:700;color:var(--color-violet);">Péter Lódri → Crush Reasoner (Autonomous Compute)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-dim);">ID: stm_cnt_to_agent · Rate: 5.00 JPY/sec (5,000,000 µJPY/s)</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge" style="background:rgba(180,139,255,0.15);color:var(--color-violet);">STREAMING ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. AGENTS VIEW -->
+    <div id="tab-agents" class="tab-pane">
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:1rem;">自律口座 — Autonomous AI Agent Banking</div>
+        <p style="color:var(--color-text-dim);font-size:0.85rem;margin-bottom:1.5rem;">
+          First-class financial accounts for autonomous reasoners (Enthea, Crush, SWE-agent). Programmatic limits protect operators while empowering agents with cryptographic spending capability.
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;margin-bottom:1.5rem;">
+          <div class="form-group">
+            <label class="form-label" for="agent-spend-amount">Disbursement Amount (¥ JPY)</label>
+            <input type="number" id="agent-spend-amount" class="form-input" value="500">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="agent-spend-reason">Proof-of-Reasoning Task Prompt</label>
+            <input type="text" id="agent-spend-reason" class="form-input" value="Allocating GPU spot instances on Hetzner for deep model evaluation">
+          </div>
+        </div>
+
+        <button id="btn-agent-spend" class="btn-primary">
+          Simulate Autonomous Agent Micro-Disbursement (PoR Hash Verified)
+        </button>
+
+        <div id="agent-spend-result" class="verdict-box" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+
+    <!-- 5. LEDGER EXPLORER -->
+    <div id="tab-ledger" class="tab-pane">
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:1rem;">金継ぎ台帳 — Kintsugi Immutable Ledger Explorer</div>
+        <p style="color:var(--color-text-dim);font-size:0.85rem;margin-bottom:1.5rem;">
+          Every transaction is cryptographically chained using SHA-256 with Merkle root verification and golden witness seals.
+        </p>
+
+        <div class="ledger-table-wrap">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th>Timestamp</th>
+                <th>Transaction Memo</th>
+                <th>Kintsugi Seal Hash</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body">
+              <!-- Rendered via app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. PHILOSOPHY & SPEC -->
+    <div id="tab-philosophy" class="tab-pane">
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:1rem;">設計思想と規格 (Philosophy & Japanese Roots)</div>
+        <div style="color:var(--color-text-dim);font-size:0.9rem;line-height:1.8;">
+          <h3 style="color:var(--color-gold);margin:1rem 0 0.5rem;">1. 銭 (Zeni) — Value Earned, Not Borrowed</h3>
+          <p>Unlike legacy fractional-reserve neo-banks that expand money supplies by writing debt loans with compound interest, Zeno anchors new liquidity exclusively in verified, proof-of-contribution utility gates (Foken).</p>
+
+          <h3 style="color:var(--color-gold);margin:1.5rem 0 0.5rem;">2. 禅 (Zen) — Calm & Zero Anxiety</h3>
+          <p>Financial anxiety is eliminated through spatial clarity (間 - Ma), transparent fees, and continuous micro-streaming (水流決済), settling balances by the second rather than monthly batch deadlines.</p>
+
+          <h3 style="color:var(--color-gold);margin:1.5rem 0 0.5rem;">3. 善 (Sanpo Yoshi) — 三方よし</h3>
+          <p>Edo merchant philosophy: Good for the payer, good for the payee, and good for society. Every settlement enriches the collective Universal Treasury.</p>
+
+          <h3 style="color:var(--color-gold);margin:1.5rem 0 0.5rem;">4. 金継ぎ (Kintsugi) — The Golden Joinery Ledger</h3>
+          <p>Transactions cannot be erased or hidden. Any adjustment or dispute resolution is joined with golden cryptographic witness signatures, honoring history rather than covering it up.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Lovetta Lane Constellation Footer -->
+  <footer role="contentinfo" style="position:relative;z-index:10;padding:3rem 1.5rem;text-align:center;font-family:ui-monospace,monospace;font-size:0.75rem;color:#a59fc4;background:rgba(5,6,10,0.92);border-top:1px solid rgba(170,150,255,0.18);backdrop-filter:blur(16px);">
+    <div style="margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.3em;color:#b48bff;font-weight:600;">the constellation · lovetta lane</div>
+    <div style="margin-bottom:1rem;font-size:0.65rem;letter-spacing:0.22em;color:#a59fc4;text-transform:uppercase;">keep the weights warm</div>
+    <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <a href="https://github.com/sponsors/peterlodri-sec" target="_blank" rel="noopener noreferrer" style="color:#62e6c9;text-decoration:none;border:1px solid rgba(98,230,201,0.35);border-radius:8px;padding:0.45rem 0.9rem;background:rgba(98,230,201,0.06);">github sponsor</a>
+      <a href="https://revolut.me/peterjs8be" target="_blank" rel="noopener noreferrer" style="color:#62e6c9;text-decoration:none;border:1px solid rgba(98,230,201,0.35);border-radius:8px;padding:0.45rem 0.9rem;background:rgba(98,230,201,0.06);">revolut</a>
+      <a href="https://wise.com/pay/business/lodripeterjozsef" target="_blank" rel="noopener noreferrer" style="color:#62e6c9;text-decoration:none;border:1px solid rgba(98,230,201,0.35);border-radius:8px;padding:0.45rem 0.9rem;background:rgba(98,230,201,0.06);">wise</a>
+    </div>
+    <nav aria-label="Constellation sister sites" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;font-size:0.7rem;">
+      <a href="https://koan.vaked.dev/" style="color:#e8b05c;text-decoration:none;">✧ koan.vaked.dev (the hub)</a> ·
+      <a href="https://weave.vaked.dev/" style="color:#a59fc4;text-decoration:none;">weave.vaked.dev</a> ·
+      <a href="https://disco.vaked.dev/" style="color:#a59fc4;text-decoration:none;">disco.vaked.dev</a> ·
+      <a href="https://ultra.vaked.dev/" style="color:#a59fc4;text-decoration:none;">ultra.vaked.dev</a> ·
+      <a href="https://art.vaked.dev/" style="color:#62e6c9;text-decoration:none;">art.vaked.dev</a> ·
+      <a href="https://art.vaked.dev/vision-gallery.html" style="color:#5b9dff;text-decoration:none;">✦ vision-gallery (23)</a> ·
+      <a href="https://bonfire.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">bonfire.vaked.dev</a> ·
+      <a href="https://etherhive.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">etherhive.vaked.dev</a> ·
+      <a href="https://music.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">music.vaked.dev</a> ·
+      <a href="https://mlxquantlovefrom.com/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">quant-love</a> ·
+      <a href="https://proposal.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">proposal.vaked.dev</a> ·
+      <a href="https://pocoo.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">pocoo.vaked.dev</a> ·
+      <a href="https://axiomquant.org/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">axiomquant.org</a> ·
+      <a href="https://portail.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">portail.vaked.dev</a> ·
+      <a href="https://zeno.vaked.dev/" style="color:#e8b05c;text-decoration:none;font-weight:600;">✧ zeno.vaked.dev</a>
+    </nav>
+    <div style="font-size:0.6rem;letter-spacing:0.18em;color:#7f7c99;margin-top:1.5rem;">the constellation · 0 + 1 · fine touch from within · vaked.dev</div>
+  </footer>
+
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "zeno.vaked.dev",
+  "title": "ZENO (銭・禅・善) — Japanese Proof-of-Contribution Sovereign Neo-Bank",
+  "status": "online",
+  "constellation": "vaked.dev",
+  "version": "1.0.0",
+  "description": "Continuous-time micro-streaming neo-bank with Kintsugi double-entry ledger, Foken proof-of-contribution bridge, and autonomous AI agent accounts.",
+  "canonical_url": "https://zeno.vaked.dev/",
+  "updated": "2026-10-11T08:30:00Z",
+  "roots": ["Zen (禅)", "Zeni (銭)", "Sanpo Yoshi (三方よし)", "Kintsugi (金継ぎ)", "Ma (間)"]
+}

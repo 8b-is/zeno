@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="bgGlow" cx="70%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#181528"/>
+      <stop offset="60%" stop-color="#07080b"/>
+      <stop offset="100%" stop-color="#040508"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff2c2"/>
+      <stop offset="50%" stop-color="#e8b05c"/>
+      <stop offset="100%" stop-color="#9d691f"/>
+    </linearGradient>
+    <linearGradient id="asagiGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#62e6c9"/>
+      <stop offset="100%" stop-color="#b48bff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGlow)"/>
+  
+  <!-- Subtle Grid Lines (Ma spacing) -->
+  <line x1="120" y1="0" x2="120" y2="630" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
+  <line x1="1080" y1="0" x2="1080" y2="630" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
+  <line x1="0" y1="120" x2="1200" y2="120" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
+  <line x1="0" y1="510" x2="1200" y2="510" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
+
+  <!-- Kintsugi Golden Fracture Art -->
+  <path d="M 850,80 Q 920,180 890,260 T 960,390 T 910,540" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 890,260 L 810,310 M 960,390 L 1040,430" fill="none" stroke="url(#goldGrad)" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Logo Coin Emblem -->
+  <g transform="translate(860, 240)">
+    <circle cx="64" cy="64" r="70" fill="#0b0e18" stroke="url(#goldGrad)" stroke-width="3"/>
+    <rect x="46" y="46" width="36" height="36" rx="4" fill="#07080b" stroke="url(#goldGrad)" stroke-width="3"/>
+    <circle cx="64" cy="64" r="5" fill="#62e6c9"/>
+  </g>
+
+  <!-- Title & Headers -->
+  <text x="140" y="200" font-family="'Shippori Mincho', 'Noto Serif JP', serif" font-size="28" fill="#e8b05c" letter-spacing="6">銭 · 禅 · 善</text>
+  <text x="140" y="290" font-family="'JetBrains Mono', 'Geist Mono', monospace" font-size="82" font-weight="800" fill="#f7f6f2" letter-spacing="-2">ZENO</text>
+  <text x="140" y="350" font-family="'JetBrains Mono', monospace" font-size="24" fill="url(#asagiGrad)" letter-spacing="3">JAPANESE PROOF-OF-CONTRIBUTION NEO-BANK</text>
+
+  <!-- Bullets / Pillars -->
+  <text x="140" y="420" font-family="'JetBrains Mono', monospace" font-size="16" fill="#8c89a4" letter-spacing="1">
+    ✧ Double-Entry Kintsugi Ledger  ✧ Continuous µJPY Micro-Streaming  ✧ Foken Valuation Gate
+  </text>
+  <text x="140" y="450" font-family="'JetBrains Mono', monospace" font-size="16" fill="#8c89a4" letter-spacing="1">
+    ✧ Autonomous AI Agent Accounts  ✧ Sanpo Yoshi Ethical Capital     ✧ VAKED Constellation
+  </text>
+
+  <!-- URL footer -->
+  <text x="140" y="540" font-family="'JetBrains Mono', monospace" font-size="18" fill="#e8b05c">zeno.vaked.dev</text>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="zenoGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e8b05c" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#07080b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="kinGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf6c7"/>
+      <stop offset="50%" stop-color="#e8b05c"/>
+      <stop offset="100%" stop-color="#a67123"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="28" fill="#07080b"/>
+  <circle cx="64" cy="64" r="54" fill="url(#zenoGlow)"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(180, 139, 255, 0.2)" stroke-width="1.5"/>
+
+  <!-- Ensō / Coin Outer Ring (Wabi-Sabi brush circle) -->
+  <path d="M 64,18 A 46,46 0 1,1 28,32" fill="none" stroke="url(#kinGold)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="240 20"/>
+  
+  <!-- Central Square Hole (Kan'ei Tsūhō ancient Japanese coin motif) -->
+  <rect x="52" y="52" width="24" height="24" rx="3" fill="#07080b" stroke="url(#kinGold)" stroke-width="2.5"/>
+
+  <!-- Kintsugi Golden Seam -->
+  <path d="M 52,52 L 32,38 M 76,76 L 102,96 M 76,52 L 94,36" fill="none" stroke="#62e6c9" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Subtle Kanji 銭 / 禅 watermark dot -->
+  <circle cx="64" cy="64" r="3" fill="#62e6c9"/>
+</svg>

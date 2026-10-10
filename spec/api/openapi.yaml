@@ -1,0 +1,132 @@
+openapi: 3.1.0
+info:
+  title: ZENO Sovereign Neo-Bank Edge API
+  version: 1.0.0
+  description: >
+    REST and Edge API specification for Zeno (銭・禅・善), the Japanese
+    proof-of-contribution sovereign neo-bank. Double-entry Kintsugi ledger,
+    real-time micro-streaming, Foken valuation gate, and agent banking.
+servers:
+  - url: https://zeno.vaked.dev/api/v1
+    description: Production Cloudflare Edge Gateway
+  - url: http://localhost:8080/api/v1
+    description: Local Dev Engine
+paths:
+  /accounts:
+    get:
+      summary: List registered accounts
+      responses:
+        '200':
+          description: Array of active accounts
+    post:
+      summary: Create new account (Personal, Guild, Agent, Contributor)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountType, label, ownerAddress]
+              properties:
+                accountType:
+                  type: string
+                  enum: [personal, guild, contributor, agent]
+                label:
+                  type: string
+                ownerAddress:
+                  type: string
+      responses:
+        '201':
+          description: Account created
+  /accounts/{accountId}/balance:
+    get:
+      summary: Retrieve static and dynamic streaming balance
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current balance including computed micro-yen accrued
+  /transfers:
+    post:
+      summary: Execute discrete double-entry transfer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fromAccount, toAccount, amount, currency]
+              properties:
+                fromAccount:
+                  type: string
+                toAccount:
+                  type: string
+                amount:
+                  type: integer
+                  description: Amount in base units (e.g. JPY)
+                currency:
+                  type: string
+                  enum: [JPY, ZENO, FOKEN, USD]
+                memo:
+                  type: string
+      responses:
+        '200':
+          description: Transfer executed and sealed into block
+  /streams:
+    get:
+      summary: List active continuous streams
+      responses:
+        '200':
+          description: Active streaming connections
+    post:
+      summary: Create continuous micro-stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fromAccount, toAccount, rateMicroYenPerSec]
+              properties:
+                fromAccount:
+                  type: string
+                toAccount:
+                  type: string
+                rateMicroYenPerSec:
+                  type: integer
+                  description: Micro-yen streamed per second
+                durationSeconds:
+                  type: integer
+      responses:
+        '201':
+          description: Stream established
+  /foken/gate:
+    post:
+      summary: Submit invoice to deterministic Foken valuation gate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Standard Foken Invoice JSON
+      responses:
+        '200':
+          description: Verdict PASS, FAIL, or REVIEW with computed net-utility
+  /foken/mint:
+    post:
+      summary: Execute mintFromConsensus upon reviewer quorum
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [invoiceId, contributor, consensusProof]
+      responses:
+        '200':
+          description: Contributor balance credited and sealed

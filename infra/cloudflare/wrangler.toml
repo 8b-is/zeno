@@ -1,0 +1,17 @@
+name = "zeno-edge-gateway"
+main = "workers/api.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+CANONICAL_DOMAIN = "zeno.vaked.dev"
+TOKEN_RATE_JPY = "100"
+
+[site]
+bucket = "../../"
+
+# Edge routes
+routes = [
+  { pattern = "zeno.vaked.dev/api/*", zone_name = "vaked.dev" }
+]
