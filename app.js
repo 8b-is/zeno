@@ -176,7 +176,7 @@ const sampleInvoices = {
     work: {
       title: "Zeno Core Streaming Settlement Engine",
       description: "Implemented zero-copy SIMD streaming arithmetic and Kintsugi ledger block sealing.",
-      repo: "https://github.com/peterlodri-sec/zeno.vaked.dev",
+      repo: "https://github.com/8b-is/zeno",
       commit: "a3f892c"
     },
     artifact: {
@@ -208,7 +208,7 @@ const sampleInvoices = {
     work: {
       title: "Arbitrary Code Refactoring Loop",
       description: "Churning lines of code without architectural need.",
-      repo: "https://github.com/peterlodri-sec/zeno.vaked.dev",
+      repo: "https://github.com/8b-is/zeno",
       commit: "b8c9d0e"
     },
     artifact: {

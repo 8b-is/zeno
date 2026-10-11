@@ -14,7 +14,7 @@ class TestFokenBridge(unittest.TestCase):
             "work": {
                 "title": "Zeno Core Engine",
                 "description": "Double-entry ledger & streaming settlement",
-                "repo": "https://github.com/peterlodri-sec/zeno.vaked.dev",
+                "repo": "https://github.com/8b-is/zeno",
                 "commit": "a3f892c",
             },
             "artifact": {

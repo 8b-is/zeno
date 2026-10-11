@@ -56,7 +56,7 @@ Zeno ingests the exact Foken Invoice format defined in `foken/invoice.schema.jso
   "work": {
     "title": "Zeno Core Streaming Settlement Engine",
     "description": "Implemented zero-copy SIMD streaming arithmetic and Kintsugi ledger block sealing.",
-    "repo": "https://github.com/peterlodri-sec/zeno.vaked.dev",
+    "repo": "https://github.com/8b-is/zeno",
     "commit": "a3f892c"
   },
   "artifact": {
