@@ -1,0 +1,7 @@
+name = "zeno-vaked"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+routes = [
+  { pattern = "zeno.vaked.dev", custom_domain = true }
+]

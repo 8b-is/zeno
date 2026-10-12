@@ -138,6 +138,105 @@ class ZenoAudio {
     osc.start(t);
     osc.stop(t + 0.5);
   }
+
+  /**
+   * 改札・電子マネー (FeliCa NFC-F) — Tokyo Transit Gate Chime
+   * Authentic dual-tone "Pii-Pik!" gate chime (1760 Hz -> 2349 Hz).
+   * Synthesized procedurally for Mobile Suica & Mobile PASMO tap-to-ride.
+   */
+  playFeliCa() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+
+    // Tone 1: A6 (1760 Hz) — first ping
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(1760, t);
+
+    gain1.gain.setValueAtTime(0.001, t);
+    gain1.gain.exponentialRampToValueAtTime(0.12, t + 0.004);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+
+    osc1.connect(gain1);
+    gain1.connect(this.ctx.destination);
+    osc1.start(t);
+    osc1.stop(t + 0.06);
+
+    // Tone 2: D7 (2349.3 Hz) — second high crisp ping
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(2349.3, t + 0.065);
+
+    gain2.gain.setValueAtTime(0.001, t + 0.065);
+    gain2.gain.exponentialRampToValueAtTime(0.14, t + 0.070);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.165);
+
+    osc2.connect(gain2);
+    gain2.connect(this.ctx.destination);
+    osc2.start(t + 0.065);
+    osc2.stop(t + 0.18);
+  }
+
+  /**
+   * 残高不足 (FeliCa Gate Warning) — Tokyo Insufficient Balance Alert
+   */
+  playFeliCaError() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(370, t);
+    osc.frequency.setValueAtTime(290, t + 0.12);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(900, t);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.3);
+  }
+
+  /**
+   * 白金 (Platinum Shimmer) — Revolut Ultra Sovereign Shimmer
+   * Harmonic crystal chime celebrating high-velocity cashback and global liquidity.
+   */
+  playUltraShimmer() {
+    if (this.muted) return;
+    this.init();
+    const t = this.ctx.currentTime;
+    const freqs = [1046.5, 1318.5, 1567.98, 2093.0]; // C6, E6, G6, C7 arpeggiated sheen
+
+    freqs.forEach((freq, idx) => {
+      const delay = idx * 0.035;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, t + delay);
+
+      gain.gain.setValueAtTime(0.001, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.08 / (idx + 1), t + delay + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + delay + 0.65);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.7);
+    });
+  }
 }
 
 window.zenoAudio = new ZenoAudio();

@@ -68,6 +68,7 @@
     <!-- Navigation Tabs -->
     <nav class="tabs-nav" aria-label="Neo-bank sections">
       <button class="tab-btn active" data-tab="accounts">口座一覧 (Accounts)</button>
+      <button class="tab-btn" data-tab="foundation">東京基盤 (Tokyo Foundation)</button>
       <button class="tab-btn" data-tab="foken">貢献鋳造 (Foken Gate)</button>
       <button class="tab-btn" data-tab="streaming">水流決済 (Streaming)</button>
       <button class="tab-btn" data-tab="agents">自律口座 (Agent Banking)</button>
@@ -173,6 +174,351 @@
           Sign & Seal Transaction with Kintsugi Witness
         </button>
       </div>
+    </div>
+
+    <!-- TOKYO FOUNDATION VIEW (FeliCa Transit & Revolut Ultra) -->
+    <div id="tab-foundation" class="tab-pane">
+      
+      <!-- Top banner / summary -->
+      <div class="zeno-card" style="margin-bottom:1.5rem;">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-header" style="flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <div class="card-title" style="font-size:1.35rem;display:flex;align-items:center;gap:0.6rem;">
+              <span>東京生活基盤</span>
+              <span style="font-size:0.9rem;font-weight:400;color:var(--color-gold);">Tokyo Foundation Layer</span>
+            </div>
+            <div style="font-size:0.8rem;color:var(--color-text-dim);margin-top:0.25rem;">
+              Mobile PASMO · Mobile Suica (FeliCa NFC-F) · Revolut Ultra Platinum Tier · 0% FX Multi-Currency · Automated Cashback
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+            <span class="badge" style="background:rgba(234,85,130,0.18);color:#ff7aa2;border:1px solid rgba(234,85,130,0.35);">momoPASMO</span>
+            <span class="badge" style="background:rgba(0,153,68,0.18);color:#2ecc71;border:1px solid rgba(0,153,68,0.35);">Suica NFC-F</span>
+            <span class="badge" style="background:rgba(232,176,92,0.18);color:var(--color-gold);border:1px solid var(--border-gold);">Revolut Ultra</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:1.5rem;margin-bottom:1.5rem;">
+
+        <!-- LEFT COLUMN: Tokyo Contactless & Transit (FeliCa NFC-F) -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div>
+              <div class="card-title">交通系IC (Tokyo Contactless Transit)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-dim);">Sony FeliCa NFC-F Standard (JIS X 6319-4)</div>
+            </div>
+            <span class="badge" style="background:rgba(98,230,201,0.15);color:var(--color-teal);">NFC-F READY</span>
+          </div>
+
+          <!-- Card Selector / Switcher -->
+          <div class="ic-card-switcher" style="display:flex;gap:0.5rem;margin:1rem 0;">
+            <button id="btn-select-pasmo" class="btn-ic-toggle active">
+              <span class="dot-pink"></span> Mobile PASMO
+            </button>
+            <button id="btn-select-suica" class="btn-ic-toggle">
+              <span class="dot-green"></span> Mobile Suica
+            </button>
+          </div>
+
+          <!-- Visual IC Card Display -->
+          <div id="ic-card-display" class="ic-card ic-card-pasmo">
+            <div class="ic-card-glass"></div>
+            <div class="ic-card-top">
+              <div class="ic-brand-logo">
+                <span id="ic-card-badge" class="ic-logo-text">PASMO</span>
+                <span class="ic-felica-tag">FeliCa NFC-F</span>
+              </div>
+              <div class="ic-contactless-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8.5 16.5a5 5 0 0 1 0-9"/>
+                  <path d="M12 19a8.5 8.5 0 0 0 0-14"/>
+                  <path d="M15.5 21.5a12 12 0 0 0 0-19"/>
+                </svg>
+              </div>
+            </div>
+            
+            <div class="ic-card-center">
+              <div class="ic-balance-label">IC RESIDUAL BALANCE (残高)</div>
+              <div class="ic-balance-value" id="ic-balance-display">¥4,820</div>
+            </div>
+
+            <div class="ic-card-bottom">
+              <div>
+                <div class="ic-holder-name">PÉTER LÓDRI · ロードリ・ペーテル</div>
+                <div class="ic-card-number" id="ic-card-number-display">PA-0382-7719-2041</div>
+              </div>
+              <div class="ic-status-indicator">
+                <span class="ic-pulsing-dot"></span> 端末連動中
+              </div>
+            </div>
+            <div class="ic-tap-ripple" id="ic-tap-ripple"></div>
+          </div>
+
+          <!-- Tokyo Ticket Gate Display Simulator -->
+          <div class="gate-lcd-panel">
+            <div class="gate-lcd-header">
+              <span>TOKYO AUTOMATIC TICKET GATE (自動改札機)</span>
+              <span id="gate-lcd-status" class="lcd-ready">● STANDBY</span>
+            </div>
+            <div class="gate-lcd-screen">
+              <div class="lcd-line1" id="gate-lcd-line1">タッチしてください (TOUCH CARD)</div>
+              <div class="lcd-line2" id="gate-lcd-line2">残高: ¥4,820 · 入場可</div>
+            </div>
+          </div>
+
+          <!-- Quick Tap Actions -->
+          <div style="margin-top:1.25rem;">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--color-text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.6rem;">
+              Simulate Transit Tap / Ride (FeliCa 0.1s Settlement):
+            </div>
+            <div class="gate-actions-grid">
+              <button class="gate-action-btn" data-action="yamanote" data-fare="180" data-label="山手線 (Yamanote Line: Shibuya → Shinjuku)">
+                <div class="btn-route-header">
+                  <span class="route-badge badge-jr">JR</span>
+                  <span class="route-title">山手線 (Yamanote)</span>
+                  <span class="route-fare">-¥180</span>
+                </div>
+                <div class="route-desc">渋谷 ➔ 新宿 (Shibuya to Shinjuku)</div>
+              </button>
+
+              <button class="gate-action-btn" data-action="metro" data-fare="210" data-label="東京メトロ (Ginza Line: Asakusa → Ginza)">
+                <div class="btn-route-header">
+                  <span class="route-badge badge-metro">Metro</span>
+                  <span class="route-title">銀座線 (Ginza Line)</span>
+                  <span class="route-fare">-¥210</span>
+                </div>
+                <div class="route-desc">浅草 ➔ 銀座 (Asakusa to Ginza)</div>
+              </button>
+
+              <button class="gate-action-btn" data-action="konbini" data-fare="340" data-label="コンビニ決済 (7-Eleven: Onigiri & Green Tea)">
+                <div class="btn-route-header">
+                  <span class="route-badge badge-konbini">7-11</span>
+                  <span class="route-title">セブンイレブン (Konbini)</span>
+                  <span class="route-fare">-¥340</span>
+                </div>
+                <div class="route-desc">手巻おにぎり + 綾鷹特選緑茶</div>
+              </button>
+
+              <button class="gate-action-btn" data-action="shinkansen" data-fare="14720" data-label="東海道新幹線 (Nozomi: Tokyo → Shin-Osaka)">
+                <div class="btn-route-header">
+                  <span class="route-badge badge-shinkansen">新幹線</span>
+                  <span class="route-title">のぞみ号 (Nozomi)</span>
+                  <span class="route-fare">-¥14,720</span>
+                </div>
+                <div class="route-desc">東京 ➔ 新大阪 (Tokyo to Shin-Osaka)</div>
+              </button>
+            </div>
+
+            <!-- Recharge IC Card from Revolut Ultra -->
+            <div style="margin-top:1rem;">
+              <button id="btn-recharge-ic" class="btn-primary" style="background:var(--color-teal);color:#07080b;">
+                ⚡ Auto-Recharge +¥3,000 from Revolut Ultra (0% FX)
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Revolut Ultra Sovereign Platinum Tier -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Revolut Ultra (白金最上位)</div>
+              <div style="font-size:0.75rem;color:var(--color-text-dim);">Platinum-Plated Sovereign Borderless Tier · Interbank 0% FX</div>
+            </div>
+            <span class="badge" style="background:rgba(232,176,92,0.18);color:var(--color-gold);">ULTRA TIER</span>
+          </div>
+
+          <!-- Realistic Revolut Ultra Metal Card Visual -->
+          <div class="revolut-ultra-card" id="revolut-ultra-card">
+            <div class="ultra-card-shimmer"></div>
+            <div class="ultra-card-top">
+              <div class="ultra-brand">
+                <span class="ultra-logo-r">R</span>
+                <span class="ultra-logo-word">Revolut <strong class="ultra-badge-text">ULTRA</strong></span>
+              </div>
+              <div class="ultra-chip-wrap">
+                <div class="emv-chip">
+                  <div class="chip-line horizontal"></div>
+                  <div class="chip-line vertical"></div>
+                </div>
+                <svg class="contactless-wave" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8.5 16.5a5 5 0 0 1 0-9"/>
+                  <path d="M12 19a8.5 8.5 0 0 0 0-14"/>
+                  <path d="M15.5 21.5a12 12 0 0 0 0-19"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="ultra-card-mid">
+              <div class="ultra-card-number">•••• •••• •••• 8421</div>
+              <div class="ultra-card-exp">EXP 09/31 · PLATINUM 5412</div>
+            </div>
+
+            <div class="ultra-card-bottom">
+              <div>
+                <div class="ultra-holder">PÉTER LÓDRI</div>
+                <div class="ultra-member-since">MEMBER SINCE 2019 · SOVEREIGN TIER</div>
+              </div>
+              <div class="ultra-metal-weight">PLATINUM PLATED · 22.5g</div>
+            </div>
+          </div>
+
+          <!-- Multi-Currency Live FX Bridge (HUF ↔ JPY ↔ EUR ↔ USD) -->
+          <div style="margin-top:1.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.3rem;">
+              <span style="font-size:0.75rem;font-weight:700;color:var(--color-gold);text-transform:uppercase;letter-spacing:0.1em;">
+                Multi-Currency Engine (0% FX Markup)
+              </span>
+              <span style="font-size:0.7rem;color:var(--color-teal);">Interbank Live Rate · No Weekend Fees</span>
+            </div>
+
+            <div class="fx-converter-grid">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="fx-source-amount">Source Amount</label>
+                <div style="display:flex;gap:0.4rem;">
+                  <input type="number" id="fx-source-amount" class="form-input" value="100000" style="font-weight:700;">
+                  <select id="fx-source-curr" class="form-select" style="width:110px;">
+                    <option value="HUF" selected>🇭🇺 HUF</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="USD">🇺🇸 USD</option>
+                    <option value="JPY">🇯🇵 JPY</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="fx-target-amount">Converted In Tokyo</label>
+                <div style="display:flex;gap:0.4rem;">
+                  <input type="text" id="fx-target-amount" class="form-input" readonly style="color:var(--color-gold);font-weight:700;">
+                  <select id="fx-target-curr" class="form-select" style="width:110px;">
+                    <option value="JPY" selected>🇯🇵 JPY</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="HUF">🇭🇺 HUF</option>
+                    <option value="USD">🇺🇸 USD</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.6rem;margin-top:0.75rem;flex-wrap:wrap;align-items:center;">
+              <a href="https://revolut.me/peterjs8be" target="_blank" rel="noopener noreferrer" class="btn-pill" style="border-color:var(--color-gold);color:var(--color-gold);">
+                ✦ revolut.me/peterjs8be (Direct Instant Top-up)
+              </a>
+              <span id="fx-rate-indicator" style="font-size:0.75rem;color:var(--color-text-dim);">
+                1 HUF ≈ 0.428 JPY · 1 EUR ≈ 163.50 JPY
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- REVOLUT ULTRA EXCLUSIVE PRIVILEGES SUITE -->
+      <div class="zeno-card" style="margin-bottom:1.5rem;">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:0.25rem;">Revolut Ultra 特典体系 (Sovereign Lifestyle Privileges)</div>
+        <p style="color:var(--color-text-dim);font-size:0.8rem;margin-bottom:1.25rem;">
+          Tailored for high-frequency international builders bridging Tokyo and Europe with zero friction.
+        </p>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">✈️</div>
+            <div class="benefit-title">Unlimited Airport Lounges</div>
+            <div class="benefit-sub">DragonPass & LoungeKey</div>
+            <div class="benefit-detail">1,400+ VIP lounges worldwide: Tokyo Haneda (HND T3), Narita (NRT T1/T2), Budapest (BUD T2A/B), Vienna (VIE). Unlimited complimentary access.</div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">🏥</div>
+            <div class="benefit-title">Global Travel & Medical Cover</div>
+            <div class="benefit-sub">Allianz Worldwide Partners</div>
+            <div class="benefit-detail">Up to €10,000,000 emergency medical expenses, emergency dental, winter sports, luggage delay, and Cancel For Any Reason protection.</div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">🏢</div>
+            <div class="benefit-title">WeWork Coworking Pass</div>
+            <div class="benefit-sub">Tokyo & Global Hubs</div>
+            <div class="benefit-detail">3 free WeWork day passes/month in Tokyo (Shibuya Scramble Square, Roppongi Ark Hills) and worldwide tech hubs.</div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">📰</div>
+            <div class="benefit-title">Financial Times Premium</div>
+            <div class="benefit-sub">FT.com & Nikkei Intelligence</div>
+            <div class="benefit-detail">Full subscription included (worth ~¥110,000/yr). Deep global macro, semiconductors, AI ecosystem, and Nikkei Asia reporting.</div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">🛡️</div>
+            <div class="benefit-title">NordVPN Complete Mesh</div>
+            <div class="benefit-sub">Encrypted Sovereign Transit</div>
+            <div class="benefit-detail">High-speed wireguard tunnels, Threat Protection Pro, and 1TB encrypted cloud storage for agent artifacts.</div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">🏋️</div>
+            <div class="benefit-title">ClassPass Global Fitness</div>
+            <div class="benefit-sub">Tokyo Boutiques & Recovery</div>
+            <div class="benefit-detail">Monthly credits for Tokyo bouldering gyms, saunas, yoga studios, and athletic recovery facilities.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGH-VELOCITY CASHBACK & KINTSUGI AUTO-COMPOUND -->
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-header">
+          <div>
+            <div class="card-title">還元自動複利 (High-Velocity Cashback & Kintsugi Compound Engine)</div>
+            <div style="font-size:0.75rem;color:var(--color-text-dim);">Earn 1.2% worldwide + 3.0% boosted Japanese transit cashback · Settle directly into ZENO equity</div>
+          </div>
+          <span class="badge" style="background:rgba(232,176,92,0.15);color:var(--color-gold);">1.2% ~ 3.0% CASHBACK</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;margin:1.25rem 0;">
+          <div class="cashback-stat-box">
+            <div class="stat-label">Accumulated Uncompounded Cashback</div>
+            <div class="stat-val" id="cb-accumulated-jpy" style="color:var(--color-gold);">¥14,280</div>
+            <div class="stat-sub" id="cb-accumulated-sub">≈ €87.34 EUR / 33,360 HUF</div>
+          </div>
+
+          <div class="cashback-stat-box">
+            <div class="stat-label">Tokyo Transit Boost (Suica & PASMO)</div>
+            <div class="stat-val" style="color:var(--color-teal);">3.0%</div>
+            <div class="stat-sub">Automated on all NFC-F ticket gate taps</div>
+          </div>
+
+          <div class="cashback-stat-box">
+            <div class="stat-label">Worldwide Card Spend Base</div>
+            <div class="stat-val" style="color:var(--color-violet);">1.2%</div>
+            <div class="stat-sub">0% FX markup in 150+ currencies</div>
+          </div>
+
+          <div class="cashback-stat-box">
+            <div class="stat-label">Compounded into ZENO Contributor Vault</div>
+            <div class="stat-val" id="cb-compounded-total" style="color:#2ecc71;">¥48,650</div>
+            <div class="stat-sub">Permanently sealed in Kintsugi ledger</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+          <button id="btn-compound-cashback" class="btn-primary" style="flex:1;background:var(--color-gold);color:#07080b;">
+            ✧ Auto-Compound Accumulated Cashback into ZENO Contributor Vault (cnt_0x71c8)
+          </button>
+        </div>
+
+        <div id="compound-verdict-box" class="verdict-box" style="margin-top:1rem;"></div>
+      </div>
+
     </div>
 
     <!-- 2. FOKEN PROOF-OF-CONTRIBUTION GATE -->

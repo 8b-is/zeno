@@ -470,6 +470,336 @@ function renderLedgerTable() {
   `).join("");
 }
 
+// Tokyo Foundation Layer: FeliCa IC Transit & Revolut Ultra Sovereign State
+const tokyoState = {
+  activeIC: "pasmo",
+  cards: {
+    pasmo: {
+      name: "Mobile PASMO",
+      badge: "PASMO",
+      number: "PA-0382-7719-2041",
+      balance: 4820
+    },
+    suica: {
+      name: "Mobile Suica",
+      badge: "Suica",
+      number: "JE-8821-4402-9103",
+      balance: 6450
+    }
+  },
+  cashback: {
+    accumulatedJPY: 14280,
+    compoundedTotalJPY: 48650
+  },
+  fxRates: {
+    // Value of 1 unit in JPY
+    HUF: 0.4285,
+    EUR: 163.50,
+    USD: 152.80,
+    JPY: 1.00
+  }
+};
+
+function initTokyoFoundationUI() {
+  const btnPasmo = document.getElementById("btn-select-pasmo");
+  const btnSuica = document.getElementById("btn-select-suica");
+  const icCardEl = document.getElementById("ic-card-display");
+  const icBadgeEl = document.getElementById("ic-card-badge");
+  const icBalanceEl = document.getElementById("ic-balance-display");
+  const icNumberEl = document.getElementById("ic-card-number-display");
+  const icRippleEl = document.getElementById("ic-tap-ripple");
+
+  const gateLcdStatus = document.getElementById("gate-lcd-status");
+  const gateLcdLine1 = document.getElementById("gate-lcd-line1");
+  const gateLcdLine2 = document.getElementById("gate-lcd-line2");
+
+  const btnRecharge = document.getElementById("btn-recharge-ic");
+  const btnCompound = document.getElementById("btn-compound-cashback");
+  const compoundVerdict = document.getElementById("compound-verdict-box");
+
+  const cbAccEl = document.getElementById("cb-accumulated-jpy");
+  const cbAccSubEl = document.getElementById("cb-accumulated-sub");
+  const cbCompoundedEl = document.getElementById("cb-compounded-total");
+
+  // Update IC Card Display
+  const updateICDisplay = () => {
+    const card = tokyoState.cards[tokyoState.activeIC];
+    if (!card) return;
+    if (icBadgeEl) icBadgeEl.innerText = card.badge;
+    if (icBalanceEl) icBalanceEl.innerText = `¥${card.balance.toLocaleString()}`;
+    if (icNumberEl) icNumberEl.innerText = card.number;
+
+    if (icCardEl) {
+      if (tokyoState.activeIC === "pasmo") {
+        icCardEl.className = "ic-card ic-card-pasmo";
+      } else {
+        icCardEl.className = "ic-card ic-card-suica";
+      }
+    }
+
+    if (gateLcdLine2) {
+      gateLcdLine2.innerText = `残高: ¥${card.balance.toLocaleString()} · 入場可`;
+    }
+  };
+
+  // Update Cashback display
+  const updateCashbackDisplay = () => {
+    const jpy = tokyoState.cashback.accumulatedJPY;
+    if (cbAccEl) cbAccEl.innerText = `¥${Math.floor(jpy).toLocaleString()}`;
+    if (cbAccSubEl) {
+      const eur = (jpy / tokyoState.fxRates.EUR).toFixed(2);
+      const huf = Math.floor(jpy / tokyoState.fxRates.HUF).toLocaleString();
+      cbAccSubEl.innerText = `≈ €${eur} EUR / ${huf} HUF`;
+    }
+    if (cbCompoundedEl) {
+      cbCompoundedEl.innerText = `¥${tokyoState.cashback.compoundedTotalJPY.toLocaleString()}`;
+    }
+  };
+
+  // Card Switchers
+  btnPasmo?.addEventListener("click", () => {
+    tokyoState.activeIC = "pasmo";
+    btnPasmo.classList.add("active");
+    btnSuica?.classList.remove("active");
+    updateICDisplay();
+    window.zenoAudio?.playPluck();
+  });
+
+  btnSuica?.addEventListener("click", () => {
+    tokyoState.activeIC = "suica";
+    btnSuica.classList.add("active");
+    btnPasmo?.classList.remove("active");
+    updateICDisplay();
+    window.zenoAudio?.playPluck();
+  });
+
+  // Ticket Gate Tap Buttons
+  const gateButtons = document.querySelectorAll(".gate-action-btn");
+  let lcdResetTimer = null;
+
+  gateButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const fare = parseInt(btn.getAttribute("data-fare"), 10) || 0;
+      const label = btn.getAttribute("data-label") || "Transit Tap";
+      const card = tokyoState.cards[tokyoState.activeIC];
+
+      if (card.balance < fare) {
+        // Insufficient funds
+        window.zenoAudio?.playFeliCaError();
+        if (gateLcdStatus) {
+          gateLcdStatus.innerText = "■ 残高不足 (CHARGE)";
+          gateLcdStatus.style.color = "var(--color-fail)";
+        }
+        if (gateLcdLine1) {
+          gateLcdLine1.innerText = `[ 残高不足 / PLEASE CHARGE ]`;
+          gateLcdLine1.style.color = "var(--color-fail)";
+        }
+        if (gateLcdLine2) {
+          gateLcdLine2.innerText = `不足額: ¥${(fare - card.balance).toLocaleString()} (必要: ¥${fare.toLocaleString()})`;
+        }
+        return;
+      }
+
+      // Valid tap!
+      card.balance -= fare;
+      updateICDisplay();
+
+      // Trigger FeliCa sound & tactile vibration
+      window.zenoAudio?.playFeliCa();
+      if ("vibrate" in navigator) {
+        navigator.vibrate([30, 40, 30]);
+      }
+
+      // Card ripple visual
+      if (icRippleEl) {
+        icRippleEl.classList.remove("active");
+        void icRippleEl.offsetWidth; // force reflow
+        icRippleEl.classList.add("active");
+        setTimeout(() => icRippleEl.classList.remove("active"), 600);
+      }
+
+      // Calculate Cashback (3% transit, 1.5% konbini)
+      const isKonbini = btn.getAttribute("data-action") === "konbini";
+      const cbRate = isKonbini ? 0.015 : 0.030;
+      const earnedCB = fare * cbRate;
+      tokyoState.cashback.accumulatedJPY += earnedCB;
+      updateCashbackDisplay();
+
+      // Update Simulated Gate LCD
+      if (gateLcdStatus) {
+        gateLcdStatus.innerText = "● 進入可 (PROCEED)";
+        gateLcdStatus.style.color = "var(--color-teal)";
+      }
+      if (gateLcdLine1) {
+        gateLcdLine1.innerText = `[ 進入可 / PROCEED ] -¥${fare.toLocaleString()}`;
+        gateLcdLine1.style.color = "var(--color-teal)";
+      }
+      if (gateLcdLine2) {
+        gateLcdLine2.innerText = `残高: ¥${card.balance.toLocaleString()} · 還元 +¥${earnedCB.toFixed(1)}`;
+      }
+
+      clearTimeout(lcdResetTimer);
+      lcdResetTimer = setTimeout(() => {
+        if (gateLcdStatus) {
+          gateLcdStatus.innerText = "● STANDBY";
+          gateLcdStatus.style.color = "var(--color-teal)";
+        }
+        if (gateLcdLine1) {
+          gateLcdLine1.innerText = "タッチしてください (TOUCH CARD)";
+          gateLcdLine1.style.color = "var(--color-teal)";
+        }
+        if (gateLcdLine2) {
+          gateLcdLine2.innerText = `残高: ¥${card.balance.toLocaleString()} · 入場可`;
+        }
+      }, 3500);
+
+      // Append to Kintsugi Ledger
+      const blockIndex = zenoState.ledgerBlocks.length + 1;
+      const cardTypeTag = tokyoState.activeIC === "pasmo" ? "momoPASMO" : "MobileSuica";
+      zenoState.ledgerBlocks.unshift({
+        index: blockIndex,
+        timestamp: new Date().toISOString(),
+        memo: `FeliCa NFC-F [${cardTypeTag}]: ${label} (-¥${fare.toLocaleString()}) +¥${earnedCB.toFixed(1)} CB`,
+        merkleRoot: Math.random().toString(16).substring(2).padEnd(64, "a"),
+        seal: Math.random().toString(16).substring(2).padEnd(64, "b")
+      });
+      renderLedgerTable();
+    });
+  });
+
+  // Recharge IC Card Button
+  btnRecharge?.addEventListener("click", () => {
+    const card = tokyoState.cards[tokyoState.activeIC];
+    card.balance += 3000;
+    const earnedCB = 3000 * 0.03; // 3% transit recharge boost
+    tokyoState.cashback.accumulatedJPY += earnedCB;
+
+    updateICDisplay();
+    updateCashbackDisplay();
+    window.zenoAudio?.playFeliCa();
+
+    const blockIndex = zenoState.ledgerBlocks.length + 1;
+    zenoState.ledgerBlocks.unshift({
+      index: blockIndex,
+      timestamp: new Date().toISOString(),
+      memo: `Revolut Ultra Top-Up: +¥3,000 to ${card.name} (0% FX) · Earned ¥90.0 Cashback`,
+      merkleRoot: Math.random().toString(16).substring(2).padEnd(64, "c"),
+      seal: Math.random().toString(16).substring(2).padEnd(64, "d")
+    });
+    renderLedgerTable();
+
+    if (gateLcdLine1) {
+      gateLcdLine1.innerText = `[ チャージ完了 / RECHARGED ] +¥3,000`;
+    }
+    if (gateLcdLine2) {
+      gateLcdLine2.innerText = `新残高: ¥${card.balance.toLocaleString()} · Revolut Ultra 0% FX`;
+    }
+  });
+
+  // Revolut Ultra 3D Tilt Sheen Interaction
+  const ultraCard = document.getElementById("revolut-ultra-card");
+  if (ultraCard) {
+    ultraCard.addEventListener("mousemove", (e) => {
+      const rect = ultraCard.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotX = -y * 18;
+      const rotY = x * 20;
+      ultraCard.style.transform = `perspective(800px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-2px)`;
+    });
+    ultraCard.addEventListener("mouseleave", () => {
+      ultraCard.style.transform = "";
+    });
+  }
+
+  // Multi-Currency FX Engine Logic
+  const fxSrcAmount = document.getElementById("fx-source-amount");
+  const fxSrcCurr = document.getElementById("fx-source-curr");
+  const fxTgtAmount = document.getElementById("fx-target-amount");
+  const fxTgtCurr = document.getElementById("fx-target-curr");
+  const fxRateIndicator = document.getElementById("fx-rate-indicator");
+
+  const computeFX = () => {
+    if (!fxSrcAmount || !fxTgtAmount || !fxSrcCurr || !fxTgtCurr) return;
+    const srcVal = parseFloat(fxSrcAmount.value) || 0;
+    const srcCurr = fxSrcCurr.value;
+    const tgtCurr = fxTgtCurr.value;
+
+    // Convert src -> JPY -> target
+    const jpyVal = srcVal * tokyoState.fxRates[srcCurr];
+    const tgtVal = jpyVal / tokyoState.fxRates[tgtCurr];
+
+    if (tgtCurr === "JPY" || tgtCurr === "HUF") {
+      fxTgtAmount.value = Math.round(tgtVal).toLocaleString() + ` ${tgtCurr}`;
+    } else {
+      fxTgtAmount.value = tgtVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${tgtCurr}`;
+    }
+
+    if (fxRateIndicator) {
+      const hufRate = tokyoState.fxRates.HUF.toFixed(3);
+      const eurRate = tokyoState.fxRates.EUR.toFixed(2);
+      fxRateIndicator.innerText = `1 HUF ≈ ¥${hufRate} · 1 EUR ≈ ¥${eurRate} · Revolut Interbank 0% Markup`;
+    }
+  };
+
+  fxSrcAmount?.addEventListener("input", computeFX);
+  fxSrcCurr?.addEventListener("change", computeFX);
+  fxTgtCurr?.addEventListener("change", computeFX);
+  computeFX();
+
+  // Auto-Compound Cashback Button
+  btnCompound?.addEventListener("click", () => {
+    const toCompound = Math.floor(tokyoState.cashback.accumulatedJPY);
+    if (toCompound <= 0) {
+      alert("No accumulated cashback available to compound.");
+      return;
+    }
+
+    // Move to Péter Lódri's ZENO contributor balance
+    const cntAcct = zenoState.accounts["cnt_0x71c8"];
+    if (cntAcct) {
+      cntAcct.balanceMicro += toCompound * 1000000;
+    }
+
+    tokyoState.cashback.compoundedTotalJPY += toCompound;
+    tokyoState.cashback.accumulatedJPY -= toCompound;
+    updateCashbackDisplay();
+
+    // Play ultra platinum crystal chime!
+    window.zenoAudio?.playUltraShimmer();
+
+    // Seal in Ledger
+    const blockIndex = zenoState.ledgerBlocks.length + 1;
+    const sealHash = "0x" + Math.random().toString(16).substring(2).padEnd(64, "9");
+    zenoState.ledgerBlocks.unshift({
+      index: blockIndex,
+      timestamp: new Date().toISOString(),
+      memo: `Cashback Compounded: +¥${toCompound.toLocaleString()} to ZENO Contributor Vault (cnt_0x71c8)`,
+      merkleRoot: Math.random().toString(16).substring(2).padEnd(64, "e"),
+      seal: sealHash
+    });
+    renderLedgerTable();
+
+    if (compoundVerdict) {
+      compoundVerdict.style.display = "block";
+      compoundVerdict.className = "verdict-box pass";
+      compoundVerdict.innerHTML = `
+        <div style="color:var(--color-pass);font-weight:700;font-size:0.95rem;">✧ 還元自動複利完了 — Sealed into ZENO Equity Reserve</div>
+        <div style="font-size:0.8rem;margin-top:0.4rem;">
+          Transferred <strong>+¥${toCompound.toLocaleString()} JPY</strong> into Contributor Account <code>cnt_0x71c8</code> (Péter Lódri).
+        </div>
+        <div style="font-size:0.75rem;color:var(--color-text-dim);margin-top:0.3rem;">
+          Kintsugi Witness Hash: <code class="code-snippet">${sealHash.slice(0, 24)}...</code> · Block #${blockIndex}
+        </div>
+      `;
+    }
+  });
+
+  // Initial render
+  updateICDisplay();
+  updateCashbackDisplay();
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -477,6 +807,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initFokenGateUI();
   initTransferForm();
   initAgentSpend();
+  initTokyoFoundationUI();
   renderLedgerTable();
   startStreamingLoop();
 });
+
