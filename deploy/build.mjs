@@ -31,12 +31,17 @@ const BEACON_JSON = ${JSON.stringify(beaconJson)};
 const COMMON_HEADERS = {
   "x-content-type-options": "nosniff",
   "referrer-policy": "strict-origin-when-cross-origin",
+  "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
   "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
 };
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.protocol === "http:") {
+      url.protocol = "https:";
+      return Response.redirect(url.toString(), 301);
+    }
     const p = url.pathname.replace(/\\/+$/, "") || "/";
 
     if (p === "/" || p === "/index.html") {
