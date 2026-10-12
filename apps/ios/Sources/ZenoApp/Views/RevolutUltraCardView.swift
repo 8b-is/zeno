@@ -169,7 +169,9 @@ public struct RevolutUltraCardView: View {
 
                 HStack(spacing: 12) {
                     TextField("Amount", text: $sourceAmount)
+#if os(iOS)
                         .keyboardType(.numberPad)
+#endif
                         .font(.system(.body, design: .monospaced))
                         .padding(10)
                         .background(Color(white: 0.12))

@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: zeno-core
-Version: 0.1.0
+Version: 1.2.0
 Summary: Deterministic double-entry Kintsugi ledger, micro-streaming engine, and Foken proof-of-contribution bridge
 Requires-Python: >=3.11
 Description-Content-Type: text/markdown

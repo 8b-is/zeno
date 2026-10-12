@@ -1,13 +1,13 @@
 # ==============================================================================
 # VAKED Sovereign Protocol Specification (HCL / HashiCorp Configuration)
-# Version: 1.1.0
+# Version: 1.2.0
 # Maintainer: 8b-is Family Research Company <3
 # Roots: 銭 (Zeni) · 禅 (Zen) · 善 (Sanpo Yoshi) · 金継ぎ (Kintsugi) · 間 (Ma)
 # Security Review: PASS (HSTS Preload, Strict Headers, Merkle SHA-256)
 # ==============================================================================
 
 protocol "vaked" {
-  version     = "1.1.0"
+  version     = "1.2.0"
   status      = "ACTIVE_SOVEREIGN"
   network_id  = "vaked-mainnet"
   spec_rfc    = "RFC-001-KINTSUGI"

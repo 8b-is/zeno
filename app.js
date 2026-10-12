@@ -84,31 +84,37 @@ const zenoState = {
   ]
 };
 
-// Continuous Animation Loop (60fps requestAnimationFrame)
+// Continuous Animation Loop (60fps requestAnimationFrame with zero GC overhead)
 function startStreamingLoop() {
+  const accountDeltas = new Map();
+
   const tick = () => {
     const now = Date.now();
-
-    // Compute dynamic accrued amounts for streams
     let totalStreamedJPY = 0;
-    const accountDeltas = {};
-    for (const key of Object.keys(zenoState.accounts)) {
-      accountDeltas[key] = 0;
+
+    for (const key in zenoState.accounts) {
+      accountDeltas.set(key, 0);
     }
 
-    zenoState.streams.forEach(stream => {
+    const streams = zenoState.streams;
+    const len = streams.length;
+    for (let i = 0; i < len; i++) {
+      const stream = streams[i];
       const elapsedSec = (now - stream.startTime) / 1000;
       const accruedMicro = stream.rateMicroSec * elapsedSec;
       totalStreamedJPY += accruedMicro / 1000000;
 
-      accountDeltas[stream.from] -= accruedMicro;
-      accountDeltas[stream.to] += accruedMicro;
-    });
+      accountDeltas.set(stream.from, (accountDeltas.get(stream.from) || 0) - accruedMicro);
+      accountDeltas.set(stream.to, (accountDeltas.get(stream.to) || 0) + accruedMicro);
+    }
 
     // Update Live Ticker
     const streamTickerEl = document.getElementById("ticker-streaming-rate");
     if (streamTickerEl) {
-      const activeRateJPY = zenoState.streams.reduce((acc, s) => acc + (s.rateMicroSec / 1000000), 0);
+      let activeRateJPY = 0;
+      for (let i = 0; i < len; i++) {
+        activeRateJPY += streams[i].rateMicroSec / 1000000;
+      }
       streamTickerEl.innerText = `¥${activeRateJPY.toFixed(2)}/s`;
     }
 
@@ -118,10 +124,10 @@ function startStreamingLoop() {
     }
 
     // Update Account Balances in DOM
-    for (const [acctId, acct] of Object.entries(zenoState.accounts)) {
+    for (const acctId in zenoState.accounts) {
       const el = document.getElementById(`balance-${acctId}`);
       if (el) {
-        const liveMicro = acct.balanceMicro + accountDeltas[acctId];
+        const liveMicro = zenoState.accounts[acctId].balanceMicro + (accountDeltas.get(acctId) || 0);
         const jpy = liveMicro / 1000000;
         el.innerText = `¥${jpy.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`;
       }

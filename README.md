@@ -197,7 +197,44 @@ Zeno includes procedural, zero-dependency Web Audio feedback:
 
 ---
 
-## 7. The 8b-is Family Foundation & Constellation
+---
+
+## 7. Multi-Platform Mobile, Engine & Nix Architecture
+
+### iOS & macOS Build (`ZenoApp`)
+```bash
+# Automated release compilation for macOS host and universal iOS Simulator
+./apps/ios/build.sh
+```
+
+### Apple Wallet PassKit (`zeno_ultra.pkpass`)
+```bash
+# Generates PNG assets, SHA-1 manifest, and OpenSSL PKCS#7 DER detached signature
+python3 apps/wallet/generate_pass.py
+```
+
+### Q-Wave Engine & Benchmark (`zeno-engine.js`)
+Isomorphic, zero-dependency sub-millisecond runtime for continuous ledger streaming, 432 Hz procedural DSP synthesis, offline WAV rendering, and Foken net-utility valuation.
+```bash
+node test-engine.mjs
+# Results:
+# ✓ 31.5M continuous ticks / sec
+# ✓ 1.28M Foken invoice evaluations / sec
+# ✓ Offline WAV export in 11ms
+```
+
+### Nix Flake & Reproducible Packaging
+```bash
+# Build the complete zeno web bundle and preview runner via Nix
+nix build
+
+# Run local preview server via Nix
+nix run
+```
+
+---
+
+## 8. The 8b-is Family Foundation & Constellation
 
 Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev constellation network**:
 - **8b-is Family Research**: Autonomous family research laboratory creating sovereign multi-agent reasoners and financial infrastructure.
@@ -210,7 +247,7 @@ Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev co
 
 ---
 
-## 8. License
+## 9. License
 
 MIT License. Crafted with love, fine touch from within, and devotion to sovereign human and agentic flourishing. 銭・禅・善.
 

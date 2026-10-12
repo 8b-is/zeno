@@ -4,11 +4,11 @@
   "status": "online",
   "constellation": "vaked.dev",
   "governance": "8b-is Family Research Company <3",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "protocol": "spec/vaked-protocol.hcl",
   "security_review": "PASS",
-  "description": "Continuous-time micro-streaming neo-bank with Kintsugi double-entry ledger, Foken proof-of-contribution bridge, Tokyo Transit (FeliCa NFC-F), Revolut Ultra rails, and omni-platform Apple Wallet support.",
+  "description": "Continuous-time micro-streaming neo-bank with Kintsugi double-entry ledger, Q-Wave procedural DSP audio, Foken proof-of-contribution bridge, Tokyo Transit (FeliCa NFC-F), Revolut Ultra rails, and omni-platform Apple Wallet support.",
   "canonical_url": "https://zeno.vaked.dev/",
-  "updated": "2026-10-12T12:40:00Z",
+  "updated": "2026-10-12T13:00:00Z",
   "roots": ["Zen (禅)", "Zeni (銭)", "Sanpo Yoshi (三方よし)", "Kintsugi (金継ぎ)", "Ma (間)"]
 }

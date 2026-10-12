@@ -6,22 +6,34 @@
 class ZenoAudio {
   constructor() {
     this.ctx = null;
-    this.muted = localStorage.getItem("zeno_audio_muted") === "true";
+    let storedMute = false;
+    try {
+      if (typeof localStorage !== "undefined") {
+        storedMute = localStorage.getItem("zeno_audio_muted") === "true";
+      }
+    } catch (_) {}
+    this.muted = storedMute;
   }
 
   init() {
-    if (!this.ctx) {
+    if (!this.ctx && typeof window !== "undefined") {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
     }
-    if (this.ctx.state === "suspended") {
+    if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume();
     }
   }
 
   toggleMute() {
     this.muted = !this.muted;
-    localStorage.setItem("zeno_audio_muted", this.muted ? "true" : "false");
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("zeno_audio_muted", this.muted ? "true" : "false");
+      }
+    } catch (_) {}
     return this.muted;
   }
 
@@ -239,4 +251,11 @@ class ZenoAudio {
   }
 }
 
-window.zenoAudio = new ZenoAudio();
+if (typeof window !== "undefined") {
+  window.ZenoAudio = ZenoAudio;
+  window.zenoAudio = new ZenoAudio();
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { ZenoAudio };
+}
