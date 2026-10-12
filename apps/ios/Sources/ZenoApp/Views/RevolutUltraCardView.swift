@@ -115,10 +115,10 @@ public struct RevolutUltraCardView: View {
 
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("PÉTER LÓDRI")
-                                .font(.system(size: 13, weight: .heavy, design: .monospaced))
+                            Text("8B-IS CREW · HUE · AYE · TAISHA · OMNI")
+                                .font(.system(size: 11, weight: .heavy, design: .monospaced))
                                 .foregroundColor(.black)
-                            Text("MEMBER SINCE 2019 · SOVEREIGN TIER")
+                            Text("8B-IS TEAM & FAMILY COLLABORATION <3")
                                 .font(.system(size: 9, design: .monospaced))
                                 .foregroundColor(Color(white: 0.35))
                         }

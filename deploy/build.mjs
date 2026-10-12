@@ -178,8 +178,8 @@ export default {
       });
     }
 
-    // Apple Wallet Passes (Peter, Mom/Alexandra, Dad/Chris, 8b-is Corporate Fleet)
-    if (p === "/apple-wallet/zeno.pkpass" || p === "/apple-wallet/peter.pkpass" || p === "/zeno.pkpass") {
+    // Apple Wallet Passes (8b-is Crew, Mom/Alexandra, Dad/Chris, 8b-is Corporate Fleet)
+    if (p === "/apple-wallet/zeno.pkpass" || p === "/apple-wallet/peter.pkpass" || p === "/apple-wallet/crew.pkpass" || p === "/zeno.pkpass") {
       const binaryString = atob(PKPASS_ULTRA_BASE64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {

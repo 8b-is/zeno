@@ -4,7 +4,7 @@ ZENO Apple Wallet Multi-Pass Generator & PKCS#7 Signer
 Conforms strictly to Apple PassKit Package Format Specification.
 
 Generates & Signs 4 Sovereign Family & Corporate Passes:
-1. Peter Lódri — Platinum Ultra & Tokyo Transit
+1. 8b-is Crew (Hue, Aye, Taisha, Omni) — Creators (https://8b.is)
 2. Mom (Alexandra Lódri) — Rose Gold Sovereign Love Vault
 3. Dad (Chris Lódri) — Titanium Gold Engineering Pillar
 4. 8b-is Family Research — Corporate Fleet Multi-Agent Treasury
@@ -145,7 +145,7 @@ def build_single_pass(json_filename: str, pkpass_filename: str, c1: tuple, c2: t
 def generate_all_passes():
     cert_dir = HERE / "certs"
 
-    # 1. Peter Lódri — Platinum Ultra (Gold / Dark / Cyan)
+    # 1. 8b-is Crew (Hue, Aye, Taisha, Omni) — Creators (Gold / Dark / Cyan)
     build_single_pass(
         "pass.json",
         "zeno_ultra.pkpass",

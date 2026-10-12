@@ -3,7 +3,7 @@
 ```
 RFC:          001
 Title:        ZENO — Japanese Proof-of-Contribution Sovereign Neo-Bank
-Authors:      Péter Lódri <cabotage@pm.me> & VAKED Architecture Group
+Authors:      8b-is Crew (Hue, Aye, Taisha, Omni) & Family <team@8b.is> (Creators: https://8b.is)
 Status:       Standard Track
 Category:     Core Architecture & Protocols
 Created:      2026-10-11

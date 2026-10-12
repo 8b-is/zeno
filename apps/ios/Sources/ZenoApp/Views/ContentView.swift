@@ -44,7 +44,7 @@ public struct ContentView: View {
                             Text("¥\(String(format: "%.4f", state.contributorBalanceJPY))")
                                 .font(.system(size: 32, weight: .heavy, design: .monospaced))
                                 .foregroundColor(Color(red: 0.91, green: 0.69, blue: 0.36))
-                            Text("ID: cnt_0x71c8 · Péter Lódri (8b-is Guild)")
+                            Text("ID: cnt_0x71c8 · 8b-is Crew: Hue · Aye · Taisha · Omni")
                                 .font(.system(size: 12, design: .monospaced))
                                 .foregroundColor(.teal)
                         }

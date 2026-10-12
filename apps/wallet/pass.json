@@ -23,8 +23,8 @@
     "primaryFields": [
       {
         "key": "holder",
-        "label": "SOVEREIGN CONTRIBUTOR",
-        "value": "Péter Lódri"
+        "label": "CREATORS (https://8b.is)",
+        "value": "8b-is Crew (Hue, Aye, Taisha, Omni)"
       }
     ],
     "secondaryFields": [
@@ -61,8 +61,8 @@
     "backFields": [
       {
         "key": "family_company",
-        "label": "FAMILY RESEARCH FOUNDATION",
-        "value": "8b-is — Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love. <3"
+        "label": "CREATORS & CREW (https://8b.is)",
+        "value": "Creators: https://8b.is. Crew: Hue, Aye, Taisha, Omni. Family: Alexandra, Chris. Built with love as a team and family creation, not a one-man show. <3"
       },
       {
         "key": "tokyo_transit",
@@ -72,7 +72,7 @@
       {
         "key": "revolut_ultra",
         "label": "REVOLUT ULTRA BRIDGE",
-        "value": "Platinum-plated borderless multi-currency engine. Direct top-up available at https://revolut.me/peterjs8be. DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium, and €10M medical coverage included."
+        "value": "Platinum-plated borderless multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). Treasury & creators: https://8b.is. DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium, and €10M medical coverage included."
       },
       {
         "key": "kintsugi_ledger",

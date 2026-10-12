@@ -113,7 +113,7 @@ public struct TokyoTransitCardView: View {
 
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("PÉTER LÓDRI · 8B-IS")
+                            Text("8B-IS CREW · HUE · AYE · TAISHA · OMNI")
                                 .font(.system(size: 12, weight: .bold, design: .monospaced))
                             Text(state.activeICType == .pasmo ? "PA-0382-7719-2041" : "JE-8821-4402-9103")
                                 .font(.system(size: 10, design: .monospaced))

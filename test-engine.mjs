@@ -73,7 +73,7 @@ console.log(`   ✓ Throughput: ${fokenOps} invoice evaluations/sec`);
 // 4. KINTSUGI LEDGER BALANCER
 console.log("\n4. Kintsugi Double-Entry Equilibrium Check...");
 const testPostings = [
-  { account: "vault:jpy:peter", amount: 5000 },
+  { account: "vault:jpy:8b_is_crew", amount: 5000 },
   { account: "foken:escrow:0x71c8", amount: -5000 }
 ];
 const balanceRes = KintsugiLedger.verifyPostings(testPostings);

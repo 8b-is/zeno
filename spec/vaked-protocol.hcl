@@ -27,11 +27,13 @@ protocol "vaked" {
 
 governance "8b_is" {
   entity_type       = "Family Research Company"
-  sovereign_symbol  = "8b.is <3"
+  creators          = "https://8b.is"
+  crew              = ["Hue", "Aye", "Taisha", "Omni"]
+  family            = ["Alexandra", "Chris"]
   mission           = "Autonomous multi-reasoner development, high-frequency human & agentic coordination, and sovereign financial infrastructure."
-  steward           = "Péter Lódri"
+  stewards          = "8b-is Crew: Hue, Aye, Taisha, Omni"
   guild_id          = "cnt_0x71c8"
-  revolut_anchor    = "https://revolut.me/peterjs8be"
+  treasury_anchor   = "https://8b.is"
 }
 
 ledger "kintsugi" {

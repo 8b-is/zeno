@@ -121,14 +121,14 @@ fun RevolutUltraCard() {
             ) {
                 Column {
                     Text(
-                        text = "PÉTER LÓDRI",
-                        fontSize = 13.sp,
+                        text = "8B-IS CREW · HUE · AYE · TAISHA · OMNI",
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFF0B0D13),
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
-                        text = "MEMBER SINCE 2019 · SOVEREIGN TIER",
+                        text = "8B-IS TEAM & FAMILY COLLABORATION <3",
                         fontSize = 9.sp,
                         color = Color(0xFF4B5563),
                         fontFamily = FontFamily.Monospace

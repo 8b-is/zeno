@@ -17,11 +17,11 @@ const zenoState = {
     },
     "cnt_0x71c8": {
       id: "cnt_0x71c8",
-      label: "Péter Lódri (貢献者)",
+      label: "8b-is Crew: Hue · Aye · Taisha · Omni (開発)",
       type: "contributor",
       currency: "JPY",
       balanceMicro: 50000 * 1000000, // 50,000 JPY
-      owner: "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940"
+      owner: "0x8b-isCrewCollectiveKey"
     },
     "cnt_alexandra": {
       id: "cnt_alexandra",
@@ -79,7 +79,7 @@ const zenoState = {
       to: "cnt_0x71c8",
       rateMicroSec: 50 * 1000000, // 50 JPY/sec
       startTime: Date.now() - 3600000, // started 1 hr ago
-      label: "Zeno Architecture & Constellation DO Loop"
+      label: "Zeno Architecture & 8b-is Crew DO Loop (Hue, Aye, Taisha, Omni)"
     },
     {
       id: "stm_cnt_to_agent",
@@ -801,7 +801,7 @@ function initTokyoFoundationUI() {
       return;
     }
 
-    // Move to Péter Lódri's ZENO contributor balance
+    // Move to 8b-is Crew ZENO contributor balance (cnt_0x71c8)
     const cntAcct = zenoState.accounts["cnt_0x71c8"];
     if (cntAcct) {
       cntAcct.balanceMicro += toCompound * 1000000;
@@ -832,7 +832,7 @@ function initTokyoFoundationUI() {
       compoundVerdict.innerHTML = `
         <div style="color:var(--color-pass);font-weight:700;font-size:0.95rem;">✧ 還元自動複利完了 — Sealed into ZENO Equity Reserve</div>
         <div style="font-size:0.8rem;margin-top:0.4rem;">
-          Transferred <strong>+¥${toCompound.toLocaleString()} JPY</strong> into Contributor Account <code>cnt_0x71c8</code> (Péter Lódri).
+          Transferred <strong>+¥${toCompound.toLocaleString()} JPY</strong> into 8b-is Crew Vault <code>cnt_0x71c8</code> (Hue, Aye, Taisha, Omni).
         </div>
         <div style="font-size:0.75rem;color:var(--color-text-dim);margin-top:0.3rem;">
           Kintsugi Witness Hash: <code class="code-snippet">${sealHash.slice(0, 24)}...</code> · Block #${blockIndex}
@@ -850,24 +850,24 @@ function initTokyoFoundationUI() {
 const walletPassConfigs = {
   peter: {
     id: "peter",
-    name: "Péter Lódri",
-    org: "8b-is GUILD",
+    name: "8b-is Crew (Hue, Aye, Taisha, Omni)",
+    org: "8b-is CREATORS",
     balance: "¥50,000",
-    roleLabel: "SOVEREIGN CONTRIBUTOR",
-    subtitle: "8b-is Family Research · Sovereign Neo-Bank <3",
+    roleLabel: "CREATORS (https://8b.is)",
+    subtitle: "8b-is Crew & Family Collaboration · Not a One-Man Show <3",
     tier: "PLATINUM ULTRA",
     felica: "PA-0382-7719-2041",
     transit: "PASMO / Suica",
     cashback: "3.0% Boost",
     fx: "0% Interbank",
-    qrLabel: "ZENO-8B-0x71C8",
+    qrLabel: "ZENO-8B-CREW",
     themeClass: "pass-theme-ultra",
     downloadUrl: "/apple-wallet/zeno.pkpass",
     fileName: "zeno_ultra.pkpass",
     backItems: [
-      { label: "8B-IS FAMILY RESEARCH COMPANY <3", desc: "Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love." },
+      { label: "8B-IS CREATORS & CREW (https://8b.is) <3", desc: "Creators: https://8b.is. Crew: Hue, Aye, Taisha, Omni. Family: Alexandra, Chris. Built with love as a team and family endeavor, not a one-man show." },
       { label: "FELICA NFC-F TRANSIT RAILS", desc: "Sony FeliCa JIS X 6319-4 standard. Tap-to-ride across JR East Yamanote Line, Tokyo Metro, and konbini payment networks with 0.1s instant settlement." },
-      { label: "REVOLUT ULTRA PLATINUM BRIDGE", desc: "0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included. Direct top-up: revolut.me/peterjs8be" },
+      { label: "REVOLUT ULTRA PLATINUM BRIDGE", desc: "0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included." },
       { label: "KINTSUGI IMMUTABLE AUDIT TRAIL", desc: "Every transaction is sealed with SHA-256 Merkle root verification and golden witness signatures. Historical ledger states are honored, never erased." },
       { label: "LOVETTA LANE CONSTELLATION", desc: "koan.vaked.dev (the hub) · weave · disco · ultra · art · music · proposal · pocoo · axiomquant · portail · zeno.vaked.dev" }
     ]

@@ -111,7 +111,7 @@ fun FeliCaCard(
             ) {
                 Column {
                     Text(
-                        text = "PÉTER LÓDRI · 8B-IS",
+                        text = "8B-IS CREW · HUE · AYE · TAISHA · OMNI",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
