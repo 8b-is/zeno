@@ -94,6 +94,18 @@ public struct ContentView: View {
             .tabItem {
                 Label("Ledger", systemImage: "book.closed.fill")
             }
+
+            // Stripe & ACP Agentic Commerce Tab
+            NavigationView {
+                ScrollView {
+                    StripeAgenticCommerceView()
+                }
+                .navigationTitle("決済連携 (Stripe)")
+                .background(Color(red: 0.03, green: 0.03, blue: 0.04).ignoresSafeArea())
+            }
+            .tabItem {
+                Label("Stripe/ACP", systemImage: "network")
+            }
         }
         .accentColor(Color(red: 0.91, green: 0.69, blue: 0.36)) // Gold accent
         .preferredColorScheme(.dark)

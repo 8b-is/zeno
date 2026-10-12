@@ -91,7 +91,7 @@ fun RevolutUltraCard() {
                             ),
                             RoundedCornerShape(3.dp)
                         )
-                        .border(0.5.dp, Color.Black.opacity(0.3f), RoundedCornerShape(3.dp))
+                        .border(0.5.dp, Color.Black.copy(alpha = 0.3f), RoundedCornerShape(3.dp))
                 )
             }
 

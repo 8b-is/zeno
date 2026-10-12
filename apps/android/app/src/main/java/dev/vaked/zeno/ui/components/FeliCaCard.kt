@@ -65,7 +65,7 @@ fun FeliCaCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .background(Color.Black.opacity(0.3f), RoundedCornerShape(4.dp))
+                            .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
@@ -126,7 +126,7 @@ fun FeliCaCard(
                 }
                 Box(
                     modifier = Modifier
-                        .background(Color.Black.opacity(0.35f), RoundedCornerShape(12.dp))
+                        .background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(

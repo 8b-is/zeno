@@ -20,9 +20,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import dev.vaked.zeno.audio.ZenoAudioEngine
 import dev.vaked.zeno.ui.components.FeliCaCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
+import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
 import dev.vaked.zeno.ui.theme.BgSumi
 import dev.vaked.zeno.ui.theme.ColorGold
 import dev.vaked.zeno.ui.theme.ColorTeal
@@ -69,13 +72,21 @@ class MainActivity : ComponentActivity() {
                                     label = { Text("Ledger") },
                                     icon = { Text("📜") }
                                 )
+                                NavigationBarItem(
+                                    selected = selectedTab == 3,
+                                    onClick = { selectedTab = 3 },
+                                    label = { Text("Stripe/ACP") },
+                                    icon = { Text("⚡") }
+                                )
                             }
                         }
                     ) { innerPadding ->
+                        val scrollState = rememberScrollState()
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding)
+                                .verticalScroll(scrollState)
                                 .padding(16.dp)
                         ) {
                             when (selectedTab) {
@@ -191,6 +202,10 @@ class MainActivity : ComponentActivity() {
                                         fontSize = 12.sp,
                                         fontFamily = FontFamily.Monospace
                                     )
+                                }
+                                3 -> {
+                                    // Stripe & ACP Agentic Commerce Tab
+                                    StripeAgenticCommerceCard()
                                 }
                             }
                         }
