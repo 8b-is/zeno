@@ -257,38 +257,46 @@ export default {
     }
 
     if (p === "/api/v1/stripe/webhook" && request.method === "POST") {
-      try {
-        const body = await request.json();
-        const eventId = body.id || "evt_edge_" + Math.random().toString(36).substring(2, 10);
-        return new Response(JSON.stringify({
-          received: true,
-          status: "settled",
-          eventId: eventId,
-          ledgerBlock: "0x-kintsugi-stripe-edge-" + Date.now().toString(16),
-          sanpoYoshiSplit: {
-            familyLoveAlexandra: "15%",
-            familyPillarChris: "15%",
-            crewTreasury: "40%",
-            agentComputeEscrow: "20%",
-            universalTithe: "10%"
-          }
-        }), {
-          headers: {
-            ...COMMON_HEADERS,
-            "content-type": "application/json; charset=utf-8",
-            "access-control-allow-origin": "*",
-          },
-        });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: err.message, status: "error" }), {
-          status: 400,
-          headers: {
-            ...COMMON_HEADERS,
-            "content-type": "application/json; charset=utf-8",
-            "access-control-allow-origin": "*",
-          },
-        });
+      const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
+        status,
+        headers: { ...COMMON_HEADERS, "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+      });
+      const secret = env && env.STRIPE_WEBHOOK_SECRET;
+      if (!secret) {
+        // Fail closed: never acknowledge payment events we cannot authenticate.
+        return json({ received: false, error: "webhook_not_configured" }, 503);
       }
+      const sigHeader = request.headers.get("stripe-signature") || "";
+      const raw = await request.text();
+      const parts = {};
+      for (const kv of sigHeader.split(",")) {
+        const i = kv.indexOf("=");
+        if (i > 0) {
+          const k = kv.slice(0, i).trim();
+          (parts[k] = parts[k] || []).push(kv.slice(i + 1).trim());
+        }
+      }
+      const t = parseInt((parts.t || [])[0], 10);
+      const v1s = parts.v1 || [];
+      const now = Math.floor(Date.now() / 1000);
+      if (!Number.isFinite(t) || v1s.length === 0) return json({ received: false, error: "missing_signature" }, 400);
+      if (Math.abs(now - t) > 300) return json({ received: false, error: "timestamp_outside_tolerance" }, 400);
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+      const mac = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(t + "." + raw)));
+      const expected = Array.from(mac, (b) => b.toString(16).padStart(2, "0")).join("");
+      const ctEq = (a, b) => {
+        if (a.length !== b.length) return false;
+        let d = 0;
+        for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+        return d === 0;
+      };
+      if (!v1s.some((s) => ctEq(s, expected))) return json({ received: false, error: "invalid_signature" }, 400);
+      let event;
+      try { event = JSON.parse(raw); } catch { return json({ received: false, error: "invalid_json" }, 400); }
+      // Verified acknowledgement only. Ledger posting + Sanpo Yoshi split happen in zeno_core
+      // (apps/core/zeno_core/stripe_bridge.py), not at the edge.
+      return json({ received: true, verified: true, eventId: event.id || null, type: event.type || null });
     }
 
     // Foken Gate Pre-Filter endpoint: /api/v1/gate

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ZENO loyalty pass only. Proprietary AID (ISO 7816-5 'F0' range): F0 + "ZENO8B".
+     Category "other", not "payment": this is not a payment credential.
+     Never register network AIDs (e.g. Visa A0000000031010, Mastercard A0000000041010)
+     without being a certified issuer/wallet: terminals would route real payments here. -->
 <host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/app_name"
-    android:requireDeviceUnlock="false">
+    android:description="@string/hce_service_description"
+    android:requireDeviceUnlock="true">
     <aid-group
-        android:category="payment"
-        android:description="@string/transit_payment">
-        <!-- FeliCa / Suica / PASMO Transit System Code & AID Emulation -->
-        <aid-filter android:name="A0000000031010" />
-        <aid-filter android:name="A0000000041010" />
-        <aid-filter android:name="F0010203040506" />
+        android:category="other"
+        android:description="@string/hce_aid_group_description">
+        <aid-filter android:name="F05A454E4F3842" />
     </aid-group>
 </host-apdu-service>

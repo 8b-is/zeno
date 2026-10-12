@@ -4,44 +4,51 @@ import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
 
 /**
- * Host-based Card Emulation (HCE) for Tokyo Contactless Transit & Payment.
- * Responds to ISO/IEC 7816-4 and FeliCa command APDUs from station gates.
+ * Host-based Card Emulation (HCE) for the ZENO loyalty pass only.
+ *
+ * Responds solely to SELECT of ZENO's own proprietary AID (ISO 7816-5 'F0' range).
+ * It deliberately does NOT emulate Suica, PASMO, FeliCa transit, EMV payment, or any
+ * third-party credential: those require issuer agreements, and impersonating them
+ * would be both non-functional (gates use FeliCa NFC-F, not ISO-DEP) and unlawful.
+ * Every other command is rejected so this service never answers on behalf of
+ * another application.
  */
 class ZenoHostApduService : HostApduService() {
 
     companion object {
-        // Status Word: 0x9000 (Success)
-        private val SW_SUCCESS = byteArrayOf(0x90.toByte(), 0x00.toByte())
-        // Status Word: 0x6A82 (File Not Found)
-        private val SW_FILE_NOT_FOUND = byteArrayOf(0x6A.toByte(), 0x82.toByte())
-
-        // FeliCa Polling Response Mock
-        private val FELICA_RESPONSE = byteArrayOf(
-            0x12.toByte(), 0x01.toByte(),
-            0x01.toByte(), 0x20.toByte(), 0x30.toByte(), 0x40.toByte(), // IDm
-            0x50.toByte(), 0x60.toByte(), 0x70.toByte(), 0x80.toByte(),
-            0x00.toByte(), 0x03.toByte(), // PMm
-            0x00.toByte(), 0x00.toByte()
+        /** Proprietary AID: F0 + ASCII "ZENO8B". Must match res/xml/apduservice.xml. */
+        val ZENO_AID = byteArrayOf(
+            0xF0.toByte(), 0x5A, 0x45, 0x4E, 0x4F, 0x38, 0x42
         )
+        private val SW_SUCCESS = byteArrayOf(0x90.toByte(), 0x00)
+        private val SW_FILE_NOT_FOUND = byteArrayOf(0x6A.toByte(), 0x82.toByte())
+        private val SW_INS_NOT_SUPPORTED = byteArrayOf(0x6D.toByte(), 0x00)
+
+        /** Pass identifier returned on successful SELECT (ASCII "ZENO-PASS-V1"). */
+        private val ZENO_PASS_ID = "ZENO-PASS-V1".toByteArray(Charsets.US_ASCII)
     }
 
-    override fun processCommandApdu(commandApdu: ByteArray?, extras: Bundle?): ByteArray {
-        if (commandApdu == null) return SW_FILE_NOT_FOUND
+    private var selected = false
 
-        // SELECT AID command (0x00, 0xA4, 0x04, 0x00)
-        if (commandApdu.size >= 4 &&
-            commandApdu[0] == 0x00.toByte() &&
+    override fun processCommandApdu(commandApdu: ByteArray?, extras: Bundle?): ByteArray {
+        if (commandApdu == null || commandApdu.size < 4) return SW_INS_NOT_SUPPORTED
+
+        val isSelectByAid = commandApdu[0] == 0x00.toByte() &&
             commandApdu[1] == 0xA4.toByte() &&
             commandApdu[2] == 0x04.toByte()
-        ) {
-            // Emulate successful FeliCa / Suica transit handshake
-            return FELICA_RESPONSE + SW_SUCCESS
+
+        if (isSelectByAid) {
+            val lc = if (commandApdu.size > 4) commandApdu[4].toInt() and 0xFF else 0
+            val aid = if (commandApdu.size >= 5 + lc) commandApdu.copyOfRange(5, 5 + lc) else ByteArray(0)
+            selected = aid.contentEquals(ZENO_AID)
+            return if (selected) ZENO_PASS_ID + SW_SUCCESS else SW_FILE_NOT_FOUND
         }
 
-        return SW_SUCCESS
+        // No other commands are implemented; never return blanket success.
+        return SW_INS_NOT_SUPPORTED
     }
 
     override fun onDeactivated(reason: Int) {
-        // Transit gate interaction finished or connection lost
+        selected = false
     }
 }
