@@ -8,9 +8,11 @@
 [![Constellation: vaked.dev](https://img.shields.io/badge/constellation-vaked.dev-62e6c9?style=flat-square)](https://vaked.dev/)
 [![Ledger: Kintsugi SHA-256](https://img.shields.io/badge/ledger-Kintsugi%20SHA--256-e8b05c?style=flat-square)](spec/LEDGER_SPEC.md)
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
-[![Tests: 13 passed](https://img.shields.io/badge/tests-13%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Stripe: Compatible](https://img.shields.io/badge/stripe-compatible-635BFF?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
+[![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
+[![Tests: 25 passed](https://img.shields.io/badge/tests-25%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 
 ---
 
@@ -175,16 +177,34 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
 - **Revolut Ultra Sovereign Tier**: Platinum-plated brushed metal interface with 3D tilt physics, 0% FX interbank multi-currency engine (**HUF 🇭🇺 ↔ JPY 🇯🇵 ↔ EUR 🇪🇺 ↔ USD 🇺🇸**), and direct treasury link to [8b.is](https://8b.is).
 - **High-Velocity Cashback**: 1.2% worldwide base + 3.0% boosted transit cashback, auto-compounding directly into ZENO Kintsugi equity.
 
+### 4.4 Stripe Compatibility, MCP Server & Agent Commerce Protocol (ACP)
+- **RFC-002 Architectural Standard**: Comprehensive foundational specification ([`spec/STRIPE_COMPATIBILITY_MCP_ACP.md`](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)) bridging Web2 card/checkout rails with autonomous multi-agent neo-banking.
+- **Anthropic Model Context Protocol (MCP)**: Standard JSON-RPC 2.0 server (`apps/core/zeno_core/mcp_server.py`) exposing 8 financial tools to LLMs (Claude Code, Antigravity, Crush, Cursor):
+  - `stripe_create_payment_intent`: Dynamic fiat checkout / card capture with agent metadata.
+  - `stripe_create_checkout_session`: Generate mobile-responsive Stripe hosted checkout links.
+  - `stripe_record_metered_usage`: Report token, compute, and reasoning units to Stripe Metered Billing.
+  - `stripe_issue_virtual_card`: Ephemeral or merchant-locked virtual cards (Stripe Issuing) with hard spending caps and verified Proof of Reasoning (PoR).
+  - `stripe_get_balance`: Multi-currency live balances across clearing and sovereign vaults.
+  - `acp_request_quote` & `acp_settle_invoice`: Machine-to-machine contract negotiation and settlement.
+  - `zeno_bridge_convert`: Real-time cross-settlement into Kintsugi double-entry ledger.
+- **Agent Commerce Protocol (ACP)**: Discovery via [`/.well-known/acp.json`](https://zeno.vaked.dev/.well-known/acp.json), RFQ negotiation, cryptographic escrow locking, and dual-rail settlement.
+- **Stripe Webhook Gateway & Sanpo Yoshi Split**: Ingests `checkout.session.completed` / `payment_intent.succeeded` with HMAC-SHA256 signature verification and autonomously splits revenue:
+  - **15%** Mom Love Vault (`cnt_alexandra`)
+  - **15%** Dad Pillar Vault (`cnt_chris`)
+  - **40%** 8b-is Crew Sovereign Treasury (`cnt_0x71c8`)
+  - **20%** Autonomous AI Agent Compute Escrow (`agt_crush_reasoner`, `agt_swe_af`)
+  - **10%** Universal Public Treasury (`treasury:universal`)
+
 ---
 
 ## 5. Verification & Tests
 
-### 5.1 Run Core Ledger Tests
+### 5.1 Run Core Ledger, Stripe Bridge & MCP/ACP Tests
 ```bash
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
-*Output: 13 tests passed in 0.001s.*
+*Output: 25 tests passed in 0.003s (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server).*
 
 ### 5.2 Build Apple Wallet Pass
 ```bash

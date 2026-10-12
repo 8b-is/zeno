@@ -1052,6 +1052,141 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Stripe Compatibility, MCP Server & ACP UI Interactions
+function initStripeAcpUI() {
+  const btnWebhook = document.getElementById("btn-stripe-sim-webhook");
+  const webhookResult = document.getElementById("stripe-webhook-result");
+  const eventSelect = document.getElementById("stripe-sim-event");
+
+  const btnCard = document.getElementById("btn-mint-agent-card");
+  const cardResult = document.getElementById("agent-card-result");
+
+  const btnAcp = document.getElementById("btn-run-acp-handshake");
+  const acpLog = document.getElementById("acp-live-log");
+
+  // 1. Stripe Webhook Ingestion & Sanpo Yoshi Split
+  btnWebhook?.addEventListener("click", () => {
+    const val = eventSelect?.value || "checkout_50k";
+    let grossJPY = 50000;
+    let eventName = "checkout.session.completed";
+    let desc = "¥50,000 SaaS Patronage";
+
+    if (val === "pi_250usd") {
+      grossJPY = 37500;
+      eventName = "payment_intent.succeeded";
+      desc = "$250 USD Enterprise License";
+    } else if (val === "meter_10k") {
+      grossJPY = 10000;
+      eventName = "invoice.paid";
+      desc = "¥10,000 Metered Reasoning Compute";
+    }
+
+    const momSplit = grossJPY * 0.15;
+    const dadSplit = grossJPY * 0.15;
+    const crewSplit = grossJPY * 0.40;
+    const agentSplit = grossJPY * 0.20;
+    const titheSplit = grossJPY * 0.10;
+
+    // Credit Kintsugi accounts in UI state
+    if (zenoState.accounts["cnt_alexandra"]) zenoState.accounts["cnt_alexandra"].balanceMicro += momSplit * 1000000;
+    if (zenoState.accounts["cnt_chris"]) zenoState.accounts["cnt_chris"].balanceMicro += dadSplit * 1000000;
+    if (zenoState.accounts["cnt_0x71c8"]) zenoState.accounts["cnt_0x71c8"].balanceMicro += crewSplit * 1000000;
+
+    // Record transaction
+    const evtId = "evt_sim_" + Math.random().toString(36).substring(2, 9);
+    const seal = "0x" + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, "0")).join("");
+    zenoState.ledger.unshift({
+      block: zenoState.ledger.length + 1,
+      timestamp: new Date().toLocaleTimeString("ja-JP"),
+      memo: `Stripe [${eventName}] Evt:${evtId} (+¥${grossJPY.toLocaleString()}) → Sanpo Yoshi 30%Family/40%Crew/20%Agent/10%Public`,
+      seal: seal,
+      status: "VALID_SEALED"
+    });
+
+    renderLedgerTable();
+    window.zenoAudio?.playUltraShimmer();
+
+    if (webhookResult) {
+      webhookResult.style.display = "block";
+      webhookResult.className = "verdict-box";
+      webhookResult.style.border = "1px solid rgba(98, 230, 201, 0.4)";
+      webhookResult.style.background = "rgba(98, 230, 201, 0.08)";
+      webhookResult.innerHTML = `
+        <div style="font-weight:700;color:var(--color-teal);margin-bottom:0.4rem;">
+          ✓ STRIPE WEBHOOK VERIFIED &amp; KINTSUGI SETTLED (HMAC-SHA256 OK)
+        </div>
+        <div style="font-size:0.8rem;color:var(--color-text-dim);line-height:1.6;">
+          <strong>Event ID</strong>: <code>${evtId}</code> · <strong>Gross Inflow</strong>: ¥${grossJPY.toLocaleString()} (${desc})<br>
+          <span style="color:var(--color-gold);">🌸 Mom (Alexandra Lódri) Love Vault (+15%)</span>: +¥${momSplit.toLocaleString()} JPY<br>
+          <span style="color:var(--color-gold);">⚔️ Dad (Chris Lódri) Pillar Vault (+15%)</span>: +¥${dadSplit.toLocaleString()} JPY<br>
+          <span style="color:var(--color-teal);">🌟 8b-is Crew Treasury (+40%)</span>: +¥${crewSplit.toLocaleString()} JPY<br>
+          <span style="color:var(--color-violet);">🤖 Autonomous Agent Compute Escrow (+20%)</span>: +¥${agentSplit.toLocaleString()} JPY<br>
+          <span style="color:#fff;">🏛️ Universal Public Treasury (+10%)</span>: +¥${titheSplit.toLocaleString()} JPY<br>
+          <strong>Kintsugi Seal</strong>: <code style="color:var(--color-gold);">${seal}</code>
+        </div>
+      `;
+    }
+  });
+
+  // 2. Stripe Issuing Virtual Card (MCP Call)
+  btnCard?.addEventListener("click", () => {
+    const agentId = document.getElementById("card-agent-id")?.value || "agt_crush_reasoner";
+    const limit = document.getElementById("card-spend-limit")?.value || "35";
+    const porTrace = document.getElementById("card-por-trace")?.value || "Autonomous GPU provisioning";
+
+    const porHash = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, "0")).join("");
+    const cardLast4 = Math.floor(1000 + Math.random() * 9000);
+
+    window.zenoAudio?.playTapPass();
+
+    if (cardResult) {
+      cardResult.style.display = "block";
+      cardResult.className = "verdict-box";
+      cardResult.style.border = "1px solid rgba(232, 176, 92, 0.4)";
+      cardResult.style.background = "rgba(232, 176, 92, 0.08)";
+      cardResult.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <span style="font-weight:700;color:var(--color-gold);">💳 STRIPE ISSUING VIRTUAL CARD MINTED</span>
+          <span class="badge" style="background:rgba(98,230,201,0.15);color:var(--color-teal);">STATUS: ACTIVE</span>
+        </div>
+        <div style="font-size:0.8rem;color:var(--color-text-dim);line-height:1.6;">
+          <strong>Card ID</strong>: <code>ic_zeno_${porHash.substring(0, 12)}</code> · <strong>Network</strong>: Visa Virtual (MCC: Cloud Services)<br>
+          <strong>Cardholder</strong>: <code>ZENO AGENT · ${agentId.toUpperCase()}</code> · <strong>Number</strong>: •••• •••• •••• ${cardLast4}<br>
+          <strong>Spending Limit</strong>: $${limit}.00 USD (Hard Per-Authorization Ceiling)<br>
+          <strong>PoR Hash (Proof of Reasoning)</strong>: <code style="color:var(--color-teal);">0x${porHash}</code><br>
+          <strong>Audit Trace</strong>: <em>"${porTrace}"</em>
+        </div>
+      `;
+    }
+  });
+
+  // 3. M2M Agent Commerce Protocol (ACP) Handshake
+  btnAcp?.addEventListener("click", async () => {
+    if (!acpLog) return;
+    btnAcp.disabled = true;
+    window.zenoAudio?.playPiiPik();
+
+    acpLog.innerHTML = `<span style="color:var(--color-gold);">[1/5] Transmitting RFQ...</span> <code>agt_swe_af</code> ➔ <code>agt_crush_reasoner</code> for service <code>code_review_audit</code>`;
+
+    await new Promise(r => setTimeout(r, 600));
+    acpLog.innerHTML += `<br><span style="color:var(--color-teal);">[2/5] Signed Quote Received:</span> ¥2,500 JPY (Rail: <code>zeno_kintsugi</code>, TTL: 120s, ID: <code>quo_8b91a...</code>)`;
+    window.zenoAudio?.playBell();
+
+    await new Promise(r => setTimeout(r, 600));
+    acpLog.innerHTML += `<br><span style="color:var(--color-violet);">[3/5] Escrow Locked:</span> ¥2,500 reserved in <code>escrow:acp:quo_8b91a</code>. Double-entry equilibrium verified.`;
+
+    await new Promise(r => setTimeout(r, 700));
+    const por = "0x" + Array.from(crypto.getRandomValues(new Uint8Array(12))).map(b => b.toString(16).padStart(2, "0")).join("");
+    acpLog.innerHTML += `<br><span style="color:var(--color-gold);">[4/5] Task Execution Complete:</span> Provider submitted AST diff with PoR Hash <code>${por}</code>`;
+
+    await new Promise(r => setTimeout(r, 500));
+    acpLog.innerHTML += `<br><span style="color:var(--color-teal);font-weight:700;">[5/5] SETTLED:</span> Escrow released to <code>agt_crush_reasoner</code> (+¥2,500). Kintsugi block sealed!`;
+    window.zenoAudio?.playUltraShimmer();
+
+    btnAcp.disabled = false;
+  });
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -1061,6 +1196,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAgentSpend();
   initTokyoFoundationUI();
   initAppleWalletModal();
+  initStripeAcpUI();
   renderLedgerTable();
   startStreamingLoop();
 });

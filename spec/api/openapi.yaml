@@ -130,3 +130,172 @@ paths:
       responses:
         '200':
           description: Contributor balance credited and sealed
+
+  # Stripe Compatibility Endpoints
+  /stripe/webhook:
+    post:
+      summary: Intake and verify Stripe webhook events
+      parameters:
+        - name: Stripe-Signature
+          in: header
+          required: true
+          schema:
+            type: string
+            example: t=1700000000,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, type, data]
+      responses:
+        '200':
+          description: Event ingested and ledger equilibrium recorded
+        '400':
+          description: Invalid signature or timestamp window exceeded
+
+  /stripe/checkout-session:
+    post:
+      summary: Create Stripe hosted checkout session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [successUrl, cancelUrl, lineItems]
+              properties:
+                successUrl:
+                  type: string
+                cancelUrl:
+                  type: string
+                lineItems:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, amountCents, currency, quantity]
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Checkout session created with redirect URL
+
+  /stripe/metered-usage:
+    post:
+      summary: Report agent token or compute usage for metered billing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subscriptionItemId, quantity, agentId]
+              properties:
+                subscriptionItemId:
+                  type: string
+                quantity:
+                  type: integer
+                agentId:
+                  type: string
+                action:
+                  type: string
+                  enum: [increment, set]
+                  default: increment
+      responses:
+        '200':
+          description: Metered usage successfully reported
+
+  /stripe/virtual-cards:
+    post:
+      summary: Issue ephemeral or merchant-locked virtual card via Stripe Issuing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agentId, spendLimitCents, currency, proofOfReasoning]
+              properties:
+                agentId:
+                  type: string
+                spendLimitCents:
+                  type: integer
+                currency:
+                  type: string
+                  enum: [usd, eur, jpy]
+                  default: usd
+                allowedCategories:
+                  type: array
+                  items:
+                    type: string
+                proofOfReasoning:
+                  type: string
+      responses:
+        '201':
+          description: Virtual card issued subject to agent policy
+
+  # Agent Commerce Protocol (ACP) Endpoints
+  /.well-known/acp.json:
+    get:
+      summary: Retrieve Agent Commerce Protocol capability manifest
+      responses:
+        '200':
+          description: ACP node metadata, supported rails, and services
+
+  /acp/rfq:
+    post:
+      summary: Submit Request for Quote (RFQ) to an agent peer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requesterAgent, providerAgent, serviceType]
+      responses:
+        '201':
+          description: RFQ registered and routed
+
+  /acp/quote:
+    post:
+      summary: Issue programmatic quote in response to RFQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rfqId, providerAgent, priceMicroYen, paymentRail, validUntil]
+      responses:
+        '200':
+          description: Quote generated and signed
+
+  /acp/escrow:
+    post:
+      summary: Lock cryptographic escrow for accepted quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quoteId, payerAgent, amountMicroYen]
+      responses:
+        '200':
+          description: Escrow locked in double-entry ledger
+
+  /acp/settle:
+    post:
+      summary: Finalize payment against Proof of Reasoning (PoR)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quoteId, providerAgent, proofOfReasoning]
+      responses:
+        '200':
+          description: Task verified and funds dispersed
+

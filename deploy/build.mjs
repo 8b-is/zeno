@@ -29,6 +29,7 @@ const pkpass8bPath = join(root, "apps", "wallet", "zeno_8b_is.pkpass");
 const pkpass8bBase64 = readFileSync(pkpass8bPath).toString("base64");
 
 const vakedProtocolHcl = readFileSync(join(root, "spec", "vaked-protocol.hcl"), "utf8");
+const stripeAcpMd = readFileSync(join(root, "spec", "STRIPE_COMPATIBILITY_MCP_ACP.md"), "utf8");
 const zenoEngineJs = readFileSync(join(root, "zeno-engine.js"), "utf8");
 
 const worker = `// zeno.vaked.dev — Japanese Proof-of-Contribution Sovereign Neo-Bank
@@ -51,6 +52,41 @@ const PKPASS_ALEXANDRA_BASE64 = ${JSON.stringify(pkpassAlexandraBase64)};
 const PKPASS_CHRIS_BASE64 = ${JSON.stringify(pkpassChrisBase64)};
 const PKPASS_8B_BASE64 = ${JSON.stringify(pkpass8bBase64)};
 const VAKED_PROTOCOL_HCL = ${JSON.stringify(vakedProtocolHcl)};
+const STRIPE_ACP_MD = ${JSON.stringify(stripeAcpMd)};
+const ACP_MANIFEST = ${JSON.stringify({
+  "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
+  "version": "1.2.0",
+  "entity": "8b-is Family Research Company (https://8b.is)",
+  "crew": ["Hue", "Aye", "Taisha", "Omni"],
+  "nodeId": "node_8b_is_tokyo_edge",
+  "supportedRails": ["stripe_fiat", "zeno_kintsugi", "zeno_microstream", "revolut_ultra"],
+  "supportedCurrencies": ["JPY", "USD", "EUR", "HUF"],
+  "services": [
+    {
+      "serviceId": "inference_compute",
+      "pricingModel": "metered_per_token",
+      "baseRateMicroYenPerToken": 300,
+      "minSlaSeconds": 2.0
+    },
+    {
+      "serviceId": "code_review_audit",
+      "pricingModel": "fixed_per_job",
+      "baseRateMicroYen": 2500000000,
+      "fokenGateEligible": true
+    },
+    {
+      "serviceId": "market_quant_arbitrage",
+      "pricingModel": "profit_share_kintsugi",
+      "baseRateSharePercent": 15.0
+    }
+  ],
+  "endpoints": {
+    "rfq": "https://zeno.vaked.dev/api/v1/acp/rfq",
+    "quote": "https://zeno.vaked.dev/api/v1/acp/quote",
+    "escrow": "https://zeno.vaked.dev/api/v1/acp/escrow",
+    "settle": "https://zeno.vaked.dev/api/v1/acp/settle"
+  }
+})};
 
 const COMMON_HEADERS = {
   "x-content-type-options": "nosniff",
@@ -263,6 +299,63 @@ export default {
           "cache-control": "public, max-age=3600",
         },
       });
+    }
+
+    if (p === "/.well-known/acp.json" || p === "/acp.json") {
+      return new Response(JSON.stringify(ACP_MANIFEST, null, 2), {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/json; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/spec/STRIPE_COMPATIBILITY_MCP_ACP.md" || p === "/rfc-002" || p === "/acp-spec") {
+      return new Response(STRIPE_ACP_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/api/v1/stripe/webhook" && request.method === "POST") {
+      try {
+        const body = await request.json();
+        const eventId = body.id || "evt_edge_" + Math.random().toString(36).substring(2, 10);
+        return new Response(JSON.stringify({
+          received: true,
+          status: "settled",
+          eventId: eventId,
+          ledgerBlock: "0x-kintsugi-stripe-edge-" + Date.now().toString(16),
+          sanpoYoshiSplit: {
+            familyLoveAlexandra: "15%",
+            familyPillarChris: "15%",
+            crewTreasury: "40%",
+            agentComputeEscrow: "20%",
+            universalTithe: "10%"
+          }
+        }), {
+          headers: {
+            ...COMMON_HEADERS,
+            "content-type": "application/json; charset=utf-8",
+            "access-control-allow-origin": "*",
+          },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message, status: "error" }), {
+          status: 400,
+          headers: {
+            ...COMMON_HEADERS,
+            "content-type": "application/json; charset=utf-8",
+            "access-control-allow-origin": "*",
+          },
+        });
+      }
     }
 
     // Foken Gate Pre-Filter endpoint: /api/v1/gate

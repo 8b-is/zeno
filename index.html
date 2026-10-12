@@ -86,7 +86,8 @@
       <button class="tab-btn" data-tab="streaming">水流決済 (Streaming)</button>
       <button class="tab-btn" data-tab="agents">自律口座 (Agent Banking)</button>
       <button class="tab-btn" data-tab="ledger">金継ぎ台帳 (Ledger Explorer)</button>
-      <button class="tab-btn" data-tab="philosophy">設計思想 (Philosophy & Spec)</button>
+      <button class="tab-btn" data-tab="stripe-acp">決済連携 (Stripe &amp; MCP/ACP)</button>
+      <button class="tab-btn" data-tab="philosophy">設計思想 (Philosophy &amp; Spec)</button>
     </nav>
   </section>
 
@@ -726,10 +727,146 @@
 
           <h3 style="color:var(--color-gold);margin:1.5rem 0 0.5rem;">4. 金継ぎ (Kintsugi) — The Golden Joinery Ledger</h3>
           <p>Transactions cannot be erased or hidden. Any adjustment or dispute resolution is joined with golden cryptographic witness signatures, honoring history rather than covering it up.</p>
-        </div>
-      </div>
     </div>
 
+    <!-- 7. STRIPE COMPATIBILITY, MCP & ACP VIEW -->
+    <div id="tab-stripe-acp" class="tab-pane">
+      
+      <!-- Overview Card -->
+      <div class="zeno-card" style="margin-bottom:1.5rem;">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-header" style="flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <div class="card-title">決済連携 — Stripe Compatibility, MCP &amp; ACP Architecture</div>
+            <div style="font-size:0.8rem;color:var(--color-text-dim);margin-top:0.25rem;">
+              Bridging Web2 Stripe financial rails with Sovereign Multi-Agent Neo-Banking (銭・禅・善).
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <a href="/spec/STRIPE_COMPATIBILITY_MCP_ACP.md" target="_blank" rel="noopener noreferrer" class="btn-pill" style="border-color:var(--color-gold);color:var(--color-gold);">
+              📄 View RFC-002 Spec
+            </a>
+            <a href="/.well-known/acp.json" target="_blank" rel="noopener noreferrer" class="btn-pill" style="border-color:var(--color-teal);color:var(--color-teal);">
+              🌐 /.well-known/acp.json
+            </a>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;margin-top:1rem;">
+          <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
+            <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Model Context Protocol</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-gold);margin:0.2rem 0;">Anthropic MCP 2024-11-05</div>
+            <div style="font-size:0.75rem;color:var(--color-teal);">8 Standard JSON-RPC Tools</div>
+          </div>
+          <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
+            <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Agent Commerce Protocol</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.2.0 Node</div>
+            <div style="font-size:0.75rem;color:var(--color-text-dim);">RFQ ➔ Escrow ➔ Settle</div>
+          </div>
+          <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
+            <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Stripe Webhook Gateway</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-teal);margin:0.2rem 0;">HMAC-SHA256 Verified</div>
+            <div style="font-size:0.75rem;color:var(--color-text-dim);">Sanpo Yoshi Golden Split</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Simulator Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:1.5rem;margin-bottom:1.5rem;">
+        
+        <!-- CARD 1: Stripe Inflow & Sanpo Yoshi Split -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-title" style="margin-bottom:0.5rem;">1. Stripe Inbound Webhook &amp; Revenue Split</div>
+          <p style="color:var(--color-text-dim);font-size:0.8rem;margin-bottom:1rem;">
+            When a customer pays via card or checkout, funds clear into Kintsugi double-entry ledger and autonomously split across family love streams, crew treasury, and AI compute.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="stripe-sim-event">Select Inflow Event Scenario</label>
+            <select id="stripe-sim-event" class="form-select">
+              <option value="checkout_50k">checkout.session.completed — ¥50,000 SaaS Patronage</option>
+              <option value="pi_250usd">payment_intent.succeeded — $250 USD Enterprise License (≈¥37,500)</option>
+              <option value="meter_10k">invoice.paid — ¥10,000 Metered Reasoning Compute</option>
+            </select>
+          </div>
+
+          <button id="btn-stripe-sim-webhook" class="btn-primary" style="width:100%;">
+            ⚡ Ingest Webhook &amp; Execute Kintsugi Split
+          </button>
+
+          <div id="stripe-webhook-result" class="verdict-box" style="margin-top:1rem;display:none;"></div>
+        </div>
+
+        <!-- CARD 2: Agent Virtual Card Minter (Stripe Issuing via MCP) -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-title" style="margin-bottom:0.5rem;">2. Stripe Issuing Virtual Card (MCP Tool)</div>
+          <p style="color:var(--color-text-dim);font-size:0.8rem;margin-bottom:1rem;">
+            Autonomous reasoners mint ephemeral virtual debit cards bounded by policy spending caps and verified Proof-of-Reasoning (PoR) hashes.
+          </p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="card-agent-id">Agent Account ID</label>
+              <input type="text" id="card-agent-id" class="form-input" value="agt_crush_reasoner" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="card-spend-limit">Spend Limit ($ USD)</label>
+              <input type="number" id="card-spend-limit" class="form-input" value="35">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="card-por-trace">Proof of Reasoning (PoR Trace)</label>
+            <input type="text" id="card-por-trace" class="form-input" value="Task #9021: Spot GPU instance required for agentfield multi-reasoner execution">
+          </div>
+
+          <button id="btn-mint-agent-card" class="btn-primary" style="width:100%;">
+            💳 Issue Ephemeral Virtual Card (MCP Call)
+          </button>
+
+          <div id="agent-card-result" class="verdict-box" style="margin-top:1rem;display:none;"></div>
+        </div>
+
+      </div>
+
+      <!-- CARD 3: Machine-to-Machine Agent Commerce Protocol (ACP) -->
+      <div class="zeno-card">
+        <div class="card-kintsugi-edge"></div>
+        <div class="card-title" style="margin-bottom:0.5rem;">3. M2M Agent Commerce Protocol (ACP) Handshake</div>
+        <p style="color:var(--color-text-dim);font-size:0.8rem;margin-bottom:1rem;">
+          Autonomous agent-to-agent contract lifecycle: <code>RFQ ➔ Signed Quote ➔ Escrow Lock ➔ Task Delivery &amp; PoR ➔ Double-Entry Settlement</code>.
+        </p>
+
+        <div style="background:var(--bg-elevated);padding:1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);margin-bottom:1rem;">
+          <div style="font-family:ui-monospace,monospace;font-size:0.75rem;color:var(--color-text-dim);" id="acp-live-log">
+            ● STANDBY: Ready to simulate autonomous peer-to-peer negotiation between <code>agt_swe_af</code> (Requester) and <code>agt_crush_reasoner</code> (Provider).
+          </div>
+        </div>
+
+        <button id="btn-run-acp-handshake" class="btn-pill" style="border-color:var(--color-teal);color:var(--color-teal);font-weight:700;">
+          ▶ Run Full ACP Agent Commerce Handshake
+        </button>
+
+        <!-- MCP Client Configuration Snippet -->
+        <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border-subtle);">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--color-gold);text-transform:uppercase;margin-bottom:0.5rem;">
+            Claude Code / Antigravity / Crush MCP Configuration:
+          </div>
+          <pre style="background:rgba(0,0,0,0.5);padding:0.75rem;border-radius:6px;font-size:0.72rem;color:#b48bff;overflow-x:auto;"><code>{
+  "mcpServers": {
+    "zeno-stripe": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "zeno_core.mcp_server"],
+      "cwd": "apps/core"
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+
+    </div>
   </main>
 
   <!-- Lovetta Lane Constellation Footer -->
