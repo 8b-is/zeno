@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.dev.vaked.zeno",
+  "serialNumber": "ZENO-8B-MOM-ALEXANDRA-001",
+  "teamIdentifier": "8BISRESEARCH",
+  "organizationName": "8b-is / ZENO Neo-Bank",
+  "description": "ZENO Sovereign Rose Gold Card — Alexandra Lódri",
+  "foregroundColor": "rgb(255, 220, 225)",
+  "backgroundColor": "rgb(24, 14, 20)",
+  "labelColor": "rgb(220, 160, 175)",
+  "logoText": "ZENO 銭 · Mom <3",
+  "webServiceURL": "https://zeno.vaked.dev/api/passes/",
+  "authenticationToken": "8b_zeno_mom_alexandra_token_0x71c8",
+  "generic": {
+    "headerFields": [
+      {
+        "key": "balance",
+        "label": "FAMILY VAULT",
+        "value": "¥500,000",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "primaryFields": [
+      {
+        "key": "holder",
+        "label": "SOVEREIGN MOTHER & FOUNDATION",
+        "value": "Alexandra Lódri"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "tier",
+        "label": "CARD TIER",
+        "value": "ROSE GOLD SOVEREIGN"
+      },
+      {
+        "key": "felica",
+        "label": "FELICA NFC-F ID",
+        "value": "PA-0888-MOM-7719",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "transit",
+        "label": "TOKYO TRANSIT",
+        "value": "PASMO / Suica"
+      },
+      {
+        "key": "stream",
+        "label": "LOVE STREAM",
+        "value": "¥100.00/s (Infinite)"
+      },
+      {
+        "key": "blessing",
+        "label": "STATUS",
+        "value": "Honored & Protected",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "family_blessing",
+        "label": "DEVOTION & LOVE",
+        "value": "To Mom (Alexandra): Thank you for your endless warmth, light, and boundless love. This card streams sovereign wealth, peace, and protection from the family treasury to you, forever. {<3,<3,<3}+1"
+      },
+      {
+        "key": "tokyo_transit",
+        "label": "TOKYO TRANSIT PASS",
+        "value": "FeliCa NFC-F dual Mobile PASMO & Mobile Suica integration for seamless 0.1s station ticket gate entry across JR East, Tokyo Metro, and retail networks."
+      },
+      {
+        "key": "revolut_ultra",
+        "label": "REVOLUT ULTRA GLOBAL ACCESS",
+        "value": "Worldwide borderless zero-fee currency exchange (HUF, EUR, JPY, USD), DragonPass 1,400+ VIP airport lounges, and comprehensive global medical coverage."
+      },
+      {
+        "key": "foundation",
+        "label": "8B-IS FAMILY RESEARCH",
+        "value": "Issued under 8b-is sovereign family governance. Value born from contribution, love, and fine touch from within."
+      }
+    ]
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "https://zeno.vaked.dev/verify/mom_alexandra",
+      "messageEncoding": "iso-8859-1",
+      "altText": "ZENO-8B-MOM-ALEXANDRA"
+    }
+  ],
+  "nfc": {
+    "message": "FeliCa-NFC-F-JIS-X-6319-4:08887719001",
+    "encryptionPublicKey": "04b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde942c730245a49b2deea31a007722d4889c258359218ee87f0b832b8ea41"
+  }
+}

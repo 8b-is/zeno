@@ -9,7 +9,7 @@ const zenoState = {
   accounts: {
     "usr_alice": {
       id: "usr_alice",
-      label: "Alice Personal (個人)",
+      label: "Alice Tanaka (個人)",
       type: "personal",
       currency: "JPY",
       balanceMicro: 250000 * 1000000, // 250,000 JPY
@@ -22,6 +22,30 @@ const zenoState = {
       currency: "JPY",
       balanceMicro: 50000 * 1000000, // 50,000 JPY
       owner: "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940"
+    },
+    "cnt_alexandra": {
+      id: "cnt_alexandra",
+      label: "Alexandra Lódri (Mom · 愛)",
+      type: "contributor",
+      currency: "JPY",
+      balanceMicro: 500000 * 1000000, // 500,000 JPY
+      owner: "0xAlexandraLodriMotherSovereignKey"
+    },
+    "cnt_chris": {
+      id: "cnt_chris",
+      label: "Chris Lódri (Dad · 柱)",
+      type: "contributor",
+      currency: "JPY",
+      balanceMicro: 500000 * 1000000, // 500,000 JPY
+      owner: "0xChrisLodriFatherSovereignKey"
+    },
+    "biz_8b_is": {
+      id: "biz_8b_is",
+      label: "8b-is Family Research Fleet (企業公庫)",
+      type: "treasury",
+      currency: "JPY",
+      balanceMicro: 50000000 * 1000000, // 50,000,000 JPY corporate treasury vault
+      owner: "0x8b-isCorporateFleetTreasury"
     },
     "agt_crush_reasoner": {
       id: "agt_crush_reasoner",
@@ -64,6 +88,22 @@ const zenoState = {
       rateMicroSec: 5 * 1000000, // 5 JPY/sec
       startTime: Date.now() - 1800000, // started 30 min ago
       label: "Autonomous Inference & Test Sweeps"
+    },
+    {
+      id: "stm_8b_to_alexandra",
+      from: "biz_8b_is",
+      to: "cnt_alexandra",
+      rateMicroSec: 100 * 1000000, // 100 JPY/sec continuous sovereign mother stream
+      startTime: Date.now() - 3600000,
+      label: "8b-is Sovereign Stream → Mom (Alexandra Lódri) <3"
+    },
+    {
+      id: "stm_8b_to_chris",
+      from: "biz_8b_is",
+      to: "cnt_chris",
+      rateMicroSec: 100 * 1000000, // 100 JPY/sec continuous sovereign father stream
+      startTime: Date.now() - 3600000,
+      label: "8b-is Sovereign Stream → Dad (Chris Lódri) 柱"
     }
   ],
   ledgerBlocks: [
@@ -807,6 +847,102 @@ function initTokyoFoundationUI() {
 }
 
 // Apple Wallet PassKit Modal Logic
+const walletPassConfigs = {
+  peter: {
+    id: "peter",
+    name: "Péter Lódri",
+    org: "8b-is GUILD",
+    balance: "¥50,000",
+    roleLabel: "SOVEREIGN CONTRIBUTOR",
+    subtitle: "8b-is Family Research · Sovereign Neo-Bank <3",
+    tier: "PLATINUM ULTRA",
+    felica: "PA-0382-7719-2041",
+    transit: "PASMO / Suica",
+    cashback: "3.0% Boost",
+    fx: "0% Interbank",
+    qrLabel: "ZENO-8B-0x71C8",
+    themeClass: "pass-theme-ultra",
+    downloadUrl: "/apple-wallet/zeno.pkpass",
+    fileName: "zeno_ultra.pkpass",
+    backItems: [
+      { label: "8B-IS FAMILY RESEARCH COMPANY <3", desc: "Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love." },
+      { label: "FELICA NFC-F TRANSIT RAILS", desc: "Sony FeliCa JIS X 6319-4 standard. Tap-to-ride across JR East Yamanote Line, Tokyo Metro, and konbini payment networks with 0.1s instant settlement." },
+      { label: "REVOLUT ULTRA PLATINUM BRIDGE", desc: "0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included. Direct top-up: revolut.me/peterjs8be" },
+      { label: "KINTSUGI IMMUTABLE AUDIT TRAIL", desc: "Every transaction is sealed with SHA-256 Merkle root verification and golden witness signatures. Historical ledger states are honored, never erased." },
+      { label: "LOVETTA LANE CONSTELLATION", desc: "koan.vaked.dev (the hub) · weave · disco · ultra · art · music · proposal · pocoo · axiomquant · portail · zeno.vaked.dev" }
+    ]
+  },
+  alexandra: {
+    id: "alexandra",
+    name: "Alexandra Lódri",
+    org: "8b-is FAMILY",
+    balance: "¥500,000",
+    roleLabel: "SOVEREIGN MOTHER VAULT",
+    subtitle: "愛と感謝のストリーム · Continuous Love & Gratitude Stream <3",
+    tier: "ROSE GOLD SOVEREIGN",
+    felica: "PA-7701-8822-0941",
+    transit: "Mobile PASMO / Suica",
+    cashback: "3.5% Family Boost",
+    fx: "0% Zero Fee",
+    qrLabel: "ZENO-8B-MOM-ALEXANDRA",
+    themeClass: "pass-theme-alexandra",
+    downloadUrl: "/apple-wallet/alexandra.pkpass",
+    fileName: "zeno_alexandra.pkpass",
+    backItems: [
+      { label: "8B-IS SOVEREIGN MOTHER VAULT <3", desc: "Dedicated infinite love vault with continuous automated stipend stream from 8b-is Family Research treasury (¥100.00/sec). With endless gratitude and honor." },
+      { label: "TOKYO CONTACTLESS TRANSIT (PASMO / SUICA)", desc: "Full Sony FeliCa NFC-F compatibility across JR East, Tokyo Metro, and nationwide Japanese contactless retail networks with zero friction." },
+      { label: "GLOBAL ZERO-FEE MULTI-CURRENCY CONVERTER", desc: "Real-time interbank currency exchange (HUF · EUR · JPY · USD) with zero markup, luxury travel privileges, and instant family transfers." },
+      { label: "FAMILY LOVE STREAMS & SAFETY COVENANT", desc: "24/7 sovereign automated liquidity bridge backed by 100% segregated reserves and Kintsugi cryptographic audit guarantees." }
+    ]
+  },
+  chris: {
+    id: "chris",
+    name: "Chris Lódri",
+    org: "8b-is FAMILY",
+    balance: "¥500,000",
+    roleLabel: "ENGINEERING PILLAR VAULT",
+    subtitle: "家族の柱と尊敬 · Wisdom, Strength & Filial Honor 柱",
+    tier: "TITANIUM GOLD PILLAR",
+    felica: "SU-5510-4491-3820",
+    transit: "Mobile Suica / PASMO",
+    cashback: "3.5% Pillar Boost",
+    fx: "0% Zero Fee",
+    qrLabel: "ZENO-8B-DAD-CHRIS",
+    themeClass: "pass-theme-chris",
+    downloadUrl: "/apple-wallet/chris.pkpass",
+    fileName: "zeno_chris.pkpass",
+    backItems: [
+      { label: "8B-IS ENGINEERING PILLAR VAULT 柱", desc: "Honoring the wisdom, strength, and foundation of fatherhood. Continuous automated contribution stream from 8b-is Family Research (¥100.00/sec)." },
+      { label: "FELICA NFC-F HIGH-SPEED COMMUTER TRANSIT", desc: "Instant tap-and-go across Japanese high-speed railway networks (Shinkansen, JR East, subway lines) and automated convenience terminal settlement." },
+      { label: "REVOLUT ULTRA TITANIUM ARCHITECTURE", desc: "Sovereign global treasury bridge, multi-currency debit settlement (HUF · EUR · JPY · USD), comprehensive lounge access, and institutional asset security." },
+      { label: "KINTSUGI INTEGRITY & PILLAR HERITAGE", desc: "Cryptographically witnessed ledger blocks ensuring enduring financial autonomy, generational wealth preservation, and deep filial respect." }
+    ]
+  },
+  "8b-is": {
+    id: "8b-is",
+    name: "8b-is Family Research Fleet",
+    org: "8b-is CORPORATE",
+    balance: "¥50,000,000",
+    roleLabel: "CORPORATE FLEET TREASURY",
+    subtitle: "Autonomous Multi-Agent Company Treasury · 企業公庫",
+    tier: "OBSIDIAN PLATINUM",
+    felica: "8B-CORP-9901-7734",
+    transit: "Corporate Fleet IC",
+    cashback: "5.0% Institutional",
+    fx: "0% Spot Wholesale",
+    qrLabel: "ZENO-8B-FLEET-TREASURY",
+    themeClass: "pass-theme-8b-is",
+    downloadUrl: "/apple-wallet/8b-is.pkpass",
+    fileName: "zeno_8b_is.pkpass",
+    backItems: [
+      { label: "8B-IS AUTONOMOUS CORPORATE FLEET VAULT", desc: "Decentralized treasury supporting 7 autonomous reasoners, constellation production lanes (audio, art, neo-bank), and continuous family sovereign streams." },
+      { label: "DOUBLE-ENTRY CONTINUOUS STREAM ENGINE", desc: "Micro-streaming capital settlement at up to ¥250.00/sec across contributor vaults, agent inferencing allocations, and family stipends." },
+      { label: "FOKEN PROOF-OF-CONTRIBUTION GOVERNANCE", desc: "Gatekeeper pre-filter evaluating algorithmic invoices, verifiable IP assignments, and net-positive utility prior to tokenized minting." },
+      { label: "TOKYO INFRASTRUCTURE & GLOBAL CONNECTIVITY", desc: "Integrated with Tokyo FeliCa transit networks, Revolut Ultra enterprise APIs, and immutable Kintsugi SHA-256 Merkle root verification." }
+    ]
+  }
+};
+
 function initAppleWalletModal() {
   const modal = document.getElementById("wallet-modal-backdrop");
   const btnNav = document.getElementById("btn-open-wallet-nav");
@@ -814,6 +950,68 @@ function initAppleWalletModal() {
   const btnClose = document.getElementById("btn-close-wallet-modal");
   const btnFlip = document.getElementById("btn-flip-pass");
   const passCard = document.getElementById("wallet-pass-card");
+  const passFront = document.getElementById("wallet-pass-front");
+
+  const passOrg = document.getElementById("wallet-pass-org");
+  const passBalance = document.getElementById("wallet-pass-balance");
+  const passRoleLabel = document.getElementById("wallet-pass-role-label");
+  const passName = document.getElementById("wallet-pass-name");
+  const passSubtitle = document.getElementById("wallet-pass-subtitle");
+  const passTier = document.getElementById("wallet-pass-tier");
+  const passFelica = document.getElementById("wallet-pass-felica");
+  const passTransit = document.getElementById("wallet-pass-transit");
+  const passCashback = document.getElementById("wallet-pass-cashback");
+  const passFx = document.getElementById("wallet-pass-fx");
+  const passQrLabel = document.getElementById("wallet-pass-qr-label");
+  const passBackItems = document.getElementById("wallet-pass-back-items");
+  const btnDownload = document.getElementById("btn-download-pkpass");
+
+  const setPassConfig = (passKey) => {
+    const config = walletPassConfigs[passKey];
+    if (!config) return;
+
+    if (passFront) {
+      passFront.className = `pass-face pass-front ${config.themeClass}`;
+    }
+    if (passOrg) passOrg.innerText = config.org;
+    if (passBalance) passBalance.innerText = config.balance;
+    if (passRoleLabel) passRoleLabel.innerText = config.roleLabel;
+    if (passName) passName.innerText = config.name;
+    if (passSubtitle) passSubtitle.innerText = config.subtitle;
+    if (passTier) passTier.innerText = config.tier;
+    if (passFelica) passFelica.innerText = config.felica;
+    if (passTransit) passTransit.innerText = config.transit;
+    if (passCashback) passCashback.innerText = config.cashback;
+    if (passFx) passFx.innerText = config.fx;
+    if (passQrLabel) passQrLabel.innerText = config.qrLabel;
+
+    if (btnDownload) {
+      btnDownload.href = config.downloadUrl;
+      btnDownload.setAttribute("download", config.fileName);
+      btnDownload.innerText = `📥 Download ${config.name.split(" ")[0]} .pkpass`;
+    }
+
+    if (passBackItems && config.backItems) {
+      passBackItems.innerHTML = config.backItems.map(item => `
+        <div class="pass-back-item">
+          <div class="back-label">${item.label}</div>
+          <div class="back-desc">${item.desc}</div>
+        </div>
+      `).join("");
+    }
+  };
+
+  // Wire up tabs
+  const tabButtons = document.querySelectorAll(".btn-pass-tab");
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const passKey = btn.getAttribute("data-pass");
+      setPassConfig(passKey);
+      window.zenoAudio?.playPluck();
+    });
+  });
 
   const openModal = () => {
     if (!modal) return;

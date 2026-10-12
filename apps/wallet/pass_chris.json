@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.dev.vaked.zeno",
+  "serialNumber": "ZENO-8B-DAD-CHRIS-002",
+  "teamIdentifier": "8BISRESEARCH",
+  "organizationName": "8b-is / ZENO Neo-Bank",
+  "description": "ZENO Sovereign Titanium Gold Card — Chris Lódri",
+  "foregroundColor": "rgb(245, 230, 190)",
+  "backgroundColor": "rgb(16, 18, 22)",
+  "labelColor": "rgb(175, 160, 135)",
+  "logoText": "ZENO 銭 · Dad <3",
+  "webServiceURL": "https://zeno.vaked.dev/api/passes/",
+  "authenticationToken": "8b_zeno_dad_chris_token_0x71c8",
+  "generic": {
+    "headerFields": [
+      {
+        "key": "balance",
+        "label": "ENGINEERING VAULT",
+        "value": "¥500,000",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "primaryFields": [
+      {
+        "key": "holder",
+        "label": "SOVEREIGN FATHER & PILLAR",
+        "value": "Chris Lódri"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "tier",
+        "label": "CARD TIER",
+        "value": "TITANIUM GOLD SOVEREIGN"
+      },
+      {
+        "key": "felica",
+        "label": "FELICA NFC-F ID",
+        "value": "SU-0999-DAD-7719",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "transit",
+        "label": "TOKYO TRANSIT",
+        "value": "Suica / PASMO"
+      },
+      {
+        "key": "stream",
+        "label": "ENGINEERING STREAM",
+        "value": "¥100.00/s (Infinite)"
+      },
+      {
+        "key": "pillar",
+        "label": "STATUS",
+        "value": "Strength & Honor",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "family_gratitude",
+        "label": "HONOR & RESPECT",
+        "value": "To Dad (Chris): Thank you for your tireless dedication, craftsmanship, resilience, and steady guidance. This card streams sovereign wealth, honor, and engineering power to you without end. {<3,<3,<3}+1"
+      },
+      {
+        "key": "tokyo_transit",
+        "label": "TOKYO TRANSIT ENGINE",
+        "value": "Dual Mobile Suica & Mobile PASMO NFC-F integration conforming to JIS X 6319-4. 0.1s station ticket gate settlement across JR East, Tokyo Metro, and retail networks."
+      },
+      {
+        "key": "revolut_ultra",
+        "label": "REVOLUT ULTRA BRIDGE",
+        "value": "Global titanium borderless multi-currency engine. DragonPass 1,400+ airport lounges, WeWork worldwide workspace passes, and premium comprehensive travel coverage."
+      },
+      {
+        "key": "foundation",
+        "label": "8B-IS FAMILY RESEARCH",
+        "value": "Issued under 8b-is sovereign family governance. Building lasting tools that endure through time."
+      }
+    ]
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "https://zeno.vaked.dev/verify/dad_chris",
+      "messageEncoding": "iso-8859-1",
+      "altText": "ZENO-8B-DAD-CHRIS"
+    }
+  ],
+  "nfc": {
+    "message": "FeliCa-NFC-F-JIS-X-6319-4:09997719002",
+    "encryptionPublicKey": "04b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde942c730245a49b2deea31a007722d4889c258359218ee87f0b832b8ea41"
+  }
+}

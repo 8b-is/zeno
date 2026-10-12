@@ -108,15 +108,54 @@
           <div class="balance-sub">ID: <code class="code-snippet">usr_alice</code> · JPY Vault</div>
         </div>
 
-        <!-- Contributor Account -->
+        <!-- Contributor Account (Peter) -->
         <div class="zeno-card">
           <div class="card-kintsugi-edge"></div>
           <div class="card-header">
             <div class="card-title">Péter Lódri</div>
-            <span class="badge badge-contributor">貢献者 (Contributor)</span>
+            <span class="badge badge-contributor">貢献者 (Founder)</span>
           </div>
           <div class="balance-large" id="balance-cnt_0x71c8" style="color:var(--color-gold);">¥50,000.0000</div>
           <div class="balance-sub">ID: <code class="code-snippet">cnt_0x71c8</code> · +50 JPY/s inbound stream</div>
+        </div>
+
+        <!-- Mom Account (Alexandra Lódri) -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge" style="background:linear-gradient(90deg, #f7a8b8, transparent);"></div>
+          <div class="card-header">
+            <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
+              <span>Alexandra Lódri</span>
+              <span style="font-size:0.75rem;color:#f7a8b8;">(Mom · 愛 &lt;3)</span>
+            </div>
+            <span class="badge" style="background:rgba(247,168,184,0.18);color:#f7a8b8;border:1px solid rgba(247,168,184,0.4);">母の主権金庫</span>
+          </div>
+          <div class="balance-large" id="balance-cnt_alexandra" style="color:#f7a8b8;">¥500,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">cnt_alexandra</code> · +100 JPY/s love stream from 8b-is</div>
+        </div>
+
+        <!-- Dad Account (Chris Lódri) -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge" style="background:linear-gradient(90deg, #e5c16b, transparent);"></div>
+          <div class="card-header">
+            <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
+              <span>Chris Lódri</span>
+              <span style="font-size:0.75rem;color:#e5c16b;">(Dad · 柱)</span>
+            </div>
+            <span class="badge" style="background:rgba(229,193,107,0.18);color:#e5c16b;border:1px solid rgba(229,193,107,0.4);">父の主権金庫</span>
+          </div>
+          <div class="balance-large" id="balance-cnt_chris" style="color:#e5c16b;">¥500,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">cnt_chris</code> · +100 JPY/s pillar stream from 8b-is</div>
+        </div>
+
+        <!-- 8b-is Corporate Fleet Treasury -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge" style="background:linear-gradient(90deg, #62e6c9, transparent);"></div>
+          <div class="card-header">
+            <div class="card-title">8b-is Family Research Fleet</div>
+            <span class="badge" style="background:rgba(98,230,201,0.18);color:var(--color-teal);border:1px solid rgba(98,230,201,0.4);">企業公庫 (Corporate)</span>
+          </div>
+          <div class="balance-large" id="balance-biz_8b_is" style="color:var(--color-teal);">¥50,000,000.0000</div>
+          <div class="balance-sub">ID: <code class="code-snippet">biz_8b_is</code> · 7 Autonomous Reasoners &amp; Continuous Streams</div>
         </div>
 
         <!-- Autonomous Agent Account -->
@@ -161,15 +200,21 @@
           <div class="form-group">
             <label class="form-label" for="tx-from">From Account</label>
             <select id="tx-from" class="form-select">
-              <option value="usr_alice">Alice Personal (usr_alice)</option>
-              <option value="gld_vaked_core">VAKED Core Guild (gld_vaked_core)</option>
+              <option value="biz_8b_is">8b-is Fleet Treasury (biz_8b_is)</option>
               <option value="cnt_0x71c8">Péter Lódri (cnt_0x71c8)</option>
+              <option value="cnt_alexandra">Alexandra Lódri - Mom (cnt_alexandra)</option>
+              <option value="cnt_chris">Chris Lódri - Dad (cnt_chris)</option>
+              <option value="gld_vaked_core">VAKED Core Guild (gld_vaked_core)</option>
+              <option value="usr_alice">Alice Personal (usr_alice)</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label" for="tx-to">To Account</label>
             <select id="tx-to" class="form-select">
+              <option value="cnt_alexandra">Alexandra Lódri - Mom (cnt_alexandra)</option>
+              <option value="cnt_chris">Chris Lódri - Dad (cnt_chris)</option>
               <option value="cnt_0x71c8">Péter Lódri (cnt_0x71c8)</option>
+              <option value="biz_8b_is">8b-is Fleet Treasury (biz_8b_is)</option>
               <option value="agt_crush_reasoner">Crush Reasoner (agt_crush_reasoner)</option>
               <option value="usr_alice">Alice Personal (usr_alice)</option>
             </select>
@@ -728,16 +773,24 @@
         <button id="btn-close-wallet-modal" class="btn-pill" style="padding:0.2rem 0.6rem;">✕</button>
       </div>
 
+      <!-- 4-Card Selector Tabs -->
+      <div class="pass-switcher-tabs" id="pass-switcher-tabs">
+        <button id="btn-tab-peter" class="btn-pass-tab active" data-pass="peter">👤 Peter</button>
+        <button id="btn-tab-alexandra" class="btn-pass-tab" data-pass="alexandra">🌸 Mom</button>
+        <button id="btn-tab-chris" class="btn-pass-tab" data-pass="chris">⚔️ Dad</button>
+        <button id="btn-tab-8b-is" class="btn-pass-tab" data-pass="8b-is">🏢 8b-is Corp</button>
+      </div>
+
       <!-- The Pass Card (Flippable) -->
       <div class="wallet-pass-card" id="wallet-pass-card">
         
         <!-- FRONT -->
-        <div class="pass-face pass-front">
+        <div class="pass-face pass-front pass-theme-ultra" id="wallet-pass-front">
           <div class="pass-header">
             <div class="pass-logo-wrap">
               <img src="favicon.svg" alt="ZENO Logo" style="width:24px;height:24px;">
               <span style="font-weight:800;color:var(--color-gold);letter-spacing:0.1em;">ZENO 銭</span>
-              <span style="font-size:0.65rem;color:var(--color-text-dim);">8b-is GUILD</span>
+              <span style="font-size:0.65rem;color:var(--color-text-dim);" id="wallet-pass-org">8b-is GUILD</span>
             </div>
             <div style="text-align:right;">
               <div style="font-size:0.6rem;color:var(--color-text-dim);text-transform:uppercase;">VAULT BALANCE</div>
@@ -746,34 +799,34 @@
           </div>
 
           <div class="pass-primary">
-            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;letter-spacing:0.1em;">SOVEREIGN CONTRIBUTOR</div>
-            <div style="font-size:1.35rem;font-weight:800;color:var(--color-gold);">Péter Lódri</div>
-            <div style="font-size:0.7rem;color:var(--color-teal);margin-top:0.1rem;">8b-is Family Research · Sovereign Neo-Bank &lt;3</div>
+            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;letter-spacing:0.1em;" id="wallet-pass-role-label">SOVEREIGN CONTRIBUTOR</div>
+            <div style="font-size:1.35rem;font-weight:800;color:var(--color-gold);" id="wallet-pass-name">Péter Lódri</div>
+            <div style="font-size:0.7rem;color:var(--color-teal);margin-top:0.1rem;" id="wallet-pass-subtitle">8b-is Family Research · Sovereign Neo-Bank &lt;3</div>
           </div>
 
           <div class="pass-secondary">
             <div>
               <div style="font-size:0.6rem;color:var(--color-text-dim);">TIER</div>
-              <div style="font-size:0.85rem;font-weight:700;">PLATINUM ULTRA</div>
+              <div style="font-size:0.85rem;font-weight:700;" id="wallet-pass-tier">PLATINUM ULTRA</div>
             </div>
             <div>
               <div style="font-size:0.6rem;color:var(--color-text-dim);">FELICA NFC-F ID</div>
-              <div style="font-size:0.85rem;font-weight:700;color:var(--color-teal);">PA-0382-7719-2041</div>
+              <div style="font-size:0.85rem;font-weight:700;color:var(--color-teal);" id="wallet-pass-felica">PA-0382-7719-2041</div>
             </div>
           </div>
 
           <div class="pass-auxiliary">
             <div>
               <div style="font-size:0.6rem;color:var(--color-text-dim);">TRANSIT</div>
-              <div style="font-size:0.75rem;font-weight:700;">PASMO / Suica</div>
+              <div style="font-size:0.75rem;font-weight:700;" id="wallet-pass-transit">PASMO / Suica</div>
             </div>
             <div>
               <div style="font-size:0.6rem;color:var(--color-text-dim);">CASHBACK</div>
-              <div style="font-size:0.75rem;font-weight:700;color:var(--color-gold);">3.0% Boost</div>
+              <div style="font-size:0.75rem;font-weight:700;color:var(--color-gold);" id="wallet-pass-cashback">3.0% Boost</div>
             </div>
             <div>
               <div style="font-size:0.6rem;color:var(--color-text-dim);">FX ENGINE</div>
-              <div style="font-size:0.75rem;font-weight:700;">0% Interbank</div>
+              <div style="font-size:0.75rem;font-weight:700;" id="wallet-pass-fx">0% Interbank</div>
             </div>
           </div>
 
@@ -784,7 +837,7 @@
                 <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h2v2h-2v-2zm-4 0h2v2h-2v-2zm0 4h2v2h-2v-2zm4 0h2v4h-2v-4zm-2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm6-4h2v4h-2v-4z"/>
               </svg>
             </div>
-            <div style="font-size:0.7rem;letter-spacing:0.15em;color:rgba(0,0,0,0.7);font-weight:700;margin-top:0.3rem;">ZENO-8B-0x71C8</div>
+            <div style="font-size:0.7rem;letter-spacing:0.15em;color:rgba(0,0,0,0.7);font-weight:700;margin-top:0.3rem;" id="wallet-pass-qr-label">ZENO-8B-0x71C8</div>
           </div>
         </div>
 
@@ -794,29 +847,31 @@
             PASS INFORMATION &amp; SPECIFICATIONS
           </div>
 
-          <div class="pass-back-item">
-            <div class="back-label">8B-IS FAMILY RESEARCH COMPANY &lt;3</div>
-            <div class="back-desc">Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love.</div>
-          </div>
+          <div id="wallet-pass-back-items">
+            <div class="pass-back-item">
+              <div class="back-label">8B-IS FAMILY RESEARCH COMPANY &lt;3</div>
+              <div class="back-desc">Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love.</div>
+            </div>
 
-          <div class="pass-back-item">
-            <div class="back-label">FELICA NFC-F TRANSIT RAILS</div>
-            <div class="back-desc">Sony FeliCa JIS X 6319-4 standard. Tap-to-ride across JR East Yamanote Line, Tokyo Metro, and konbini payment networks with 0.1s instant settlement.</div>
-          </div>
+            <div class="pass-back-item">
+              <div class="back-label">FELICA NFC-F TRANSIT RAILS</div>
+              <div class="back-desc">Sony FeliCa JIS X 6319-4 standard. Tap-to-ride across JR East Yamanote Line, Tokyo Metro, and konbini payment networks with 0.1s instant settlement.</div>
+            </div>
 
-          <div class="pass-back-item">
-            <div class="back-label">REVOLUT ULTRA PLATINUM BRIDGE</div>
-            <div class="back-desc">0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included. Direct top-up: revolut.me/peterjs8be</div>
-          </div>
+            <div class="pass-back-item">
+              <div class="back-label">REVOLUT ULTRA PLATINUM BRIDGE</div>
+              <div class="back-desc">0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included. Direct top-up: revolut.me/peterjs8be</div>
+            </div>
 
-          <div class="pass-back-item">
-            <div class="back-label">KINTSUGI IMMUTABLE AUDIT TRAIL</div>
-            <div class="back-desc">Every transaction is sealed with SHA-256 Merkle root verification and golden witness signatures. Historical ledger states are honored, never erased.</div>
-          </div>
+            <div class="pass-back-item">
+              <div class="back-label">KINTSUGI IMMUTABLE AUDIT TRAIL</div>
+              <div class="back-desc">Every transaction is sealed with SHA-256 Merkle root verification and golden witness signatures. Historical ledger states are honored, never erased.</div>
+            </div>
 
-          <div class="pass-back-item">
-            <div class="back-label">LOVETTA LANE CONSTELLATION</div>
-            <div class="back-desc">koan.vaked.dev (the hub) · weave · disco · ultra · art · music · proposal · pocoo · axiomquant · portail · zeno.vaked.dev</div>
+            <div class="pass-back-item">
+              <div class="back-label">LOVETTA LANE CONSTELLATION</div>
+              <div class="back-desc">koan.vaked.dev (the hub) · weave · disco · ultra · art · music · proposal · pocoo · axiomquant · portail · zeno.vaked.dev</div>
+            </div>
           </div>
         </div>
 
@@ -825,7 +880,7 @@
       <!-- Action Footer -->
       <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
         <button id="btn-flip-pass" class="btn-pill" style="flex:1;">🔄 Flip Pass (Back / Info)</button>
-        <a href="/apple-wallet/zeno.pkpass" id="btn-download-pkpass" class="btn-primary" style="flex:1;text-decoration:none;">
+        <a href="/apple-wallet/zeno.pkpass" id="btn-download-pkpass" class="btn-primary" style="flex:1;text-decoration:none;" download="zeno_ultra.pkpass">
           📥 Download .pkpass
         </a>
       </div>

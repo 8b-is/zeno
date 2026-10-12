@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.dev.vaked.zeno",
+  "serialNumber": "ZENO-8B-CORP-RESEARCH-888",
+  "teamIdentifier": "8BISRESEARCH",
+  "organizationName": "8b-is / ZENO Neo-Bank",
+  "description": "8b-is Corporate Platinum Ultra Vault & Fleet Treasury Card",
+  "foregroundColor": "rgb(235, 240, 248)",
+  "backgroundColor": "rgb(6, 8, 12)",
+  "labelColor": "rgb(120, 160, 200)",
+  "logoText": "8b-is · 銭 · FLEET",
+  "webServiceURL": "https://zeno.vaked.dev/api/passes/",
+  "authenticationToken": "8b_corp_fleet_master_sec_token_888",
+  "generic": {
+    "headerFields": [
+      {
+        "key": "balance",
+        "label": "FLEET VAULT",
+        "value": "¥50,000,000",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "primaryFields": [
+      {
+        "key": "holder",
+        "label": "CORPORATE SOVEREIGN VAULT",
+        "value": "8b-is Family Research Company <3"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "tier",
+        "label": "CARD TIER",
+        "value": "FLEET PLATINUM ULTRA"
+      },
+      {
+        "key": "felica",
+        "label": "FLEET IC ID",
+        "value": "8B-CORP-8888-2041",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "transit",
+        "label": "TOKYO TRANSIT",
+        "value": "PASMO / Suica Fleet"
+      },
+      {
+        "key": "agents",
+        "label": "ACTIVE REASONERS",
+        "value": "7 Autonomous Agents"
+      },
+      {
+        "key": "inflow",
+        "label": "INFLOW STREAM",
+        "value": "¥250.00/s",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "company_mission",
+        "label": "8B-IS CORPORATE MANDATE",
+        "value": "Autonomous family research laboratory creating sovereign multi-agent reasoners, digital tools, and financial infrastructure. Backed by verified proof-of-contribution net utility."
+      },
+      {
+        "key": "kintsugi_ledger",
+        "label": "KINTSUGI CONTINUOUS BALANCE",
+        "value": "Zero-sum double-entry ledger with microsecond continuous settlement and SHA-256 Merkle block sealing. All fleet postings balanced in real-time."
+      },
+      {
+        "key": "tokyo_transit",
+        "label": "CORPORATE TRANSIT PASS",
+        "value": "Multi-terminal Tokyo Metro & JR East ticket gate settlement conforming to JIS X 6319-4. Instantaneous corporate expense clearing."
+      },
+      {
+        "key": "revolut_ultra",
+        "label": "REVOLUT ULTRA CORPORATE RAILS",
+        "value": "Global institutional liquidity, 0% FX interbank spread, 1,400+ DragonPass lounges, and multi-currency treasury reserves in JPY, EUR, USD, HUF."
+      }
+    ]
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "https://zeno.vaked.dev/verify/8b_is_corp",
+      "messageEncoding": "iso-8859-1",
+      "altText": "8B-IS-CORP-888"
+    }
+  ],
+  "nfc": {
+    "message": "FeliCa-NFC-F-JIS-X-6319-4:88882041000",
+    "encryptionPublicKey": "04b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde942c730245a49b2deea31a007722d4889c258359218ee87f0b832b8ea41"
+  }
+}

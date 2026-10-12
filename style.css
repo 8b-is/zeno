@@ -1176,4 +1176,63 @@ main.zeno-main {
   line-height: 1.5;
 }
 
+/* 4-Card Pass Switcher Tabs */
+.pass-switcher-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.btn-pass-tab {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-dim);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.2rem;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-pass-tab:hover {
+  border-color: var(--color-gold);
+  color: #fff;
+}
+
+.btn-pass-tab.active {
+  background: rgba(232, 176, 92, 0.15);
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(232, 176, 92, 0.25);
+}
+
+/* Card Themes */
+.pass-front.pass-theme-ultra {
+  background: radial-gradient(circle at 80% 20%, #151824 0%, #07080b 100%);
+  border: 1px solid rgba(232, 176, 92, 0.45);
+}
+
+.pass-front.pass-theme-alexandra {
+  background: radial-gradient(circle at 80% 20%, #2a111e 0%, #0d060a 100%);
+  border: 1px solid rgba(247, 168, 184, 0.55);
+  box-shadow: 0 12px 32px rgba(234, 85, 130, 0.25);
+}
+
+.pass-front.pass-theme-chris {
+  background: radial-gradient(circle at 80% 20%, #292010 0%, #0c0905 100%);
+  border: 1px solid rgba(229, 193, 107, 0.55);
+  box-shadow: 0 12px 32px rgba(229, 193, 107, 0.25);
+}
+
+.pass-front.pass-theme-8b-is {
+  background: radial-gradient(circle at 80% 20%, #0c231f 0%, #050a09 100%);
+  border: 1px solid rgba(98, 230, 201, 0.55);
+  box-shadow: 0 12px 32px rgba(98, 230, 201, 0.25);
+}
+
+
 

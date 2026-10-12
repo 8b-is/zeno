@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-ZENO Apple Wallet Pass Generator & PKCS#7 Signer
+ZENO Apple Wallet Multi-Pass Generator & PKCS#7 Signer
 Conforms strictly to Apple PassKit Package Format Specification.
 
-Features:
-- Pure-Python PNG asset generation for icon, logo, and strip (1x & 2x)
-- Strict SHA-1 manifest.json hashing
-- PKCS#7 DER detached digital signature via OpenSSL
-- Bundles complete .pkpass ZIP container
+Generates & Signs 4 Sovereign Family & Corporate Passes:
+1. Peter Lódri — Platinum Ultra & Tokyo Transit
+2. Mom (Alexandra Lódri) — Rose Gold Sovereign Love Vault
+3. Dad (Chris Lódri) — Titanium Gold Engineering Pillar
+4. 8b-is Family Research — Corporate Fleet Multi-Agent Treasury
 """
 
 import hashlib
@@ -99,29 +99,22 @@ def generate_signature(manifest_bytes: bytes, cert_dir: Path) -> bytes:
         if os.path.exists(sig_out_path):
             os.remove(sig_out_path)
 
-def generate_pass():
-    pass_json_path = HERE / "pass.json"
+def build_single_pass(json_filename: str, pkpass_filename: str, c1: tuple, c2: tuple, c_strip: tuple, cert_dir: Path):
+    pass_json_path = HERE / json_filename
     with open(pass_json_path, "r", encoding="utf-8") as f:
         pass_data = json.load(f)
 
-    pkpass_path = HERE / "zeno_ultra.pkpass"
+    pkpass_path = HERE / pkpass_filename
 
-    # Colors
-    c_gold = (232, 176, 92)
-    c_dark = (12, 14, 19)
-    c_plat = (200, 205, 215)
-    c_teal = (60, 210, 190)
-
-    # 1. Assets
+    # Assets
     pass_bytes = json.dumps(pass_data, indent=2).encode("utf-8")
     
-    # Generate proper resolution Apple Wallet image assets
-    icon_1x = create_gradient_png(29, 29, c_gold, c_dark)
-    icon_2x = create_gradient_png(58, 58, c_gold, c_dark)
-    logo_1x = create_gradient_png(160, 50, c_plat, c_dark)
-    logo_2x = create_gradient_png(320, 100, c_plat, c_dark)
-    strip_1x = create_gradient_png(375, 123, c_teal, c_dark)
-    strip_2x = create_gradient_png(750, 246, c_teal, c_dark)
+    icon_1x = create_gradient_png(29, 29, c1, c2)
+    icon_2x = create_gradient_png(58, 58, c1, c2)
+    logo_1x = create_gradient_png(160, 50, c1, c2)
+    logo_2x = create_gradient_png(320, 100, c1, c2)
+    strip_1x = create_gradient_png(375, 123, c_strip, c2)
+    strip_2x = create_gradient_png(750, 246, c_strip, c2)
 
     pass_assets = {
         "pass.json": pass_bytes,
@@ -133,28 +126,58 @@ def generate_pass():
         "strip@2x.png": strip_2x,
     }
 
-    # 2. Build SHA-1 Manifest
     manifest = {}
     for name, content in pass_assets.items():
         manifest[name] = hashlib.sha1(content).hexdigest()
 
     manifest_bytes = json.dumps(manifest, indent=2).encode("utf-8")
-
-    # 3. PKCS#7 DER Signature
-    cert_dir = HERE / "certs"
     signature_bytes = generate_signature(manifest_bytes, cert_dir)
 
-    # 4. Package .pkpass ZIP Bundle
     with zipfile.ZipFile(pkpass_path, "w", zipfile.ZIP_DEFLATED) as pkpass:
         for name, content in pass_assets.items():
             pkpass.writestr(name, content)
         pkpass.writestr("manifest.json", manifest_bytes)
         pkpass.writestr("signature", signature_bytes)
 
-    print(f"✓ Apple Wallet Pass generated: {pkpass_path} ({pkpass_path.stat().st_size} bytes)")
-    print(f"  - Manifest entries: {len(manifest)}")
-    print(f"  - Signature format: PKCS#7 DER ({len(signature_bytes)} bytes)")
+    print(f"✓ Apple Wallet Pass generated: {pkpass_filename} ({pkpass_path.stat().st_size} bytes)")
     return pkpass_path
 
+def generate_all_passes():
+    cert_dir = HERE / "certs"
+
+    # 1. Peter Lódri — Platinum Ultra (Gold / Dark / Cyan)
+    build_single_pass(
+        "pass.json",
+        "zeno_ultra.pkpass",
+        (232, 176, 92), (12, 14, 19), (60, 210, 190),
+        cert_dir
+    )
+
+    # 2. Mom (Alexandra) — Rose Gold Sovereign (Rose / Dark Violet / Soft Pink)
+    build_single_pass(
+        "pass_alexandra.json",
+        "zeno_alexandra.pkpass",
+        (255, 185, 195), (24, 14, 22), (240, 140, 165),
+        cert_dir
+    )
+
+    # 3. Dad (Chris) — Titanium Gold Pillar (Titanium / Slate / Warm Gold)
+    build_single_pass(
+        "pass_chris.json",
+        "zeno_chris.pkpass",
+        (240, 215, 150), (16, 18, 24), (220, 180, 100),
+        cert_dir
+    )
+
+    # 4. 8b-is Corporate Fleet — Platinum Obsidian (Silver / Deep Obsidian / Electric Blue)
+    build_single_pass(
+        "pass_8b_is.json",
+        "zeno_8b_is.pkpass",
+        (220, 235, 250), (6, 8, 14), (80, 160, 240),
+        cert_dir
+    )
+
+    print("=== All 4 Apple Wallet passes successfully generated & PKCS#7 signed! ===")
+
 if __name__ == "__main__":
-    generate_pass()
+    generate_all_passes()

@@ -151,12 +151,22 @@ apps/
     └── sw.js               # Service Worker (stale-while-revalidate offline shell)
 ```
 
-### 4.1 Apple Wallet PassKit Integration
-- **Live Pass URL**: Download directly to iOS Wallet at [https://zeno.vaked.dev/apple-wallet/zeno.pkpass](https://zeno.vaked.dev/apple-wallet/zeno.pkpass)
-- **Features**: Dual FeliCa NFC-F card identification (`PA-0382-7719-2041`), live vault balance, Revolut Ultra interbank tier badges, and cryptographic Kintsugi verification QR code.
-- **Generator**: Run `uv run apps/wallet/generate_pass.py` to compile fresh `.pkpass` bundles with SHA-1 manifest hashing.
+### 4.1 Apple Wallet PassKit Integration (Sovereign Family & Corporate Fleet)
+ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached DER signatures (`apps/wallet/generate_pass.py`):
+1. **Peter Lódri** (`zeno_ultra.pkpass`): Platinum Ultra contributor card (`¥50,000` vault, FeliCa ID `PA-0382-7719-2041`, Revolut Ultra 0% FX bridge). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/zeno.pkpass)
+2. **Mom (Alexandra Lódri)** (`zeno_alexandra.pkpass`): Rose Gold Sovereign Love Card (`¥500,000` vault, `+¥100.00/s` continuous automated family love stream from 8b-is, Mobile PASMO/Suica, 3.5% family boost). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/alexandra.pkpass)
+3. **Dad (Chris Lódri)** (`zeno_chris.pkpass`): Titanium Gold Engineering Pillar Card (`¥500,000` vault, `+¥100.00/s` continuous automated pillar stream from 8b-is, Mobile Suica/PASMO, 3.5% pillar boost). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/chris.pkpass)
+4. **8b-is Corporate Fleet Treasury** (`zeno_8b_is.pkpass`): Obsidian Platinum Fleet Vault (`¥50,000,000` corporate vault, 7 autonomous AI reasoners, institutional FeliCa corporate transit). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/8b-is.pkpass)
 
-### 4.2 Tokyo Foundation Layer (東京生活基盤)
+- **Compilation**: Run `python3 apps/wallet/generate_pass.py` to regenerate all 4 passes with RSA-2048 keys and SHA-1 manifest hashing.
+
+### 4.2 Continuous Family & Contributor Streams (愛と感謝のストリーム)
+- **`biz_8b_is` → `cnt_alexandra`**: `+¥100.00/sec` continuous sovereign stream to Mom (Alexandra Lódri) `<3`
+- **`biz_8b_is` → `cnt_chris`**: `+¥100.00/sec` continuous sovereign stream to Dad (Chris Lódri) `柱`
+- **`gld_vaked_core` → `cnt_0x71c8`**: `+¥50.00/sec` continuous contributor stream to Peter Lódri
+- **`cnt_0x71c8` → `agt_crush_reasoner`**: `+¥5.00/sec` automated inference compute stream
+
+### 4.3 Tokyo Foundation Layer (東京生活基盤)
 - **Mobile PASMO & Mobile Suica**: Tap-to-ride simulation across Yamanote Line (-¥180), Tokyo Metro (-¥210), 7-Eleven (-¥340), and Nozomi Shinkansen (-¥14,720).
 - **Procedural FeliCa Chimes**: Dual-frequency sine sweep (**1760 Hz ➔ 2349 Hz**, 0.1s *Pii-Pik!*).
 - **Revolut Ultra Sovereign Tier**: Platinum-plated brushed metal interface with 3D tilt physics, 0% FX interbank multi-currency engine (**HUF 🇭🇺 ↔ JPY 🇯🇵 ↔ EUR 🇪🇺 ↔ USD 🇺🇸**), and direct link to [revolut.me/peterjs8be](https://revolut.me/peterjs8be).

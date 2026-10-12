@@ -16,8 +16,18 @@ const sitemapXml = readFileSync(join(root, "sitemap.xml"), "utf8");
 const beaconJson = readFileSync(join(root, "beacon.json"), "utf8");
 const manifestJson = readFileSync(join(root, "manifest.webmanifest"), "utf8");
 const swJs = readFileSync(join(root, "sw.js"), "utf8");
-const pkpassPath = join(root, "apps", "wallet", "zeno_ultra.pkpass");
-const pkpassBase64 = readFileSync(pkpassPath).toString("base64");
+const pkpassUltraPath = join(root, "apps", "wallet", "zeno_ultra.pkpass");
+const pkpassUltraBase64 = readFileSync(pkpassUltraPath).toString("base64");
+
+const pkpassAlexandraPath = join(root, "apps", "wallet", "zeno_alexandra.pkpass");
+const pkpassAlexandraBase64 = readFileSync(pkpassAlexandraPath).toString("base64");
+
+const pkpassChrisPath = join(root, "apps", "wallet", "zeno_chris.pkpass");
+const pkpassChrisBase64 = readFileSync(pkpassChrisPath).toString("base64");
+
+const pkpass8bPath = join(root, "apps", "wallet", "zeno_8b_is.pkpass");
+const pkpass8bBase64 = readFileSync(pkpass8bPath).toString("base64");
+
 const vakedProtocolHcl = readFileSync(join(root, "spec", "vaked-protocol.hcl"), "utf8");
 const zenoEngineJs = readFileSync(join(root, "zeno-engine.js"), "utf8");
 
@@ -36,7 +46,10 @@ const SITEMAP_XML = ${JSON.stringify(sitemapXml)};
 const BEACON_JSON = ${JSON.stringify(beaconJson)};
 const MANIFEST_JSON = ${JSON.stringify(manifestJson)};
 const SW_JS = ${JSON.stringify(swJs)};
-const PKPASS_BASE64 = ${JSON.stringify(pkpassBase64)};
+const PKPASS_ULTRA_BASE64 = ${JSON.stringify(pkpassUltraBase64)};
+const PKPASS_ALEXANDRA_BASE64 = ${JSON.stringify(pkpassAlexandraBase64)};
+const PKPASS_CHRIS_BASE64 = ${JSON.stringify(pkpassChrisBase64)};
+const PKPASS_8B_BASE64 = ${JSON.stringify(pkpass8bBase64)};
 const VAKED_PROTOCOL_HCL = ${JSON.stringify(vakedProtocolHcl)};
 
 const COMMON_HEADERS = {
@@ -165,8 +178,9 @@ export default {
       });
     }
 
-    if (p === "/apple-wallet/zeno.pkpass" || p === "/zeno.pkpass") {
-      const binaryString = atob(PKPASS_BASE64);
+    // Apple Wallet Passes (Peter, Mom/Alexandra, Dad/Chris, 8b-is Corporate Fleet)
+    if (p === "/apple-wallet/zeno.pkpass" || p === "/apple-wallet/peter.pkpass" || p === "/zeno.pkpass") {
+      const binaryString = atob(PKPASS_ULTRA_BASE64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
@@ -176,6 +190,54 @@ export default {
           ...COMMON_HEADERS,
           "content-type": "application/vnd.apple.pkpass",
           "content-disposition": 'attachment; filename="zeno_ultra.pkpass"',
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/apple-wallet/alexandra.pkpass" || p === "/apple-wallet/mom.pkpass" || p === "/alexandra.pkpass") {
+      const binaryString = atob(PKPASS_ALEXANDRA_BASE64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return new Response(bytes.buffer, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/vnd.apple.pkpass",
+          "content-disposition": 'attachment; filename="zeno_alexandra.pkpass"',
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/apple-wallet/chris.pkpass" || p === "/apple-wallet/dad.pkpass" || p === "/chris.pkpass") {
+      const binaryString = atob(PKPASS_CHRIS_BASE64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return new Response(bytes.buffer, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/vnd.apple.pkpass",
+          "content-disposition": 'attachment; filename="zeno_chris.pkpass"',
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/apple-wallet/8b-is.pkpass" || p === "/apple-wallet/company.pkpass" || p === "/8b-is.pkpass") {
+      const binaryString = atob(PKPASS_8B_BASE64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return new Response(bytes.buffer, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/vnd.apple.pkpass",
+          "content-disposition": 'attachment; filename="zeno_8b_is.pkpass"',
           "cache-control": "public, max-age=3600",
         },
       });
