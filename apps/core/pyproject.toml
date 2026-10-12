@@ -1,6 +1,6 @@
 [project]
 name = "zeno-core"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic double-entry Kintsugi ledger, micro-streaming engine, and Foken proof-of-contribution bridge"
 readme = "README.md"
 requires-python = ">=3.11"
