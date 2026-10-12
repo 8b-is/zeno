@@ -117,57 +117,100 @@ zeno.vaked.dev/
 ## 4. Run & Verify
 
 ### 4.1 Run Core Tests
+---
+
+## 4. Omni-Platform Native Architecture (iOS · Android · Web PWA · Apple Wallet)
+
+ZENO ships complete native scaffolds and production specifications across the entire consumer hardware spectrum, maintained by the **8b-is Family Research Company** (`8b.is <3`):
+
+```
+apps/
+├── wallet/                 # Apple Wallet PassKit (.pkpass) Architecture
+│   ├── pass.json           # Native Apple Wallet Pass specification (Transit + Platinum)
+│   ├── generate_pass.py    # Python PassKit compiler & SHA-1 manifest builder
+│   └── build/zeno_ultra.pkpass # Ready-to-install Apple Wallet Pass bundle
+├── ios/                    # Native iOS (SwiftUI + AVFoundation + CoreHaptics)
+│   ├── Package.swift       # Swift Package Manager manifest (iOS 17+ / macOS 14+)
+│   └── Sources/ZenoApp/
+│       ├── ZenoApp.swift   # @main SwiftUI entrypoint
+│       ├── Models/         # Reactive state & Kintsugi ledger chaining
+│       ├── Services/       # AVFoundation procedural ticket gate & Rin bowl synth
+│       └── Views/          # PASMO/Suica Haptic card & Revolut Ultra 3D Gyro card
+├── android/                # Native Android (Kotlin + Jetpack Compose + HCE NFC-F)
+│   ├── app/src/main/
+│   │   ├── AndroidManifest.xml # NFC-F & BIND_NFC_SERVICE permissions
+│   │   ├── java/dev/vaked/zeno/
+│   │   │   ├── MainActivity.kt # Compose UI shell (Transit, Ultra FX, Ledger)
+│   │   │   ├── nfc/ZenoHostApduService.kt # Host-based Card Emulation for gates
+│   │   │   ├── audio/ZenoAudioEngine.kt  # AudioTrack procedural synthesizer
+│   │   │   └── ui/components/  # FeliCaCard & RevolutUltraCard Compose UI
+│   │   └── res/xml/apduservice.xml       # JIS X 6319-4 AID routing
+│   └── build.gradle.kts
+└── web/ (PWA)
+    ├── manifest.webmanifest # W3C Web App Manifest (standalone, shortcuts)
+    └── sw.js               # Service Worker (stale-while-revalidate offline shell)
+```
+
+### 4.1 Apple Wallet PassKit Integration
+- **Live Pass URL**: Download directly to iOS Wallet at [https://zeno.vaked.dev/apple-wallet/zeno.pkpass](https://zeno.vaked.dev/apple-wallet/zeno.pkpass)
+- **Features**: Dual FeliCa NFC-F card identification (`PA-0382-7719-2041`), live vault balance, Revolut Ultra interbank tier badges, and cryptographic Kintsugi verification QR code.
+- **Generator**: Run `uv run apps/wallet/generate_pass.py` to compile fresh `.pkpass` bundles with SHA-1 manifest hashing.
+
+### 4.2 Tokyo Foundation Layer (東京生活基盤)
+- **Mobile PASMO & Mobile Suica**: Tap-to-ride simulation across Yamanote Line (-¥180), Tokyo Metro (-¥210), 7-Eleven (-¥340), and Nozomi Shinkansen (-¥14,720).
+- **Procedural FeliCa Chimes**: Dual-frequency sine sweep (**1760 Hz ➔ 2349 Hz**, 0.1s *Pii-Pik!*).
+- **Revolut Ultra Sovereign Tier**: Platinum-plated brushed metal interface with 3D tilt physics, 0% FX interbank multi-currency engine (**HUF 🇭🇺 ↔ JPY 🇯🇵 ↔ EUR 🇪🇺 ↔ USD 🇺🇸**), and direct link to [revolut.me/peterjs8be](https://revolut.me/peterjs8be).
+- **High-Velocity Cashback**: 1.2% worldwide base + 3.0% boosted transit cashback, auto-compounding directly into ZENO Kintsugi equity.
+
+---
+
+## 5. Verification & Tests
+
+### 5.1 Run Core Ledger Tests
 ```bash
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
 *Output: 13 tests passed in 0.001s.*
 
-### 4.2 Use the Zeno CLI
+### 5.2 Build Apple Wallet Pass
 ```bash
-# List accounts and balances
-uv run python apps/cli/zeno_cli.py account list
-
-# Create a new contributor account
-uv run python apps/cli/zeno_cli.py account create \
-  --id cnt_takashi --label "Takashi Sato" --type liability
-
-# Evaluate a Foken invoice through the deterministic gate
-uv run python apps/cli/zeno_cli.py gate path/to/invoice.json
-
-# Verify Kintsugi ledger cryptographic integrity
-uv run python apps/cli/zeno_cli.py verify
+uv run apps/wallet/generate_pass.py
 ```
 
-### 4.3 Launch Local Web Surface
+### 5.3 Deploy Edge Worker
 ```bash
-python3 -m http.server 8089
-# Open http://localhost:8089 in your browser
+node deploy/build.mjs
+npx wrangler deploy -c deploy/wrangler.toml
 ```
 
 ---
 
-## 5. Web Audio Soundscape
+## 6. Web Audio Soundscape
 
 Zeno includes procedural, zero-dependency Web Audio feedback:
+- **改札 (FeliCa Gate — 1760→2349 Hz)**: Authentic Tokyo commuter gate chime (*Pii-Pik!*).
+- **白金 (Platinum Shimmer — C6→E6→G6→C7)**: Revolut Ultra harmonic crystal chime.
 - **鈴 (Rin — 432 Hz)**: Temple singing bowl with harmonic overtones and 2.4s decay upon Foken gate passage and block sealing.
 - **鹿威し (Shishi-odoshi — 1400→450 Hz)**: Downward bamboo water-drop chirp on streaming checkpoints.
 - **箏 (Koto — 528 Hz)**: Harped string pluck on transaction confirmation.
 
 ---
 
-## 6. Constellation Wiring
+## 7. The 8b-is Family Foundation & Constellation
 
-Part of the **vaked.dev constellation network**:
+Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev constellation network**:
+- **8b-is Family Research**: Autonomous family research laboratory creating sovereign multi-agent reasoners and financial infrastructure.
 - **koan.vaked.dev**: The hub
 - **weave.vaked.dev**: Stipple board
 - **art.vaked.dev**: Visual gallery & ecosystem hub
 - **proposal.vaked.dev**: Routing proposal
-- **foken**: Proof-of-contribution valuation gate
+- **pocoo.vaked.dev**: Micro-journal
 - **zeno.vaked.dev**: The sovereign neo-bank
 
 ---
 
-## 7. License
+## 8. License
 
 MIT License. Crafted with love, fine touch from within, and devotion to sovereign human and agentic flourishing. 銭・禅・善.
+

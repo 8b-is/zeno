@@ -800,6 +800,54 @@ function initTokyoFoundationUI() {
   updateCashbackDisplay();
 }
 
+// Apple Wallet PassKit Modal Logic
+function initAppleWalletModal() {
+  const modal = document.getElementById("wallet-modal-backdrop");
+  const btnNav = document.getElementById("btn-open-wallet-nav");
+  const btnCard = document.getElementById("btn-open-wallet-card");
+  const btnClose = document.getElementById("btn-close-wallet-modal");
+  const btnFlip = document.getElementById("btn-flip-pass");
+  const passCard = document.getElementById("wallet-pass-card");
+
+  const openModal = () => {
+    if (!modal) return;
+    modal.style.display = "flex";
+    window.zenoAudio?.playPluck();
+  };
+
+  const closeModal = () => {
+    if (!modal) return;
+    modal.style.display = "none";
+    passCard?.classList.remove("flipped");
+  };
+
+  btnNav?.addEventListener("click", openModal);
+  btnCard?.addEventListener("click", openModal);
+  btnClose?.addEventListener("click", closeModal);
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  btnFlip?.addEventListener("click", () => {
+    passCard?.classList.toggle("flipped");
+    window.zenoAudio?.playDrop();
+  });
+
+  passCard?.addEventListener("click", (e) => {
+    if (e.target.closest("a") || e.target.closest("button")) return;
+    passCard.classList.toggle("flipped");
+    window.zenoAudio?.playDrop();
+  });
+}
+
+// Service Worker Registration for PWA
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -808,7 +856,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initTransferForm();
   initAgentSpend();
   initTokyoFoundationUI();
+  initAppleWalletModal();
   renderLedgerTable();
   startStreamingLoop();
 });
+
 

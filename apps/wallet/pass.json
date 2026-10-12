@@ -1,0 +1,106 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.dev.vaked.zeno",
+  "serialNumber": "ZENO-8B-ULTRA-03827719",
+  "teamIdentifier": "8BISRESEARCH",
+  "organizationName": "8b-is / ZENO Neo-Bank",
+  "description": "ZENO Sovereign Platinum & Tokyo Transit Card",
+  "foregroundColor": "rgb(232, 176, 92)",
+  "backgroundColor": "rgb(7, 8, 11)",
+  "labelColor": "rgb(139, 136, 162)",
+  "logoText": "ZENO 銭 · 8b-is",
+  "webServiceURL": "https://zeno.vaked.dev/api/passes/",
+  "authenticationToken": "8b_zeno_kintsugi_sec_token_0x71c8",
+  "generic": {
+    "headerFields": [
+      {
+        "key": "balance",
+        "label": "VAULT BALANCE",
+        "value": "¥50,000",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "primaryFields": [
+      {
+        "key": "holder",
+        "label": "SOVEREIGN CONTRIBUTOR",
+        "value": "Péter Lódri"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "tier",
+        "label": "CARD TIER",
+        "value": "PLATINUM ULTRA"
+      },
+      {
+        "key": "felica",
+        "label": "FELICA NFC-F ID",
+        "value": "PA-0382-7719-2041",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "transit",
+        "label": "TOKYO TRANSIT",
+        "value": "PASMO / Suica"
+      },
+      {
+        "key": "cashback",
+        "label": "CASHBACK",
+        "value": "3.0% Tokyo Boost"
+      },
+      {
+        "key": "fx",
+        "label": "INTERBANK FX",
+        "value": "0% HUF/EUR/JPY",
+        "alignment": "PKTextAlignmentRight"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "family_company",
+        "label": "FAMILY RESEARCH FOUNDATION",
+        "value": "8b-is — Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love. <3"
+      },
+      {
+        "key": "tokyo_transit",
+        "label": "TOKYO IC TRANSIT ENGINE",
+        "value": "Dual Mobile PASMO and Mobile Suica NFC-F integration conforming to JIS X 6319-4. 0.1s station ticket gate settlement across JR East, Tokyo Metro, and konbini payment networks."
+      },
+      {
+        "key": "revolut_ultra",
+        "label": "REVOLUT ULTRA BRIDGE",
+        "value": "Platinum-plated borderless multi-currency engine. Direct top-up available at https://revolut.me/peterjs8be. DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium, and €10M medical coverage included."
+      },
+      {
+        "key": "kintsugi_ledger",
+        "label": "KINTSUGI LEDGER SPEC",
+        "value": "Double-entry cryptographic ledger where state transitions are sealed with SHA-256 Merkle roots and golden witness signatures. Historical entries are honored, never erased."
+      },
+      {
+        "key": "foken_gate",
+        "label": "PROOF OF CONTRIBUTION",
+        "value": "Currency creation is governed by deterministic net-utility: net = futureWorkAvoidedHours - (workAddedHours + 1.5 * maintenanceDebtHours). Value earned, not borrowed."
+      },
+      {
+        "key": "constellation",
+        "label": "THE CONSTELLATION",
+        "value": "Lovetta Lane & vaked.dev constellation network: koan (the hub), weave, disco, ultra, art, music, proposal, pocoo, axiomquant, portail, and zeno."
+      }
+    ]
+  },
+  "barcodes": [
+    {
+      "format": "PKBarcodeFormatQR",
+      "message": "https://zeno.vaked.dev/verify/cnt_0x71c8",
+      "messageEncoding": "iso-8859-1",
+      "altText": "ZENO-8B-0x71C8"
+    }
+  ],
+  "nfc": {
+    "message": "FeliCa-NFC-F-JIS-X-6319-4:038277192041",
+    "encryptionPublicKey": "04b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde942c730245a49b2deea31a007722d4889c258359218ee87f0b832b8ea41"
+  }
+}

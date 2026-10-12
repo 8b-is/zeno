@@ -1,0 +1,55 @@
+{
+  "name": "ZENO 銭 · Sovereign Neo-Bank",
+  "short_name": "ZENO",
+  "description": "Japanese Proof-of-Contribution Sovereign Neo-Bank with FeliCa Transit & Revolut Ultra Rails. Powered by 8b-is family research.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07080b",
+  "theme_color": "#07080b",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "128x128 192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tokyo Transit (FeliCa)",
+      "short_name": "Transit",
+      "description": "Mobile PASMO & Mobile Suica Tap-to-Ride",
+      "url": "/?tab=foundation",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Revolut Ultra FX",
+      "short_name": "Ultra FX",
+      "description": "0% FX HUF ↔ JPY ↔ EUR Currency Engine",
+      "url": "/?tab=foundation",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kintsugi Ledger",
+      "short_name": "Ledger",
+      "description": "Immutable SHA-256 Ledger Explorer",
+      "url": "/?tab=ledger",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://zeno.vaked.dev/manifest.webmanifest"
+    }
+  ]
+}

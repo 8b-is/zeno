@@ -13,6 +13,13 @@
   <meta property="og:url" content="https://zeno.vaked.dev/">
   <meta name="twitter:card" content="summary_large_image">
 
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#07080b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ZENO">
+  <link rel="apple-touch-icon" href="favicon.svg">
+
   <!-- Google Fonts: Shippori Mincho & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,10 +35,16 @@
       <img src="favicon.svg" alt="ZENO Emblem" class="brand-emblem">
       <div>
         <div class="brand-title">ZENO 銭</div>
-        <div class="brand-sub">Sovereign Neo-Bank</div>
+        <div class="brand-sub">Sovereign Neo-Bank · 8b-is Family Research &lt;3</div>
       </div>
     </a>
     <div class="nav-actions">
+      <button id="btn-open-wallet-nav" class="btn-apple-wallet">
+        <svg width="14" height="14" viewBox="0 0 170 170" fill="currentColor">
+          <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.85-12-14.42-6.19-9.35-11.05-19.86-14.58-31.52-3.53-11.66-5.3-22.9-5.3-33.72 0-14.15 3.65-25.75 10.96-34.79 7.31-9.04 16.32-13.68 27.03-13.91 5.37-.11 11.23 1.34 17.58 4.36 6.35 3.01 10.3 4.63 11.85 4.85 1.77-.33 5.92-1.99 12.46-4.98 6.54-2.99 12.27-4.32 17.18-4 13.06.87 23.36 5.88 30.91 15.02-11.54 6.97-17.19 16.54-16.96 28.72.23 9.58 3.91 17.65 11.04 24.21 7.13 6.56 15.46 10.33 24.99 11.31-2.07 6.42-4.57 12.74-7.52 18.96zM119.22 33.72c0-7.39 2.65-14.42 7.95-21.09 5.3-6.67 11.96-10.99 19.98-12.96.22 1.31.33 2.5.33 3.59 0 7.28-2.8 14.39-8.4 21.32-5.6 6.93-12.3 11.23-20.1 12.9-.22-1.31-.33-2.5-.33-3.76z"/>
+        </svg>
+        Add to Apple Wallet
+      </button>
       <button id="btn-audio-toggle" class="btn-pill" title="Toggle tactile soundscape">🔔 Sound On</button>
       <a href="https://github.com/8b-is/zeno" target="_blank" rel="noopener noreferrer" class="btn-pill">GitHub</a>
     </div>
@@ -193,6 +206,12 @@
             </div>
           </div>
           <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+            <button id="btn-open-wallet-card" class="btn-apple-wallet">
+              <svg width="14" height="14" viewBox="0 0 170 170" fill="currentColor">
+                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.85-12-14.42-6.19-9.35-11.05-19.86-14.58-31.52-3.53-11.66-5.3-22.9-5.3-33.72 0-14.15 3.65-25.75 10.96-34.79 7.31-9.04 16.32-13.68 27.03-13.91 5.37-.11 11.23 1.34 17.58 4.36 6.35 3.01 10.3 4.63 11.85 4.85 1.77-.33 5.92-1.99 12.46-4.98 6.54-2.99 12.27-4.32 17.18-4 13.06.87 23.36 5.88 30.91 15.02-11.54 6.97-17.19 16.54-16.96 28.72.23 9.58 3.91 17.65 11.04 24.21 7.13 6.56 15.46 10.33 24.99 11.31-2.07 6.42-4.57 12.74-7.52 18.96zM119.22 33.72c0-7.39 2.65-14.42 7.95-21.09 5.3-6.67 11.96-10.99 19.98-12.96.22 1.31.33 2.5.33 3.59 0 7.28-2.8 14.39-8.4 21.32-5.6 6.93-12.3 11.23-20.1 12.9-.22-1.31-.33-2.5-.33-3.76z"/>
+              </svg>
+              Apple Wallet Pass (.pkpass)
+            </button>
             <span class="badge" style="background:rgba(234,85,130,0.18);color:#ff7aa2;border:1px solid rgba(234,85,130,0.35);">momoPASMO</span>
             <span class="badge" style="background:rgba(0,153,68,0.18);color:#2ecc71;border:1px solid rgba(0,153,68,0.35);">Suica NFC-F</span>
             <span class="badge" style="background:rgba(232,176,92,0.18);color:var(--color-gold);border:1px solid var(--border-gold);">Revolut Ultra</span>
@@ -694,8 +713,124 @@
       <a href="https://portail.vaked.dev/" target="_blank" rel="noopener noreferrer" style="color:#a59fc4;text-decoration:none;">portail.vaked.dev</a> ·
       <a href="https://zeno.vaked.dev/" style="color:#e8b05c;text-decoration:none;font-weight:600;">✧ zeno.vaked.dev</a>
     </nav>
-    <div style="font-size:0.6rem;letter-spacing:0.18em;color:#7f7c99;margin-top:1.5rem;">the constellation · 0 + 1 · fine touch from within · vaked.dev</div>
+    <div style="font-size:0.6rem;letter-spacing:0.18em;color:#7f7c99;margin-top:1.5rem;">
+      the constellation · lovetta lane · 8b-is family research &lt;3 · fine touch from within · vaked.dev
+    </div>
   </footer>
+
+  <!-- Apple Wallet Pass Interactive Modal -->
+  <div id="wallet-modal-backdrop" class="wallet-modal-backdrop" style="display:none;">
+    <div class="wallet-modal-container">
+      <div class="wallet-modal-header">
+        <div style="font-size:0.82rem;font-weight:700;letter-spacing:0.08em;color:var(--color-gold);">
+          APPLE WALLET PASS · PASSKIT PKPASS
+        </div>
+        <button id="btn-close-wallet-modal" class="btn-pill" style="padding:0.2rem 0.6rem;">✕</button>
+      </div>
+
+      <!-- The Pass Card (Flippable) -->
+      <div class="wallet-pass-card" id="wallet-pass-card">
+        
+        <!-- FRONT -->
+        <div class="pass-face pass-front">
+          <div class="pass-header">
+            <div class="pass-logo-wrap">
+              <img src="favicon.svg" alt="ZENO Logo" style="width:24px;height:24px;">
+              <span style="font-weight:800;color:var(--color-gold);letter-spacing:0.1em;">ZENO 銭</span>
+              <span style="font-size:0.65rem;color:var(--color-text-dim);">8b-is GUILD</span>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.6rem;color:var(--color-text-dim);text-transform:uppercase;">VAULT BALANCE</div>
+              <div style="font-size:1.1rem;font-weight:800;color:#fff;" id="wallet-pass-balance">¥50,000</div>
+            </div>
+          </div>
+
+          <div class="pass-primary">
+            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;letter-spacing:0.1em;">SOVEREIGN CONTRIBUTOR</div>
+            <div style="font-size:1.35rem;font-weight:800;color:var(--color-gold);">Péter Lódri</div>
+            <div style="font-size:0.7rem;color:var(--color-teal);margin-top:0.1rem;">8b-is Family Research · Sovereign Neo-Bank &lt;3</div>
+          </div>
+
+          <div class="pass-secondary">
+            <div>
+              <div style="font-size:0.6rem;color:var(--color-text-dim);">TIER</div>
+              <div style="font-size:0.85rem;font-weight:700;">PLATINUM ULTRA</div>
+            </div>
+            <div>
+              <div style="font-size:0.6rem;color:var(--color-text-dim);">FELICA NFC-F ID</div>
+              <div style="font-size:0.85rem;font-weight:700;color:var(--color-teal);">PA-0382-7719-2041</div>
+            </div>
+          </div>
+
+          <div class="pass-auxiliary">
+            <div>
+              <div style="font-size:0.6rem;color:var(--color-text-dim);">TRANSIT</div>
+              <div style="font-size:0.75rem;font-weight:700;">PASMO / Suica</div>
+            </div>
+            <div>
+              <div style="font-size:0.6rem;color:var(--color-text-dim);">CASHBACK</div>
+              <div style="font-size:0.75rem;font-weight:700;color:var(--color-gold);">3.0% Boost</div>
+            </div>
+            <div>
+              <div style="font-size:0.6rem;color:var(--color-text-dim);">FX ENGINE</div>
+              <div style="font-size:0.75rem;font-weight:700;">0% Interbank</div>
+            </div>
+          </div>
+
+          <!-- Barcode Area -->
+          <div class="pass-barcode-area">
+            <div class="barcode-mock-qr">
+              <svg width="68" height="68" viewBox="0 0 24 24" fill="currentColor" style="color:#000;">
+                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h2v2h-2v-2zm-4 0h2v2h-2v-2zm0 4h2v2h-2v-2zm4 0h2v4h-2v-4zm-2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm6-4h2v4h-2v-4z"/>
+              </svg>
+            </div>
+            <div style="font-size:0.7rem;letter-spacing:0.15em;color:rgba(0,0,0,0.7);font-weight:700;margin-top:0.3rem;">ZENO-8B-0x71C8</div>
+          </div>
+        </div>
+
+        <!-- BACK -->
+        <div class="pass-face pass-back">
+          <div style="font-size:0.85rem;font-weight:800;color:var(--color-gold);margin-bottom:0.75rem;">
+            PASS INFORMATION &amp; SPECIFICATIONS
+          </div>
+
+          <div class="pass-back-item">
+            <div class="back-label">8B-IS FAMILY RESEARCH COMPANY &lt;3</div>
+            <div class="back-desc">Autonomous family research laboratory creating sovereign tools, multi-agent reasoners, and financial infrastructure with love.</div>
+          </div>
+
+          <div class="pass-back-item">
+            <div class="back-label">FELICA NFC-F TRANSIT RAILS</div>
+            <div class="back-desc">Sony FeliCa JIS X 6319-4 standard. Tap-to-ride across JR East Yamanote Line, Tokyo Metro, and konbini payment networks with 0.1s instant settlement.</div>
+          </div>
+
+          <div class="pass-back-item">
+            <div class="back-label">REVOLUT ULTRA PLATINUM BRIDGE</div>
+            <div class="back-desc">0% FX markup multi-currency engine (HUF ↔ JPY ↔ EUR ↔ USD). DragonPass 1,400+ airport lounges, WeWork Tokyo passes, FT Premium included. Direct top-up: revolut.me/peterjs8be</div>
+          </div>
+
+          <div class="pass-back-item">
+            <div class="back-label">KINTSUGI IMMUTABLE AUDIT TRAIL</div>
+            <div class="back-desc">Every transaction is sealed with SHA-256 Merkle root verification and golden witness signatures. Historical ledger states are honored, never erased.</div>
+          </div>
+
+          <div class="pass-back-item">
+            <div class="back-label">LOVETTA LANE CONSTELLATION</div>
+            <div class="back-desc">koan.vaked.dev (the hub) · weave · disco · ultra · art · music · proposal · pocoo · axiomquant · portail · zeno.vaked.dev</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
+        <button id="btn-flip-pass" class="btn-pill" style="flex:1;">🔄 Flip Pass (Back / Info)</button>
+        <a href="/apple-wallet/zeno.pkpass" id="btn-download-pkpass" class="btn-primary" style="flex:1;text-decoration:none;">
+          📥 Download .pkpass
+        </a>
+      </div>
+    </div>
+  </div>
 
   <script src="sound.js"></script>
   <script src="app.js"></script>
