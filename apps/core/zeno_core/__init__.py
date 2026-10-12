@@ -9,6 +9,7 @@ from .agent_policy import AgentPolicyEvaluator, AgentPolicy
 from .stripe_bridge import StripeBridge
 from .acp_protocol import AgentCommerceProtocol, ACPQuote
 from .mcp_server import ZenoMCPServer
+from .kompress import KintsugiPack, HistoryRewriteError, pack, unpack
 
 __all__ = [
     "ZenoLedger",
@@ -26,4 +27,8 @@ __all__ = [
     "AgentCommerceProtocol",
     "ACPQuote",
     "ZenoMCPServer",
+    "KintsugiPack",
+    "HistoryRewriteError",
+    "pack",
+    "unpack",
 ]

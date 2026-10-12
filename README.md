@@ -10,7 +10,8 @@
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
 [![Stripe: Compatible](https://img.shields.io/badge/stripe-compatible-635BFF?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 [![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
-[![Tests: 25 passed](https://img.shields.io/badge/tests-25%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Tests: 34 passed](https://img.shields.io/badge/tests-34%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
 
 **Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 
@@ -85,6 +86,7 @@ zeno.vaked.dev/
 │   ├── STREAMING_SPEC.md     # Continuous micro-streaming linear mathematics
 │   ├── AGENT_BANKING.md      # Autonomous AI agent accounts & PoR policies
 │   ├── REGULATORY_JP.md      # Japanese Payment Services Act (資金決済法) compliance
+│   ├── WUPZ_BRIDGE.md        # Kintsugi Pack: incremental, content-addressed chain kompression (zeno × wupz)
 │   └── api/
 │       └── openapi.yaml      # OpenAPI 3.1 REST/Edge API specification
 ├── apps/
@@ -195,6 +197,12 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
   - **20%** Autonomous AI Agent Compute Escrow (`agt_crush_reasoner`, `agt_swe_af`)
   - **10%** Universal Public Treasury (`treasury:universal`)
 
+### 4.5 Kintsugi Pack — zeno × wupz (金継ぎパック)
+- **Incremental, content-addressed chain kompression** ([`spec/WUPZ_BRIDGE.md`](spec/WUPZ_BRIDGE.md), [`zeno_core/kompress.py`](apps/core/zeno_core/kompress.py)): fixed windows of sealed blocks, each addressed by SHA-256 and zlib-packed; on re-pack, full windows are reused verbatim and only the tail moves.
+- **One seal decides**: if the previous head seal is still at the same height, everything below it is unchanged; if it moved, `HistoryRewriteError` — sealed history is refused, never re-packed.
+- **Licence boundary**: wupz is AGPL-3.0-only; this is a clean-room, stdlib-only re-derivation of its ideas under ZENO's MIT licence. No wupz code is copied or linked.
+- Measured on a synthetic 1000-block ledger: 557,282 → 131,411 bytes (4.24×); +1 block re-packs 1 of 63 windows.
+
 ---
 
 ## 5. Verification & Tests
@@ -204,7 +212,7 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
-*Output: 25 tests passed in 0.003s (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server).*
+*Output: 34 tests passed (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server + 9 Kintsugi Pack).*
 
 ### 5.2 Build Apple Wallet Pass
 ```bash
