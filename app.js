@@ -1187,6 +1187,21 @@ function initStripeAcpUI() {
   });
 }
 
+function initXiaohongshuUI() {
+  document.querySelectorAll(".xhs-copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-target");
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      navigator.clipboard?.writeText(el.textContent || "");
+      window.zenoAudio?.playBell();
+      const orig = btn.textContent;
+      btn.textContent = "✅ Copied to Clipboard!";
+      setTimeout(() => { btn.textContent = orig; }, 1800);
+    });
+  });
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -1197,8 +1212,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initTokyoFoundationUI();
   initAppleWalletModal();
   initStripeAcpUI();
+  initXiaohongshuUI();
   renderLedgerTable();
   startStreamingLoop();
 });
+
 
 

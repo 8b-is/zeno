@@ -12,8 +12,9 @@
 [![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 [![Tests: 34 passed](https://img.shields.io/badge/tests-34%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 [![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
+[![Xiaohongshu: RED Studio](https://img.shields.io/badge/Xiaohongshu-RED%20Studio-ff2442?style=flat-square)](spec/XIAOHONGSHU_STRATEGY.md)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md)
 
 ---
 
