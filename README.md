@@ -13,8 +13,9 @@
 [![Tests: 34 passed](https://img.shields.io/badge/tests-34%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 [![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
 [![Xiaohongshu: RED Studio](https://img.shields.io/badge/Xiaohongshu-RED%20Studio-ff2442?style=flat-square)](spec/XIAOHONGSHU_STRATEGY.md)
+[![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md)
 
 ---
 

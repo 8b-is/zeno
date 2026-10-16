@@ -1202,6 +1202,86 @@ function initXiaohongshuUI() {
   });
 }
 
+function initDraCeoHelperUI() {
+  const topicEl = document.getElementById("dra-topic");
+  const outlayEl = document.getElementById("dra-outlay-jpy");
+  const earningsEl = document.getElementById("dra-owner-earnings");
+  const avoidedEl = document.getElementById("dra-foken-avoided");
+  const debtEl = document.getElementById("dra-foken-debt");
+  const phoneEl = document.getElementById("dra-phone");
+  const intrinsicEl = document.getElementById("dra-intrinsic-val");
+  const mosEl = document.getElementById("dra-mos-pct");
+  const verdictEl = document.getElementById("dra-verdict-badge");
+  const previewEl = document.getElementById("dra-wa-preview");
+  const deepLinkEl = document.getElementById("btn-dra-wa-deeplink");
+  const copyBtn = document.getElementById("btn-dra-copy-memo");
+
+  if (!topicEl || !previewEl) return;
+
+  const updateBuffettMemo = () => {
+    const topic = topicEl.value || "8b-is & ZENO Capital Allocation";
+    const outlay = Math.max(1, Number(outlayEl?.value || 1500000));
+    const earnings = Math.max(0, Number(earningsEl?.value || 650000));
+    const avoided = Math.max(0, Number(avoidedEl?.value || 160));
+    const debt = Math.max(0, Number(debtEl?.value || 4));
+    const phoneRaw = (phoneEl?.value || "").replace(/[^0-9]/g, "");
+
+    // 10-year DCF at r = 4.32% (432Hz harmonic discount rate) + Foken net hours valued at ¥8,000/hr
+    const r = 0.0432;
+    const annuityFactor = (1 - Math.pow(1 + r, -10)) / r;
+    const netFokenHrs = avoided - (20 + 1.5 * debt);
+    const intrinsicJpy = Math.round(earnings * annuityFactor + Math.max(0, netFokenHrs) * 8000);
+    const mosPct = ((intrinsicJpy - outlay) / Math.max(1, intrinsicJpy)) * 100;
+    const isStrongBuy = mosPct >= 30 && netFokenHrs > 0;
+
+    if (intrinsicEl) intrinsicEl.textContent = `¥${intrinsicJpy.toLocaleString()} JPY`;
+    if (mosEl) {
+      mosEl.textContent = `${mosPct >= 0 ? "+" : ""}${mosPct.toFixed(1)}% (${mosPct >= 30 ? "WIDE SAFETY" : "NARROW"})`;
+      mosEl.style.color = mosPct >= 30 ? "var(--color-teal)" : "#ff6b81";
+    }
+    if (verdictEl) {
+      verdictEl.textContent = isStrongBuy ? "STRONG BUY · HOLD FOREVER" : "WAIT FOR BETTER PITCH (MR. MARKET)";
+      verdictEl.style.color = isStrongBuy ? "#25d366" : "var(--color-gold)";
+    }
+
+    const memo = [
+      `🎩 *DRA CEO HELPER × WARREN BUFFETT (OMAHA v2.0)*`,
+      `✦ *To:* CEO Dra (* Alexandra) · *Subject:* ${topic}`,
+      `────────────────────────`,
+      `1️⃣ *Circle of Competence:* 100% sovereign 8b-is & ZENO core (MLX-Quant + Kintsugi SHA-256 + FeliCa 0.1s rails).`,
+      `2️⃣ *5-Moat $1B Test:* WIDE MOAT — Apple Wallet .pkpass switching cost + 0% FX float + cryptographic family trust.`,
+      `3️⃣ *Owner Earnings & 10-Yr Intrinsic Value:*`,
+      `• Outlay: ¥${outlay.toLocaleString()} JPY | Annual Owner Earnings: ¥${earnings.toLocaleString()} JPY/yr`,
+      `• Foken Net Utility: ${netFokenHrs >= 0 ? "+" : ""}${netFokenHrs.toFixed(1)} net hrs`,
+      `• 10-Yr Intrinsic Value (4.32% DCF): ¥${intrinsicJpy.toLocaleString()} JPY`,
+      `4️⃣ *Graham Margin of Safety:* ${mosPct.toFixed(1)}% (${isStrongBuy ? "Rule No. 1 Verified" : "Below 30% threshold"})`,
+      `5️⃣ *Omaha Verdict:* *${isStrongBuy ? "STRONG BUY — HOLD FOREVER" : "WAIT FOR FATTER PITCH"}*`,
+      `────────────────────────`,
+      `🌸 *"Someone is sitting in the shade today because CEO Dra planted a tree a long time ago."* — Love, Peter, Nate & Chris <3`
+    ].join("\n");
+
+    previewEl.textContent = memo;
+    if (deepLinkEl) {
+      const base = phoneRaw ? `https://wa.me/${phoneRaw}` : `https://wa.me/`;
+      deepLinkEl.href = `${base}?text=${encodeURIComponent(memo)}`;
+    }
+  };
+
+  [topicEl, outlayEl, earningsEl, avoidedEl, debtEl, phoneEl].forEach(el => {
+    el?.addEventListener("input", updateBuffettMemo);
+  });
+
+  copyBtn?.addEventListener("click", () => {
+    navigator.clipboard?.writeText(previewEl.textContent || "");
+    window.zenoAudio?.playBell();
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = "✅ Memo Copied!";
+    setTimeout(() => { copyBtn.textContent = orig; }, 1800);
+  });
+
+  updateBuffettMemo();
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -1213,9 +1293,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initAppleWalletModal();
   initStripeAcpUI();
   initXiaohongshuUI();
+  initDraCeoHelperUI();
   renderLedgerTable();
   startStreamingLoop();
 });
+
 
 
 
