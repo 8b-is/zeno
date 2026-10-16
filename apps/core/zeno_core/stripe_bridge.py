@@ -4,13 +4,45 @@ Bridges Stripe Web2 payments, metered billing, virtual cards (Issuing),
 and webhooks with ZENO Kintsugi double-entry ledger.
 """
 
+import ctypes
 import hmac
 import hashlib
+import secrets
 import time
 import json
 from typing import Any, Dict, List, Optional
 from .ledger import ZenoLedger, Posting, AccountType
 from .agent_policy import AgentPolicyEvaluator
+
+
+def zeroize_bytearray(buf: bytearray) -> None:
+    """Volatily overwrite a mutable bytearray in place (`ZA-0007`)."""
+    if not buf:
+        return
+    n = len(buf)
+    c_buf = (ctypes.c_char * n).from_buffer(buf)
+    ctypes.memset(ctypes.addressof(c_buf), 0, n)
+    del c_buf
+    buf.clear()
+
+
+def _zeroize_py_str(s: Optional[str]) -> None:
+    """
+    Scrub the underlying compact-ASCII payload of a non-interned Python `str`
+    in the CPython heap when a secret attribute is explicitly cleared (`ZA-0007`).
+    """
+    if not isinstance(s, str) or len(s) < 16 or not s.isascii():
+        return
+    try:
+        needle = s.encode("ascii")
+        if all(b == 0 for b in needle):
+            return
+        raw = ctypes.string_at(id(s), 96 + len(needle))
+        offset = raw.find(needle)
+        if offset != -1:
+            ctypes.memset(id(s) + offset, 0, len(needle))
+    except Exception:
+        pass
 
 
 class StripeBridge:
@@ -22,11 +54,43 @@ class StripeBridge:
     ):
         self.ledger = ledger
         self.policy_evaluator = policy_evaluator or AgentPolicyEvaluator(ledger)
+        self._webhook_secret_str: Optional[str] = None
+        self._webhook_secret_buf = bytearray()
         self.webhook_secret = webhook_secret
         self.processed_events: set = set()
 
         # Initialize required bridge accounts in ZenoLedger if not present
         self._ensure_accounts()
+
+    @property
+    def webhook_secret(self) -> str:
+        if self._webhook_secret_str is not None:
+            return self._webhook_secret_str
+        return self._webhook_secret_buf.decode("utf-8", errors="replace")
+
+    @webhook_secret.setter
+    def webhook_secret(self, value: str) -> None:
+        if self._webhook_secret_str is not None and self._webhook_secret_str is not value:
+            _zeroize_py_str(self._webhook_secret_str)
+        zeroize_bytearray(self._webhook_secret_buf)
+        if value:
+            self._webhook_secret_buf = bytearray(value.encode("utf-8"))
+            self._webhook_secret_str = value
+        else:
+            self._webhook_secret_str = ""
+
+    def zeroize(self) -> None:
+        """Scrub webhook secrets from CPython heap memory."""
+        if self._webhook_secret_str is not None:
+            _zeroize_py_str(self._webhook_secret_str)
+            self._webhook_secret_str = ""
+        zeroize_bytearray(self._webhook_secret_buf)
+
+    def __del__(self) -> None:
+        try:
+            zeroize_bytearray(self._webhook_secret_buf)
+        except Exception:
+            pass
 
     def _ensure_accounts(self) -> None:
         """Ensure standard bridge and clearing accounts exist in Kintsugi ledger."""
@@ -61,8 +125,8 @@ class StripeBridge:
         Verify Stripe webhook signature header format:
         t=1700000000,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd
         Rejects replay attacks exceeding timestamp tolerance.
+        Scrubs transient key and signed_payload buffers in a finally block (`ZA-0007`).
         """
-        secret = secret or self.webhook_secret
         if not sig_header:
             raise ValueError("Missing Stripe-Signature header")
 
@@ -78,18 +142,23 @@ class StripeBridge:
         if abs(current_time - timestamp) > tolerance:
             raise PermissionError(f"Timestamp outside tolerance window: delta {abs(current_time - timestamp)}s > {tolerance}s")
 
-        # Signed payload is: f"{timestamp}.{payload_str}"
-        signed_payload = f"{timestamp}.".encode("utf-8") + payload
-        computed_sig = hmac.new(
-            secret.encode("utf-8"),
-            signed_payload,
-            hashlib.sha256
-        ).hexdigest()
+        key_buf = bytearray(secret.encode("utf-8")) if secret is not None else bytearray(self._webhook_secret_buf)
+        signed_payload = bytearray(f"{timestamp}.".encode("utf-8"))
+        signed_payload.extend(payload)
+        try:
+            computed_sig = hmac.new(
+                key_buf,
+                signed_payload,
+                hashlib.sha256,
+            ).hexdigest()
 
-        if not hmac.compare_digest(computed_sig, expected_sig):
-            raise PermissionError("Stripe webhook HMAC signature mismatch")
+            if not hmac.compare_digest(computed_sig, expected_sig):
+                raise PermissionError("Stripe webhook HMAC signature mismatch")
 
-        return True
+            return True
+        finally:
+            zeroize_bytearray(key_buf)
+            zeroize_bytearray(signed_payload)
 
     def create_payment_intent(
         self,
@@ -101,11 +170,13 @@ class StripeBridge:
     ) -> Dict[str, Any]:
         """
         Create a simulated or live Stripe PaymentIntent for inbound checkout or agentic billing.
+        Uses CSPRNG (`secrets.token_hex`) so `client_secret` cannot be derived from `intent_id` (`ZA-0008`).
         """
         if amount_cents <= 0:
             raise ValueError("PaymentIntent amount must be positive")
 
-        intent_id = f"pi_zeno_{hashlib.sha256(f'{time.time()}_{amount_cents}'.encode()).hexdigest()[:16]}"
+        intent_id = f"pi_zeno_{secrets.token_hex(8)}"
+        secret_entropy = secrets.token_hex(12)
         meta = metadata or {}
         if agent_id:
             meta["agent_id"] = agent_id
@@ -116,7 +187,7 @@ class StripeBridge:
             "amount": amount_cents,
             "currency": currency.lower(),
             "status": "requires_payment_method",
-            "client_secret": f"{intent_id}_secret_{hashlib.sha256(intent_id.encode()).hexdigest()[:24]}",
+            "client_secret": f"{intent_id}_secret_{secret_entropy}",
             "customer": customer_id,
             "metadata": meta,
             "created": int(time.time()),
@@ -133,7 +204,7 @@ class StripeBridge:
         """
         Generate hosted Stripe Checkout session for customer patronage or SaaS subscriptions.
         """
-        session_id = f"cs_zeno_{hashlib.sha256(f'{time.time()}_{len(line_items)}'.encode()).hexdigest()[:18]}"
+        session_id = f"cs_zeno_{secrets.token_hex(9)}"
         total_amount = sum(item.get("amountCents", 0) * item.get("quantity", 1) for item in line_items)
 
         return {
@@ -160,7 +231,7 @@ class StripeBridge:
         """
         Record metered usage (tokens, compute seconds, reasoning steps) for automated Stripe Billing.
         """
-        record_id = f"mrec_zeno_{hashlib.sha256(f'{agent_id}_{time.time()}_{quantity}'.encode()).hexdigest()[:14]}"
+        record_id = f"mrec_zeno_{secrets.token_hex(7)}"
         return {
             "id": record_id,
             "object": "usage_record",

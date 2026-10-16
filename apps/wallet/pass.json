@@ -10,7 +10,7 @@
   "labelColor": "rgb(139, 136, 162)",
   "logoText": "ZENO 銭 · 8b-is",
   "webServiceURL": "https://zeno.vaked.dev/api/passes/",
-  "authenticationToken": "8b_zeno_kintsugi_sec_token_0x71c8",
+  "authenticationToken": "",
   "generic": {
     "headerFields": [
       {

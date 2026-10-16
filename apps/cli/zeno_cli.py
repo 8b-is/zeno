@@ -33,8 +33,14 @@ def load_state() -> dict:
 
 
 def save_state(state: dict):
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
+    STATE_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+    try:
+        os.chmod(STATE_DIR, 0o700)
+    except OSError:
+        pass
+    fd = os.open(str(STATE_FILE), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    os.chmod(STATE_FILE, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
 
 

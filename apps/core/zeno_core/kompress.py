@@ -188,16 +188,39 @@ class KintsugiPack:
             raise PackIntegrityError("malformed manifest") from None
 
 
+import ctypes
+
+
+def _zeroize_bytes_buffer(buf: bytes) -> None:
+    """Scrub a non-interned CPython bytes buffer in place before dropping reference (`ZA-0009`)."""
+    if not isinstance(buf, bytes) or len(buf) < 8:
+        return
+    try:
+        header = ctypes.string_at(id(buf), 64)
+        idx = header.find(buf[:8])
+        if idx != -1:
+            ctypes.memset(id(buf) + idx, 0, len(buf))
+    except Exception:
+        pass
+
+
 def _pack_window(index: int, blocks: Sequence[Dict[str, Any]]) -> PackedWindow:
     raw = _canonical(list(blocks))
-    return PackedWindow(
-        index=index,
-        first_block=blocks[0]["blockIndex"],
-        count=len(blocks),
-        raw_sha256=hashlib.sha256(raw).hexdigest(),
-        raw_len=len(raw),
-        data=zlib.compress(raw, 9),
-    )
+    try:
+        raw_sha256 = hashlib.sha256(raw).hexdigest()
+        raw_len = len(raw)
+        compressed = zlib.compress(raw, 9)
+        return PackedWindow(
+            index=index,
+            first_block=blocks[0]["blockIndex"],
+            count=len(blocks),
+            raw_sha256=raw_sha256,
+            raw_len=raw_len,
+            data=compressed,
+        )
+    finally:
+        _zeroize_bytes_buffer(raw)
+        raw = b""
 
 
 def pack(
@@ -252,25 +275,38 @@ def pack(
 
 def unpack(p: KintsugiPack) -> List[Dict[str, Any]]:
     """Decompress every window, check its content address, then verify the
-    whole chain and the head seal. Returns the blocks in dict form."""
+    whole chain and the head seal. Returns the blocks in dict form.
+    Scrubs `raw` bytes on both normal and `PackIntegrityError` paths (`ZA-0009`)."""
     blocks: List[Dict[str, Any]] = []
-    for i, w in enumerate(p.windows):
-        if w.index != i or w.first_block != len(blocks) + 1:
-            raise PackIntegrityError(f"window {i}: out of order")
-        try:
-            raw = zlib.decompress(w.data)
-        except zlib.error:
-            raise PackIntegrityError(f"window {i}: corrupt data") from None
-        if len(raw) != w.raw_len or hashlib.sha256(raw).hexdigest() != w.raw_sha256:
-            raise PackIntegrityError(f"window {i}: content address mismatch")
-        chunk = json.loads(raw.decode("utf-8"))
-        if len(chunk) != w.count or (i < len(p.windows) - 1 and w.count != p.window_size):
-            raise PackIntegrityError(f"window {i}: wrong block count")
-        blocks.extend(chunk)
-    if len(blocks) != p.block_count:
-        raise PackIntegrityError("block count does not match manifest")
-    verify_blocks(blocks)
-    head = blocks[-1]["seal"] if blocks else GENESIS_HASH
-    if head != p.head_seal:
-        raise PackIntegrityError("head seal does not match manifest")
-    return blocks
+    raw: bytes = b""
+    try:
+        for i, w in enumerate(p.windows):
+            if w.index != i or w.first_block != len(blocks) + 1:
+                raise PackIntegrityError(f"window {i}: out of order")
+            try:
+                raw = zlib.decompress(w.data)
+            except zlib.error:
+                raise PackIntegrityError(f"window {i}: corrupt data") from None
+            if len(raw) != w.raw_len or hashlib.sha256(raw).hexdigest() != w.raw_sha256:
+                _zeroize_bytes_buffer(raw)
+                raw = b""
+                raise PackIntegrityError(f"window {i}: content address mismatch")
+            chunk = json.loads(raw.decode("utf-8"))
+            _zeroize_bytes_buffer(raw)
+            raw = b""
+            if len(chunk) != w.count or (i < len(p.windows) - 1 and w.count != p.window_size):
+                chunk.clear()
+                raise PackIntegrityError(f"window {i}: wrong block count")
+            blocks.extend(chunk)
+        if len(blocks) != p.block_count:
+            raise PackIntegrityError("block count does not match manifest")
+        verify_blocks(blocks)
+        head = blocks[-1]["seal"] if blocks else GENESIS_HASH
+        if head != p.head_seal:
+            raise PackIntegrityError("head seal does not match manifest")
+        return blocks
+    except PackIntegrityError:
+        _zeroize_bytes_buffer(raw)
+        raw = b""
+        blocks.clear()
+        raise

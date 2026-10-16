@@ -10,7 +10,7 @@
   "labelColor": "rgb(120, 160, 200)",
   "logoText": "8b-is · 銭 · FLEET",
   "webServiceURL": "https://zeno.vaked.dev/api/passes/",
-  "authenticationToken": "8b_corp_fleet_master_sec_token_888",
+  "authenticationToken": "",
   "generic": {
     "headerFields": [
       {

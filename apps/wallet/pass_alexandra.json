@@ -10,7 +10,7 @@
   "labelColor": "rgb(220, 160, 175)",
   "logoText": "ZENO 銭 · Mom <3",
   "webServiceURL": "https://zeno.vaked.dev/api/passes/",
-  "authenticationToken": "8b_zeno_mom_alexandra_token_0x71c8",
+  "authenticationToken": "",
   "generic": {
     "headerFields": [
       {

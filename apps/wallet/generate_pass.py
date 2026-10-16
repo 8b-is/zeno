@@ -49,31 +49,102 @@ def create_gradient_png(width: int, height: int, c1: tuple, c2: tuple) -> bytes:
     ihdr = struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)
     return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", idat) + chunk(b"IEND", b"")
 
-def generate_signature(manifest_bytes: bytes, cert_dir: Path) -> bytes:
-    """
-    Generate PKCS#7 DER detached signature using OpenSSL.
-    Supports official Apple Developer certs or auto-generates test sovereign keypair.
-    """
+import ctypes
+import secrets
+
+DEFAULT_DEV_PASSPHRASE = "zeno-sovereign-key-passphrase-8b-is"
+
+
+def zeroize_bytes_in_place(buf: bytes) -> None:
+    """Best-effort scrub of a non-interned CPython bytes buffer before drop."""
+    if not isinstance(buf, bytes) or len(buf) < 8:
+        return
+    try:
+        header = ctypes.string_at(id(buf), 64)
+        idx = header.find(buf[:8])
+        if idx != -1:
+            ctypes.memset(id(buf) + idx, 0, len(buf))
+    except Exception:
+        pass
+
+
+def secure_wipe_file(path: str | Path) -> None:
+    """Overwrite file contents with zeroes and fsync before unlinking."""
+    p = Path(path)
+    if not p.exists():
+        return
+    try:
+        size = p.stat().st_size
+        if size > 0:
+            with open(p, "r+b") as f:
+                f.write(b"\x00" * size)
+                f.flush()
+                os.fsync(f.fileno())
+    except OSError:
+        pass
+    finally:
+        try:
+            p.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _ensure_encrypted_keypair(cert_dir: Path, passphrase: str) -> tuple[Path, Path]:
     signer_cert = cert_dir / "pass_cert.pem"
     signer_key = cert_dir / "pass_key.pem"
-    
-    if not (signer_cert.exists() and signer_key.exists()):
+    needs_regen = not (signer_cert.exists() and signer_key.exists())
+    if not needs_regen:
+        try:
+            key_text = signer_key.read_text(encoding="utf-8", errors="ignore")
+            if "-----BEGIN PRIVATE KEY-----" in key_text:
+                # Upgrade legacy unencrypted PKCS#8 key in-place to AES-256 encrypted PKCS#8
+                tmp_enc = cert_dir / "pass_key.enc.pem"
+                res = subprocess.run(
+                    [
+                        "openssl", "pkcs8", "-topk8", "-v2", "aes256",
+                        "-in", str(signer_key),
+                        "-out", str(tmp_enc),
+                        "-passout", f"pass:{passphrase}",
+                    ],
+                    capture_output=True,
+                )
+                if res.returncode == 0 and tmp_enc.exists():
+                    os.chmod(tmp_enc, 0o600)
+                    secure_wipe_file(signer_key)
+                    tmp_enc.replace(signer_key)
+        except OSError:
+            pass
+    else:
         cert_dir.mkdir(parents=True, exist_ok=True)
-        # Generate sovereign 8b-is developer signing key
         subprocess.run(
             [
                 "openssl", "req", "-x509", "-newkey", "rsa:2048",
+                "-aes256",
+                "-passout", f"pass:{passphrase}",
                 "-keyout", str(signer_key), "-out", str(signer_cert),
-                "-days", "730", "-nodes",
-                "-subj", "/CN=Zeno Sovereign NeoBank Pass/O=8b-is Family Research/C=JP"
+                "-days", "730",
+                "-subj", "/CN=Zeno Sovereign NeoBank Pass/O=8b-is Family Research/C=JP",
             ],
             check=True,
-            capture_output=True
+            capture_output=True,
         )
+        os.chmod(signer_key, 0o600)
+    return signer_cert, signer_key
 
-    with tempfile.NamedTemporaryFile("wb", delete=False) as f_manifest:
+
+def generate_signature(manifest_bytes: bytes, cert_dir: Path) -> bytes:
+    """
+    Generate PKCS#7 DER detached signature using OpenSSL.
+    Fails closed on any OpenSSL/certificate error (never emits mock signatures)
+    and securely wipes temporary manifest/signature files (`ZA-0006`).
+    """
+    passphrase = os.environ.get("ZENO_PASS_KEY_PASSPHRASE", DEFAULT_DEV_PASSPHRASE)
+    signer_cert, signer_key = _ensure_encrypted_keypair(cert_dir, passphrase)
+
+    fd_m, manifest_path = tempfile.mkstemp(prefix="zeno_manifest_", suffix=".json")
+    os.chmod(manifest_path, 0o600)
+    with os.fdopen(fd_m, "wb") as f_manifest:
         f_manifest.write(manifest_bytes)
-        manifest_path = f_manifest.name
 
     sig_out_path = manifest_path + ".sig"
 
@@ -84,25 +155,34 @@ def generate_signature(manifest_bytes: bytes, cert_dir: Path) -> bytes:
             "-out", sig_out_path,
             "-outform", "DER",
             "-signer", str(signer_cert),
-            "-inkey", str(signer_key)
+            "-inkey", str(signer_key),
+            "-passin", f"pass:{passphrase}",
         ]
         res = subprocess.run(cmd, capture_output=True)
         if res.returncode != 0:
-            print("Warning: OpenSSL signing failed, falling back to mock signature:", res.stderr.decode())
-            return b"MOCK_PKCS7_SIGNATURE_8B_IS_SOVEREIGN_KEY_ZENO_NEOBANK"
-        
+            err_msg = res.stderr.decode("utf-8", errors="replace").strip()
+            raise RuntimeError(f"OpenSSL PKCS#7 signing failed (fail-closed): {err_msg}")
+
         with open(sig_out_path, "rb") as f_sig:
-            return f_sig.read()
+            sig_data = f_sig.read()
+        if not sig_data:
+            raise RuntimeError("OpenSSL PKCS#7 signing produced empty output (fail-closed)")
+        return sig_data
     finally:
-        if os.path.exists(manifest_path):
-            os.remove(manifest_path)
-        if os.path.exists(sig_out_path):
-            os.remove(sig_out_path)
+        secure_wipe_file(manifest_path)
+        secure_wipe_file(sig_out_path)
+
 
 def build_single_pass(json_filename: str, pkpass_filename: str, c1: tuple, c2: tuple, c_strip: tuple, cert_dir: Path):
     pass_json_path = HERE / json_filename
     with open(pass_json_path, "r", encoding="utf-8") as f:
         pass_data = json.load(f)
+
+    # Inject per-build or environment-provided CSPRNG authenticationToken (ZA-0010)
+    configured_token = os.environ.get("ZENO_PASS_AUTH_TOKEN", "").strip()
+    if not configured_token:
+        configured_token = f"zeno_pk_{secrets.token_hex(16)}"
+    pass_data["authenticationToken"] = configured_token
 
     pkpass_path = HERE / pkpass_filename
 
@@ -131,13 +211,17 @@ def build_single_pass(json_filename: str, pkpass_filename: str, c1: tuple, c2: t
         manifest[name] = hashlib.sha1(content).hexdigest()
 
     manifest_bytes = json.dumps(manifest, indent=2).encode("utf-8")
-    signature_bytes = generate_signature(manifest_bytes, cert_dir)
+    try:
+        signature_bytes = generate_signature(manifest_bytes, cert_dir)
 
-    with zipfile.ZipFile(pkpass_path, "w", zipfile.ZIP_DEFLATED) as pkpass:
-        for name, content in pass_assets.items():
-            pkpass.writestr(name, content)
-        pkpass.writestr("manifest.json", manifest_bytes)
-        pkpass.writestr("signature", signature_bytes)
+        with zipfile.ZipFile(pkpass_path, "w", zipfile.ZIP_DEFLATED) as pkpass:
+            for name, content in pass_assets.items():
+                pkpass.writestr(name, content)
+            pkpass.writestr("manifest.json", manifest_bytes)
+            pkpass.writestr("signature", signature_bytes)
+    finally:
+        zeroize_bytes_in_place(pass_bytes)
+        zeroize_bytes_in_place(manifest_bytes)
 
     print(f"✓ Apple Wallet Pass generated: {pkpass_filename} ({pkpass_path.stat().st_size} bytes)")
     return pkpass_path
