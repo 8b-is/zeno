@@ -10,12 +10,14 @@
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
 [![Stripe: Compatible](https://img.shields.io/badge/stripe-compatible-635BFF?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 [![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
-[![Tests: 34 passed](https://img.shields.io/badge/tests-34%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Tests: 39 passed](https://img.shields.io/badge/tests-39%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 [![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
+[![Security: Zeroize ZA--0006..0010](https://img.shields.io/badge/security-Zeroize%20ZA--0006..0010-10B981?style=flat-square)](apps/core/tests/test_zeroize_remediation.py)
+[![ICML 2026: 45 ZKP1 Sealed](https://img.shields.io/badge/ICML%202026-45%20ZKP1%20Sealed-b48bff?style=flat-square)](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
 [![Xiaohongshu: RED Studio](https://img.shields.io/badge/Xiaohongshu-RED%20Studio-ff2442?style=flat-square)](spec/XIAOHONGSHU_STRATEGY.md)
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
 
 ---
 
@@ -89,13 +91,14 @@ zeno.vaked.dev/
 │   ├── AGENT_BANKING.md      # Autonomous AI agent accounts & PoR policies
 │   ├── REGULATORY_JP.md      # Japanese Payment Services Act (資金決済法) compliance
 │   ├── WUPZ_BRIDGE.md        # Kintsugi Pack: incremental, content-addressed chain kompression (zeno × wupz)
+│   ├── research/             # ICML 2026 45-workshop ZKP1 KintsugiPack index & telemetry
 │   └── api/
 │       └── openapi.yaml      # OpenAPI 3.1 REST/Edge API specification
 ├── apps/
 │   ├── core/                 # Deterministic Python core engine
 │   │   ├── pyproject.toml
-│   │   ├── zeno_core/        # Ledger, Stream, FokenGate, AgentPolicy
-│   │   └── tests/            # 13 automated unit tests (100% pass)
+│   │   ├── zeno_core/        # Ledger, Stream, FokenGate, AgentPolicy, Kompress
+│   │   └── tests/            # 39 automated unit & security tests (100% pass)
 │   └── cli/
 │       └── zeno_cli.py       # Full CLI for accounts, transfers, gate, & ledger
 ├── infra/
@@ -199,22 +202,30 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
   - **20%** Autonomous AI Agent Compute Escrow (`agt_crush_reasoner`, `agt_swe_af`)
   - **10%** Universal Public Treasury (`treasury:universal`)
 
-### 4.5 Kintsugi Pack — zeno × wupz (金継ぎパック)
+### 4.5 Kintsugi Pack — zeno × wupz (金継ぎパック) & Zeroize Security Hardening
 - **Incremental, content-addressed chain kompression** ([`spec/WUPZ_BRIDGE.md`](spec/WUPZ_BRIDGE.md), [`zeno_core/kompress.py`](apps/core/zeno_core/kompress.py)): fixed windows of sealed blocks, each addressed by SHA-256 and zlib-packed; on re-pack, full windows are reused verbatim and only the tail moves.
 - **One seal decides**: if the previous head seal is still at the same height, everything below it is unchanged; if it moved, `HistoryRewriteError` — sealed history is refused, never re-packed.
 - **Licence boundary**: wupz is AGPL-3.0-only; this is a clean-room, stdlib-only re-derivation of its ideas under ZENO's MIT licence. No wupz code is copied or linked.
-- Measured on a synthetic 1000-block ledger: 557,282 → 131,411 bytes (4.24×); +1 block re-packs 1 of 63 windows.
+- **Benchmarks**:
+  - Synthetic 1000-block ledger: 557,282 → 131,411 bytes (4.24×); +1 block re-packs 1 of 63 windows.
+  - [ICML 2026 45-Workshop OpenReview Corpus](spec/research/ICML_2026_WORKSHOPS_8B_IS.md): 53,537 → 15,024 bytes (**71.94% savings**, 6 content-addressed windows, head seal `2cc62240...57b8e`, `wupz` XOR fold `0xe766f0ccb8b0990e`).
+- **Zeroize Security Remediation (`ZA-0006..ZA-0010`)**:
+  - `ZA-0006`: Apple Wallet `pass_key.pem` encrypted at rest (PKCS#8 AES-256); `generate_signature()` fails closed on invalid keys/certs.
+  - `ZA-0007`: `StripeBridge.webhook_secret` CPython heap buffer explicitly scrubbed on clear/teardown.
+  - `ZA-0008`: `PaymentIntent.client_secret` minted from independent CSPRNG entropy (`secrets.token_hex`).
+  - `ZA-0009`: `kompress.unpack()` scrubs raw decompressed frame locals before raising `PackIntegrityError`.
+  - `ZA-0010`: CLI state enforced at `0600` (`~/.zeno/state.json`) and hardcoded `authenticationToken` redacted from `pass*.json` templates.
 
 ---
 
 ## 5. Verification & Tests
 
-### 5.1 Run Core Ledger, Stripe Bridge & MCP/ACP Tests
+### 5.1 Run Core Ledger, Stripe Bridge, MCP/ACP, Kintsugi Pack & Zeroize Tests
 ```bash
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
-*Output: 34 tests passed (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server + 9 Kintsugi Pack).*
+*Output: 39 tests passed (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server + 9 Kintsugi Pack + 5 Zeroize Security Remediation ZA-0006..ZA-0010).*
 
 ### 5.2 Build Apple Wallet Pass
 ```bash

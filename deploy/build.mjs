@@ -30,6 +30,7 @@ const pkpass8bBase64 = readFileSync(pkpass8bPath).toString("base64");
 
 const vakedProtocolHcl = readFileSync(join(root, "spec", "vaked-protocol.hcl"), "utf8");
 const stripeAcpMd = readFileSync(join(root, "spec", "STRIPE_COMPATIBILITY_MCP_ACP.md"), "utf8");
+const icmlWorkshopsMd = readFileSync(join(root, "spec", "research", "ICML_2026_WORKSHOPS_8B_IS.md"), "utf8");
 const zenoEngineJs = readFileSync(join(root, "zeno-engine.js"), "utf8");
 
 const worker = `// zeno.vaked.dev — Japanese Proof-of-Contribution Sovereign Neo-Bank
@@ -53,6 +54,7 @@ const PKPASS_CHRIS_BASE64 = ${JSON.stringify(pkpassChrisBase64)};
 const PKPASS_8B_BASE64 = ${JSON.stringify(pkpass8bBase64)};
 const VAKED_PROTOCOL_HCL = ${JSON.stringify(vakedProtocolHcl)};
 const STRIPE_ACP_MD = ${JSON.stringify(stripeAcpMd)};
+const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
   "version": "1.2.0",
@@ -314,6 +316,17 @@ export default {
 
     if (p === "/spec/STRIPE_COMPATIBILITY_MCP_ACP.md" || p === "/rfc-002" || p === "/acp-spec") {
       return new Response(STRIPE_ACP_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/spec/research/ICML_2026_WORKSHOPS_8B_IS.md" || p === "/icml-2026") {
+      return new Response(ICML_WORKSHOPS_MD, {
         headers: {
           ...COMMON_HEADERS,
           "content-type": "text/markdown; charset=utf-8",
