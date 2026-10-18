@@ -182,6 +182,34 @@ def cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     print(f"  • Settlement Status    : {res['status']}")
 
 
+def cmd_vaked_to_dra_usd(args, ledger, stream_engine, foken_bridge, agent_eval, state):
+    from zeno_core.stripe_bridge import StripeBridge
+    bridge = StripeBridge(ledger=ledger, policy_evaluator=agent_eval)
+    res = bridge.convert_vaked_coin_to_dra_usd(
+        vaked_coins=args.vaked_coins,
+        routing_number=args.routing,
+        account_number=args.account,
+    )
+    bridge.zeroize()
+    if args.json:
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        return
+    print("╔══════════════════════════════════════════════════════════════════════════╗")
+    print("║  VAKED COIN (FOKEN) -> USD CONVERSION FOR DRA (* ALEXANDRA LÓDRI)       ║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+    print(f"  • Beneficiary          : {res['beneficiary']}")
+    print(f"  • VAKED Coin Converted : {res['vakedCoinsConverted']:,} VAKED/FOKEN (¥{res['jpyEquivalent']:,} JPY @ ¥{res['tokenRateJpy']}/coin)")
+    print(f"  • USD Amount Settled   : ${res['amountUsd']:,.2f} USD (@ ¥{res['fxJpyPerUsd']:.1f}/USD)")
+    print(f"  • Foken Mint TX        : {res['fokenMintTxId']}")
+    print(f"  • USD Payout ID / TX   : {res['usdPayoutId']} / {res['usdSettlementTxId']}")
+    print(f"  • ABA Routing (Masked) : {res['abaRoutingMasked']} (Mod-10 Checksum Verified={res['abaMod10ChecksumVerified']})")
+    print(f"  • Account # (Masked)   : {res['accountMasked']}")
+    print(f"  • HMAC Commitment      : {res['hmacCommitment']}")
+    print(f"  • Kintsugi ZKP1 Proof  : {res['zkp1PackedBytes']} bytes | verified={res['zkp1Verified']}")
+    print(f"  • ZA-0007 Zeroization  : volatile_buffers_zeroized={res['volatileBuffersZeroized']}")
+    print(f"  • Settlement Status    : {res['status']}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ZENO: Sovereign Neo-Bank with Japanese Roots (銭・禅・善)"
@@ -228,6 +256,13 @@ def main():
     usd_p.add_argument("--label", default="Lódri Family Sovereign USD Treasury", help="Beneficiary vault label")
     usd_p.add_argument("--json", action="store_true", help="Emit JSON report")
 
+    # VAKED Coin -> Dra USD conversion command
+    vaked_p = sub.add_parser("vaked-to-dra-usd", help="Transform VAKED Coin (FOKEN) into USD for Dra (* Alexandra Lódri)")
+    vaked_p.add_argument("--vaked-coins", type=int, default=540000, help="Number of VAKED Coins (FOKEN) to convert")
+    vaked_p.add_argument("--routing", required=True, help="9-digit ABA routing number (zeroized in memory)")
+    vaked_p.add_argument("--account", required=True, help="Account number (zeroized in memory)")
+    vaked_p.add_argument("--json", action="store_true", help="Emit JSON report")
+
     args = parser.parse_args()
     ledger, stream_engine, foken_bridge, agent_eval, state = build_system()
 
@@ -246,6 +281,8 @@ def main():
         cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "usd-payout":
         cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state)
+    elif args.command == "vaked-to-dra-usd":
+        cmd_vaked_to_dra_usd(args, ledger, stream_engine, foken_bridge, agent_eval, state)
 
 
 if __name__ == "__main__":

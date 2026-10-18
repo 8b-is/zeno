@@ -146,6 +146,20 @@ class TestStripeBridge(unittest.TestCase):
         self.assertTrue(res["volatileBuffersZeroized"])
         self.assertTrue(self.ledger.verify_chain())
 
+    def test_convert_vaked_coin_to_dra_usd(self):
+        res = self.bridge.convert_vaked_coin_to_dra_usd(
+            vaked_coins=540_000,
+            routing_number="111000025",
+            account_number="0000998877",
+        )
+        self.assertEqual(res["vakedCoinsConverted"], 540_000)
+        self.assertEqual(res["jpyEquivalent"], 54_000_000)
+        self.assertEqual(res["amountUsd"], 360_000.0)
+        self.assertTrue(res["abaMod10ChecksumVerified"])
+        self.assertTrue(res["volatileBuffersZeroized"])
+        self.assertTrue(res["zkp1Verified"])
+        self.assertTrue(self.ledger.verify_chain())
+
 
 if __name__ == "__main__":
     unittest.main()

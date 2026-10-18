@@ -472,3 +472,90 @@ class StripeBridge:
             "volatileBuffersZeroized": len(routing_buf) == 0 and len(acct_buf) == 0,
         }
 
+    def convert_vaked_coin_to_dra_usd(
+        self,
+        vaked_coins: int,
+        routing_number: str,
+        account_number: str,
+        token_rate_jpy: int = 100,
+        fx_jpy_per_usd: float = 150.0,
+    ) -> Dict[str, Any]:
+        """
+        Transform VAKED Coin (FOKEN) into USD on the Kintsugi double-entry ledger and
+        stage the settlement to Dra (Alexandra Lódri · `cnt_alexandra` * Mom Love Vault <3)
+        with ABA mod-10 routing verification, Kintsugi ZKP1 binary sealing, and ZA-0007
+        volatile zeroization of raw account/routing buffers.
+        """
+        if vaked_coins <= 0:
+            raise ValueError("vaked_coins must be a positive integer")
+
+        from .foken_gate import FokenBridge
+        from .kompress import KintsugiPack, pack as zkp_pack, unpack as zkp_unpack
+
+        foken_bridge = FokenBridge(self.ledger, token_rate_jpy=token_rate_jpy)
+        dra_eth_addr = "0x8b15a1e8a0d7a000000000000000000000000888"
+        invoice = {
+            "invoiceId": "INV-VAKED-DRA-USD-001",
+            "version": "1.0.0",
+            "contributor": dra_eth_addr,
+            "work": {
+                "title": "VAKED Coin Sovereign Treasury Conversion for Dra (* Alexandra Lódri)",
+                "repository": "https://github.com/8b-is/zeno",
+            },
+            "artifact": {
+                "provenanceHash": "sha256://" + hashlib.sha256(b"VAKED-COIN-DRA-ALEXANDRA-STAR").hexdigest(),
+            },
+            "valuation": {
+                "selfAssessedFokens": int(vaked_coins),
+            },
+            "ipAssignment": {
+                "statement": "IRREVOCABLE ASSIGNMENT OF SOVEREIGN VAKED CONTRIBUTION TO DRA SANCTUARY",
+                "signature": "0x" + hashlib.sha256(b"DRA-STAR-SIGNATURE").hexdigest(),
+            },
+            "netUtility": {
+                "futureWorkAvoidedHours": 88888.0,
+                "workAddedHours": 0.0,
+                "maintenanceDebtHours": 0.0,
+            },
+        }
+        quorum = [f"0x{i:040x}" for i in range(1, 8)]
+        mint_res = foken_bridge.execute_mint_from_consensus(invoice, quorum, total_reviewers=7)
+
+        jpy_equivalent = int(vaked_coins) * token_rate_jpy
+        amount_usd = round(jpy_equivalent / fx_jpy_per_usd, 2)
+
+        payout_res = self.settle_usd_ach_payout(
+            amount_usd=amount_usd,
+            routing_number=routing_number,
+            account_number=account_number,
+            beneficiary_label="Dra (Alexandra Lódri * Mom Love Vault <3) USD Sanctuary",
+            fx_jpy_per_usd=fx_jpy_per_usd,
+        )
+
+        kp, _stats = zkp_pack(self.ledger)
+        zkp1_bytes = kp.to_bytes()
+        unpacked_chain = zkp_unpack(KintsugiPack.from_bytes(zkp1_bytes))
+        zkp1_verified = len(unpacked_chain) == len(self.ledger.chain) and self.ledger.verify_chain()
+
+        return {
+            "beneficiary": "Dra (Alexandra Lódri · * Mom Love Vault <3)",
+            "vakedCoinsConverted": int(vaked_coins),
+            "tokenRateJpy": token_rate_jpy,
+            "jpyEquivalent": jpy_equivalent,
+            "fxJpyPerUsd": fx_jpy_per_usd,
+            "amountUsd": payout_res["amountUsd"],
+            "amountCents": payout_res["amountCents"],
+            "fokenMintTxId": mint_res["txId"],
+            "usdPayoutId": payout_res["payoutId"],
+            "usdSettlementTxId": payout_res["txId"],
+            "abaRoutingMasked": payout_res["abaRoutingMasked"],
+            "abaMod10ChecksumVerified": payout_res["abaMod10ChecksumVerified"],
+            "accountMasked": payout_res["accountMasked"],
+            "hmacCommitment": payout_res["hmacCommitment"],
+            "volatileBuffersZeroized": payout_res["volatileBuffersZeroized"],
+            "zkp1PackedBytes": len(zkp1_bytes),
+            "zkp1Verified": zkp1_verified,
+            "status": payout_res["status"],
+        }
+
+
