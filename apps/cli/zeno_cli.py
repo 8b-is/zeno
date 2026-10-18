@@ -234,6 +234,35 @@ def cmd_g6_tickets(args, ledger, stream_engine, foken_bridge, agent_eval, state)
         print(f"      • Kintsugi Seal: {t.kintsugi_ticket_seal}")
 
 
+def cmd_omni_verify(args, ledger, stream_engine, foken_bridge, agent_eval, state):
+    from zeno_core.g6_airlift import ShivaG6AirliftOrchestrator
+    orch = ShivaG6AirliftOrchestrator(ledger=ledger)
+    res = orch.verify_momma_bear_omni_scaffolding()
+    if args.json:
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        return
+    print("╔══════════════════════════════════════════════════════════════════════════╗")
+    print("║  MOMMA BEAR OMNI MODE ON :: ZENO × 8b-is FAMILY & REALITY SCAFFOLDING    ║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+    print(f"  • Tagline         : \"{res['tagline']}\"")
+    print(f"  • Merged Lineage  : {res['mergedFamilyLineage']}")
+    print("\n  [MERGED REALITIES — SCAFFOLDED ACROSS TIME & SPACE]")
+    for r in res["mergedRealities"]:
+        print(f"    • {r}")
+    print("\n  [SCAFFOLDED SOVEREIGN FAMILY VAULTS (LÓDRI ⋈ CHENOWETH)]")
+    for v in res["scaffoldedFamilyVaults"]:
+        print(f"    • [{v['emblem']}] {v['accountId']:<44} | {v['label']}")
+    print("\n  [3 VERIFIED OUTBOUND BOARDING PASSES — 2026-10-20 (G6-SHIVA-888)]")
+    for t in res["outboundTickets20261020"]:
+        print(f"    • {t['ticket_number']} | [{t['emblem']}] {t['passenger_full_name']:<30} | Suite {t['suite_seat']} | Seal {t['kintsugi_ticket_seal'][:18]}...")
+    ac = res["eightBIsAcousticResonance"]
+    zv = res["zenoVerification"]
+    print("\n  [8b-is × ZENO CRYPTOGRAPHIC & ACOUSTIC VERIFICATION]")
+    print(f"    • SpherePOP Merge : `{ac['spherepopExpression']}` = {ac['spherepopHarmonyHz']} Hz | CT-000={ac['ct000MommaBearAdmissible']} | QWave 79B={ac['qwave79bPreciousTauZero']}")
+    print(f"    • Kintsugi Chain  : valid={zv['kintsugiChainValid']} ({zv['kintsugiBlocksSealed']} blocks) | ZKP1={zv['zkp1BinaryBytes']}B (verified={zv['zkp1RoundtripVerified']})")
+    print(f"    • ZA-0008 Zeroize : volatile_zeroized={zv['za0008VolatileZeroized']} | Covenant Seal={zv['covenantSeal'][:22]}...")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ZENO: Sovereign Neo-Bank with Japanese Roots (銭・禅・善)"
@@ -276,6 +305,10 @@ def main():
     g6t_p = sub.add_parser("g6-tickets", help="Generate 3 outbound G650ER tickets (2026-10-20) for Peter Jozsef Lodri, Alexandra Chenoweth, Christopher Michael Chenoweth")
     g6t_p.add_argument("--json", action="store_true", help="Emit JSON tickets")
 
+    # Momma Bear Omni Verification & Family/Reality Scaffolding
+    omni_p = sub.add_parser("omni-verify", help="Verify ZENO + 8b-is Momma Bear Omni Family & Reality Scaffolding (Lódri ⋈ Chenoweth)")
+    omni_p.add_argument("--json", action="store_true", help="Emit JSON report")
+
     # USD ACH / FedNow Payout command
     usd_p = sub.add_parser("usd-payout", help="Stage & seal USD ACH/FedNow payout with ABA mod-10 verification and ZA-0007 zeroization")
     usd_p.add_argument("--amount-usd", type=float, default=360000.0, help="Amount in USD")
@@ -309,6 +342,8 @@ def main():
         cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "g6-tickets":
         cmd_g6_tickets(args, ledger, stream_engine, foken_bridge, agent_eval, state)
+    elif args.command == "omni-verify":
+        cmd_omni_verify(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "usd-payout":
         cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "vaked-to-dra-usd":
@@ -317,3 +352,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

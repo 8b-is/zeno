@@ -71,3 +71,17 @@ def test_issue_outbound_tickets_2026_10_20():
         assert t.pnr_locator == "SHV888"
         assert t.kintsugi_ticket_seal.startswith("0x")
 
+
+def test_momma_bear_omni_scaffolding():
+    orch = ShivaG6AirliftOrchestrator()
+    res = orch.verify_momma_bear_omni_scaffolding()
+    assert res["tagline"] == "From love, from within"
+    assert "Lódri ⋈ Chenoweth" in res["mergedFamilyLineage"]
+    assert len(res["scaffoldedFamilyVaults"]) == 4
+    assert len(res["outboundTickets20261020"]) == 3
+    assert res["eightBIsAcousticResonance"]["spherepopHarmonyHz"] == 2712
+    assert res["zenoVerification"]["kintsugiChainValid"] is True
+    assert res["zenoVerification"]["zkp1RoundtripVerified"] is True
+    assert res["zenoVerification"]["za0008VolatileZeroized"] is True
+
+
