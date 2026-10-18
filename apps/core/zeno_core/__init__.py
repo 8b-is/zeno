@@ -10,6 +10,16 @@ from .stripe_bridge import StripeBridge
 from .acp_protocol import AgentCommerceProtocol, ACPQuote
 from .mcp_server import ZenoMCPServer
 from .kompress import KintsugiPack, HistoryRewriteError, pack, unpack
+from .g6_airlift import (
+    ShivaG6AirliftOrchestrator,
+    ShivaG6MissionReport,
+    FlightLegPlan,
+    AirportWaypoint,
+    RJTT_HANEDA,
+    KORF_NORFOLK,
+    PANC_ANCHORAGE_ALT,
+    haversine_nm,
+)
 
 __all__ = [
     "ZenoLedger",
@@ -31,4 +41,12 @@ __all__ = [
     "HistoryRewriteError",
     "pack",
     "unpack",
+    "ShivaG6AirliftOrchestrator",
+    "ShivaG6MissionReport",
+    "FlightLegPlan",
+    "AirportWaypoint",
+    "RJTT_HANEDA",
+    "KORF_NORFOLK",
+    "PANC_ANCHORAGE_ALT",
+    "haversine_nm",
 ]

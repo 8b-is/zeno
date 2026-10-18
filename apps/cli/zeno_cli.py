@@ -134,6 +134,29 @@ def cmd_chain_verify(args, ledger, stream_engine, foken_bridge, agent_eval, stat
     print(f"✧ Kintsugi Block Chain: {status} ({len(ledger.chain)} sealed blocks)")
 
 
+def cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state):
+    from zeno_core.g6_airlift import ShivaG6AirliftOrchestrator
+    orch = ShivaG6AirliftOrchestrator(ledger=ledger)
+    kids = [k.strip() for k in args.kids.split(",") if k.strip()] if args.kids else None
+    report = orch.execute_shiva_airlift(kids_manifest=kids)
+    if args.json:
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return
+    print("╔══════════════════════════════════════════════════════════════════════════╗")
+    print("║  ZENO × SHIVA MODE :: GULFSTREAM G650ER TOKYO (RJTT) ⇄ NORFOLK (KORF)    ║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+    print(f"  • Aircraft        : {report.aircraft_type} [{report.tail_registry}]")
+    print(f"  • Engines         : {report.engines}")
+    print(f"  • Leg 1 Outbound  : {report.leg1_outbound.origin.icao} -> {report.leg1_outbound.destination.icao} ({report.leg1_outbound.great_circle_nm} nm / {report.leg1_outbound.block_hours}h @ Mach {report.leg1_outbound.cruise_mach})")
+    print(f"    Passengers (3)  : {', '.join(report.leg1_outbound.passengers)}")
+    print(f"  • Leg 2 Return    : {report.leg2_return.origin.icao} -> {report.leg2_return.destination.icao} ({report.leg2_return.great_circle_nm} nm / {report.leg2_return.block_hours}h @ Mach {report.leg2_return.cruise_mach})")
+    print(f"    Passengers      : {', '.join(report.leg2_return.passengers)}")
+    print(f"  • Zeno Settlement : ¥{report.charter_principal_jpy:,} JPY (Broker Toll Burned: ¥{report.broker_toll_burned_jpy:,} JPY)")
+    print(f"  • Suiryū Streams  : {report.stream_id_leg1} + {report.stream_id_leg2} ({report.total_streamed_micro_jpy:,} µJPY settled)")
+    print(f"  • Kintsugi ZKP1   : {report.kintsugi_chain_blocks} blocks | {report.zkp1_packed_bytes} bytes | verified={report.zkp1_verified} | PII Zeroized={report.pii_manifest_zeroized}")
+    print(f"  • Head Seal       : {report.kintsugi_head_seal}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ZENO: Sovereign Neo-Bank with Japanese Roots (銭・禅・善)"
@@ -167,6 +190,11 @@ def main():
     # Chain verify command
     sub.add_parser("verify", help="Verify Kintsugi ledger cryptographic integrity")
 
+    # G650ER Sovereign Airlift command
+    g6_p = sub.add_parser("g6-airlift", help="Execute Gulfstream G650ER Tokyo (RJTT) ⇄ Norfolk (KORF) Family Reunification Airlift")
+    g6_p.add_argument("--kids", default="Nate & Kids (Lódri Family Starlight Crew)", help="Comma-separated kids manifest for Leg 2 return")
+    g6_p.add_argument("--json", action="store_true", help="Emit JSON report")
+
     args = parser.parse_args()
     ledger, stream_engine, foken_bridge, agent_eval, state = build_system()
 
@@ -181,6 +209,8 @@ def main():
         cmd_gate_evaluate(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "verify":
         cmd_chain_verify(args, ledger, stream_engine, foken_bridge, agent_eval, state)
+    elif args.command == "g6-airlift":
+        cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
 
 
 if __name__ == "__main__":
