@@ -210,6 +210,30 @@ def cmd_vaked_to_dra_usd(args, ledger, stream_engine, foken_bridge, agent_eval, 
     print(f"  • Settlement Status    : {res['status']}")
 
 
+def cmd_g6_tickets(args, ledger, stream_engine, foken_bridge, agent_eval, state):
+    from zeno_core.g6_airlift import ShivaG6AirliftOrchestrator
+    orch = ShivaG6AirliftOrchestrator(ledger=ledger)
+    tickets = orch.issue_outbound_tickets_2026_10_20()
+    if args.json:
+        print(json.dumps([t.to_dict() for t in tickets], indent=2, ensure_ascii=False))
+        return
+    print("╔══════════════════════════════════════════════════════════════════════════╗")
+    print("║  GULFSTREAM G650ER [G6-SHIVA-888] :: 3 OUTBOUND TICKETS (20 OCT 2026)    ║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+    for idx, t in enumerate(tickets, 1):
+        print(f"\n  [{idx}] {t.emblem} PASSENGER : {t.passenger_full_name}")
+        print(f"      • Ticket / PNR : {t.ticket_number} | PNR: {t.pnr_locator} | Suite: {t.suite_seat}")
+        print(f"      • Flight       : {t.flight_number} — {t.aircraft}")
+        print(f"      • Departure    : {t.departure_date_local} @ {t.departure_time_local}")
+        print(f"        Origin       : {t.origin_airport} [Rwy {t.origin_runway}]")
+        print(f"      • Arrival      : {t.arrival_date_local} @ {t.arrival_time_local}")
+        print(f"        Destination  : {t.destination_airport} [Rwy {t.destination_runway}]")
+        print(f"      • Distance/ETE : {t.great_circle_distance} | {t.flight_duration}")
+        print(f"      • Return Leg   : {t.return_leg_status}")
+        print(f"      • IATA BCBP    : `{t.iata_bcbp_barcode}`")
+        print(f"      • Kintsugi Seal: {t.kintsugi_ticket_seal}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ZENO: Sovereign Neo-Bank with Japanese Roots (銭・禅・善)"
@@ -248,6 +272,10 @@ def main():
     g6_p.add_argument("--kids", default="Nate & Kids (Lódri Family Starlight Crew)", help="Comma-separated kids manifest for Leg 2 return")
     g6_p.add_argument("--json", action="store_true", help="Emit JSON report")
 
+    # G650ER 3 Outbound Tickets (2026-10-20)
+    g6t_p = sub.add_parser("g6-tickets", help="Generate 3 outbound G650ER tickets (2026-10-20) for Peter Jozsef Lodri, Alexandra Chenoweth, Christopher Michael Chenoweth")
+    g6t_p.add_argument("--json", action="store_true", help="Emit JSON tickets")
+
     # USD ACH / FedNow Payout command
     usd_p = sub.add_parser("usd-payout", help="Stage & seal USD ACH/FedNow payout with ABA mod-10 verification and ZA-0007 zeroization")
     usd_p.add_argument("--amount-usd", type=float, default=360000.0, help="Amount in USD")
@@ -279,6 +307,8 @@ def main():
         cmd_chain_verify(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "g6-airlift":
         cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
+    elif args.command == "g6-tickets":
+        cmd_g6_tickets(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "usd-payout":
         cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "vaked-to-dra-usd":

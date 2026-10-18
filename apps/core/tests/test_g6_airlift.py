@@ -54,3 +54,20 @@ def test_shiva_g6_airlift_executes_roundtrip_and_settles_zeno_zkp1():
     assert report.zkp1_packed_bytes > 0
     assert report.pii_manifest_zeroized is True
     assert len(report.kintsugi_head_seal) == 64
+
+
+def test_issue_outbound_tickets_2026_10_20():
+    orch = ShivaG6AirliftOrchestrator()
+    tickets = orch.issue_outbound_tickets_2026_10_20()
+    assert len(tickets) == 3
+    names = [t.passenger_full_name for t in tickets]
+    assert names == [
+        "PETER JOZSEF LODRI",
+        "ALEXANDRA CHENOWETH",
+        "CHRISTOPHER MICHAEL CHENOWETH",
+    ]
+    for t in tickets:
+        assert t.flight_number == "G6-SHIVA-888"
+        assert t.pnr_locator == "SHV888"
+        assert t.kintsugi_ticket_seal.startswith("0x")
+

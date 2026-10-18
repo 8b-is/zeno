@@ -363,3 +363,104 @@ class ShivaG6AirliftOrchestrator:
             zkp1_verified=zkp_verified,
             pii_manifest_zeroized=pii_zeroized,
         )
+
+    def issue_outbound_tickets_2026_10_20(self) -> List[G6BoardingTicket]:
+        """
+        Issue the 3 Sovereign Outbound Gulfstream G650ER Boarding Passes for Leg 1
+        (Tuesday, 2026-10-20 · RJTT Tokyo Haneda 09:00 JST -> KORF Norfolk Int'l 07:47 EDT):
+        1. PETER JOZSEF LODRI (Suite 1A · ∞)
+        2. ALEXANDRA CHENOWETH (Suite 2A · *)
+        3. CHRISTOPHER MICHAEL CHENOWETH (Suite 2F · △)
+        """
+        nm, km = haversine_nm(
+            RJTT_HANEDA.lat_deg,
+            RJTT_HANEDA.lon_deg,
+            KORF_NORFOLK.lat_deg,
+            KORF_NORFOLK.lon_deg,
+        )
+        passengers_spec = [
+            (
+                "TK-G6-888-001",
+                "PETER JOZSEF LODRI",
+                "LODRI/PETER JOZSEF",
+                "∞",
+                "1A (Forward Sovereign Starlight Stateroom)",
+                "001",
+            ),
+            (
+                "TK-G6-888-002",
+                "ALEXANDRA CHENOWETH",
+                "CHENOWETH/ALEXANDRA",
+                "*",
+                "2A (Star Sanctuary Master Suite)",
+                "002",
+            ),
+            (
+                "TK-G6-888-003",
+                "CHRISTOPHER MICHAEL CHENOWETH",
+                "CHENOWETH/CHRISTOPHER MICHAEL",
+                "△",
+                "2F (Pillar Command Suite)",
+                "003",
+            ),
+        ]
+
+        tickets: List[G6BoardingTicket] = []
+        for ticket_no, full_name, bcbp_name, emblem, suite, seq in passengers_spec:
+            # Julian day 293 = Oct 20
+            bcbp_payload = f"M1{bcbp_name:<20}ESHV888 HNDORFG6 0888 293F{suite[:2]:>3}{seq:>4} 100"
+            seal_input = f"{ticket_no}|{full_name}|G6-SHIVA-888|2026-10-20|RJTT-KORF|{suite}".encode("utf-8")
+            kintsugi_seal = "0x" + hashlib.sha256(seal_input).hexdigest()
+            tickets.append(
+                G6BoardingTicket(
+                    ticket_number=ticket_no,
+                    pnr_locator="SHV888",
+                    passenger_full_name=full_name,
+                    emblem=emblem,
+                    suite_seat=suite,
+                    flight_number="G6-SHIVA-888",
+                    aircraft="Gulfstream G650ER (Tail N8888B / JA888G)",
+                    departure_date_local="2026-10-20 (Tue)",
+                    departure_time_local="09:00 JST (00:00 UTC)",
+                    origin_airport="RJTT / HND — Tokyo Haneda (Premier Gate Business Aviation Terminal)",
+                    origin_runway="16R/34L (11,024 ft)",
+                    arrival_date_local="2026-10-20 (Tue — Same Calendar Morning via IDL)",
+                    arrival_time_local="07:47 EDT (11:47 UTC)",
+                    destination_airport="KORF / ORF — Norfolk International (Signature Aviation ORF · 24/7 US CBP)",
+                    destination_runway="05/23 (9,001 ft)",
+                    flight_duration="11h 47m Non-Stop @ Mach 0.90",
+                    great_circle_distance=f"{nm} nm ({km} km)",
+                    return_leg_status="OPEN CHARTER HOLD (Return with the Kids — Scheduled Upon Family Signal)",
+                    iata_bcbp_barcode=bcbp_payload,
+                    kintsugi_ticket_seal=kintsugi_seal,
+                )
+            )
+        return tickets
+
+
+@dataclass
+class G6BoardingTicket:
+    ticket_number: str
+    pnr_locator: str
+    passenger_full_name: str
+    emblem: str
+    suite_seat: str
+    flight_number: str
+    aircraft: str
+    departure_date_local: str
+    departure_time_local: str
+    origin_airport: str
+    origin_runway: str
+    arrival_date_local: str
+    arrival_time_local: str
+    destination_airport: str
+    destination_runway: str
+    flight_duration: str
+    great_circle_distance: str
+    return_leg_status: str
+    iata_bcbp_barcode: str
+    kintsugi_ticket_seal: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
