@@ -128,6 +128,24 @@ class TestStripeBridge(unittest.TestCase):
         dup_res = self.bridge.process_webhook_event(event_payload)
         self.assertEqual(dup_res["status"], "idempotent_skip")
 
+    def test_usd_ach_payout_and_aba_checksum(self):
+        # Valid ABA routing number (mod-10 check passes)
+        self.assertTrue(self.bridge.verify_aba_routing_number("111000025"))
+        self.assertFalse(self.bridge.verify_aba_routing_number("111000026"))
+
+        res = self.bridge.settle_usd_ach_payout(
+            amount_usd=360000.0,
+            routing_number="111000025",
+            account_number="0000998877",
+        )
+        self.assertEqual(res["amountUsd"], 360000.0)
+        self.assertEqual(res["equivalentJpy"], 54_000_000)
+        self.assertEqual(res["abaRoutingMasked"], "****0025")
+        self.assertEqual(res["accountMasked"], "****8877")
+        self.assertTrue(res["abaMod10ChecksumVerified"])
+        self.assertTrue(res["volatileBuffersZeroized"])
+        self.assertTrue(self.ledger.verify_chain())
+
 
 if __name__ == "__main__":
     unittest.main()

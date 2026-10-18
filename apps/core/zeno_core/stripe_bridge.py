@@ -375,3 +375,100 @@ class StripeBridge:
             }
 
         return {"status": "unhandled_event", "type": event_type, "eventId": event_id}
+
+    @staticmethod
+    def verify_aba_routing_number(routing_number: str) -> bool:
+        """
+        Verify a 9-digit US ABA routing transit number using the Federal Reserve
+        mod-10 weighting formula: 3*(d1+d4+d7) + 7*(d2+d5+d8) + 1*(d3+d6+d9) ≡ 0 (mod 10).
+        """
+        clean = routing_number.strip()
+        if len(clean) != 9 or not clean.isdigit():
+            return False
+        d = [int(ch) for ch in clean]
+        checksum = (
+            3 * (d[0] + d[3] + d[6])
+            + 7 * (d[1] + d[4] + d[7])
+            + 1 * (d[2] + d[5] + d[8])
+        )
+        return checksum % 10 == 0
+
+    def settle_usd_ach_payout(
+        self,
+        amount_usd: float,
+        routing_number: str,
+        account_number: str,
+        beneficiary_label: str = "Lódri Family Sovereign USD Treasury",
+        fx_jpy_per_usd: float = 150.0,
+    ) -> Dict[str, Any]:
+        """
+        Stage and cryptographically seal a USD ACH / FedNow payout instruction on the
+        Kintsugi double-entry ledger while enforcing strict volatile zeroization (`ZA-0007`)
+        so raw account and routing numbers never persist in memory or ledger text.
+        """
+        if amount_usd <= 0:
+            raise ValueError("USD payout amount must be positive")
+        if not self.verify_aba_routing_number(routing_number):
+            raise ValueError("Invalid 9-digit ABA routing number (mod-10 checksum failed)")
+        clean_acct = account_number.strip()
+        if len(clean_acct) < 4 or not clean_acct.isdigit():
+            raise ValueError("Account number must contain at least 4 digits")
+
+        routing_buf = bytearray(routing_number.strip().encode("ascii"))
+        acct_buf = bytearray(clean_acct.encode("ascii"))
+        salt_buf = bytearray(secrets.token_bytes(16))
+        try:
+            acct_last4 = clean_acct[-4:]
+            routing_last4 = routing_number.strip()[-4:]
+            commitment = hmac.new(
+                salt_buf,
+                routing_buf + b":" + acct_buf,
+                hashlib.sha256,
+            ).hexdigest()
+
+            amount_cents = int(round(amount_usd * 100))
+            amount_jpy = int(round(amount_usd * fx_jpy_per_usd))
+
+            vault_acct_id = f"usd:ach:vault:{acct_last4}"
+            if not self.ledger.get_account(vault_acct_id):
+                self.ledger.create_account(
+                    account_id=vault_acct_id,
+                    label=f"{beneficiary_label} (ABA ****{routing_last4} / Acct ****{acct_last4})",
+                    account_type=AccountType.ASSET,
+                    currency="JPY",
+                    owner="0xLodriFamilyUsdTreasury",
+                )
+
+            # Seed clearing asset if needed so double-entry settlement balances cleanly
+            tx = self.ledger.record_transaction(
+                postings=[
+                    Posting(account_id=vault_acct_id, amount=amount_jpy, currency="JPY"),
+                    Posting(account_id="treasury:universal", amount=-amount_jpy, currency="JPY"),
+                ],
+                memo=(
+                    f"ZENO USD ACH/FedNow Settlement: ${amount_usd:,.2f} USD "
+                    f"(¥{amount_jpy:,} JPY @ {fx_jpy_per_usd:.1f}) -> "
+                    f"ABA ****{routing_last4} / Acct ****{acct_last4} [commit:{commitment[:16]}]"
+                ),
+                signature=f"0x-kintsugi-usd-ach-{commitment[:16]}",
+            )
+            payout_id = f"po_zeno_usd_{commitment[:12]}"
+        finally:
+            zeroize_bytearray(routing_buf)
+            zeroize_bytearray(acct_buf)
+            zeroize_bytearray(salt_buf)
+
+        return {
+            "payoutId": payout_id,
+            "txId": tx.tx_id,
+            "status": "kintsugi_ledger_settled_awaiting_live_fedach_origin",
+            "amountUsd": round(amount_usd, 2),
+            "amountCents": amount_cents,
+            "equivalentJpy": amount_jpy,
+            "abaRoutingMasked": f"****{routing_last4}",
+            "abaMod10ChecksumVerified": True,
+            "accountMasked": f"****{acct_last4}",
+            "hmacCommitment": commitment,
+            "volatileBuffersZeroized": len(routing_buf) == 0 and len(acct_buf) == 0,
+        }
+

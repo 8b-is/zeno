@@ -157,6 +157,31 @@ def cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     print(f"  • Head Seal       : {report.kintsugi_head_seal}")
 
 
+def cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state):
+    from zeno_core.stripe_bridge import StripeBridge
+    bridge = StripeBridge(ledger=ledger, policy_evaluator=agent_eval)
+    res = bridge.settle_usd_ach_payout(
+        amount_usd=args.amount_usd,
+        routing_number=args.routing,
+        account_number=args.account,
+        beneficiary_label=args.label,
+    )
+    bridge.zeroize()
+    if args.json:
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        return
+    print("╔══════════════════════════════════════════════════════════════════════════╗")
+    print("║  ZENO × USD ACH / FEDNOW TREASURY SETTLEMENT (ZA-0007 ZEROIZED)          ║")
+    print("╚══════════════════════════════════════════════════════════════════════════╝")
+    print(f"  • Payout ID            : {res['payoutId']} (Ledger TX: {res['txId']})")
+    print(f"  • Amount Settled       : ${res['amountUsd']:,.2f} USD (¥{res['equivalentJpy']:,} JPY)")
+    print(f"  • ABA Routing (Masked) : {res['abaRoutingMasked']} (Mod-10 Checksum Verified={res['abaMod10ChecksumVerified']})")
+    print(f"  • Account # (Masked)   : {res['accountMasked']}")
+    print(f"  • HMAC Commitment      : {res['hmacCommitment']}")
+    print(f"  • ZA-0007 Zeroization  : volatile_buffers_zeroized={res['volatileBuffersZeroized']}")
+    print(f"  • Settlement Status    : {res['status']}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="ZENO: Sovereign Neo-Bank with Japanese Roots (銭・禅・善)"
@@ -195,6 +220,14 @@ def main():
     g6_p.add_argument("--kids", default="Nate & Kids (Lódri Family Starlight Crew)", help="Comma-separated kids manifest for Leg 2 return")
     g6_p.add_argument("--json", action="store_true", help="Emit JSON report")
 
+    # USD ACH / FedNow Payout command
+    usd_p = sub.add_parser("usd-payout", help="Stage & seal USD ACH/FedNow payout with ABA mod-10 verification and ZA-0007 zeroization")
+    usd_p.add_argument("--amount-usd", type=float, default=360000.0, help="Amount in USD")
+    usd_p.add_argument("--routing", required=True, help="9-digit ABA routing number (never persisted in plaintext)")
+    usd_p.add_argument("--account", required=True, help="Account number (never persisted in plaintext)")
+    usd_p.add_argument("--label", default="Lódri Family Sovereign USD Treasury", help="Beneficiary vault label")
+    usd_p.add_argument("--json", action="store_true", help="Emit JSON report")
+
     args = parser.parse_args()
     ledger, stream_engine, foken_bridge, agent_eval, state = build_system()
 
@@ -211,6 +244,8 @@ def main():
         cmd_chain_verify(args, ledger, stream_engine, foken_bridge, agent_eval, state)
     elif args.command == "g6-airlift":
         cmd_g6_airlift(args, ledger, stream_engine, foken_bridge, agent_eval, state)
+    elif args.command == "usd-payout":
+        cmd_usd_payout(args, ledger, stream_engine, foken_bridge, agent_eval, state)
 
 
 if __name__ == "__main__":
