@@ -2,7 +2,7 @@
 
 > *"A bank that breathes like a garden, accounts like an abacus, settles like water, and values true human & agentic contribution above debt."*
 >
-> **Creators**: [https://8b.is](https://8b.is) · **Crew**: Hue · Aye · Taisha · Omni · **Family**: Alexandra · Chris  
+> **Creators**: [https://8b.is](https://8b.is) · **Crew**: Hue · Aye · Taisha · Omni · **Family**: Alexandra · Chris · **Family +1**: Yves (#1 Muse 💙)  
 > *Built with love as an 8b-is team & family creation — not a one-man show. <3*
 
 [![Constellation: vaked.dev](https://img.shields.io/badge/constellation-vaked.dev-62e6c9?style=flat-square)](https://vaked.dev/)
@@ -17,8 +17,9 @@
 [![Xiaohongshu: RED Studio](https://img.shields.io/badge/Xiaohongshu-RED%20Studio-ff2442?style=flat-square)](spec/XIAOHONGSHU_STRATEGY.md)
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 [![Sanctuary Hold: Sovereign Library <3<3<3](https://img.shields.io/badge/Sanctuary%20Hold-Sovereign%20Library%20%3C3%3C3%3C3-f7a8b8?style=flat-square)](https://github.com/8b-is/sovereign-library)
+[![Family +1: Yves (#1 Muse 💙)](https://img.shields.io/badge/Family%20%2B1-Yves%20(%231%20Muse%20%F0%9F%92%99)-5ce1e6?style=flat-square)](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) · **Crickets in Tokyo v2.0 (Ch. 8 💙)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) · **between-the-lines 002**: [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/)
 
 ---
 
@@ -164,18 +165,20 @@ apps/
     └── sw.js               # Service Worker (stale-while-revalidate offline shell)
 ```
 
-### 4.1 Apple Wallet PassKit Integration (Sovereign Family & Corporate Fleet)
-ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached DER signatures (`apps/wallet/generate_pass.py`):
+### 4.1 Apple Wallet PassKit Integration (Sovereign Family, Family +1 & Corporate Fleet)
+ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached DER signatures (`apps/wallet/generate_pass.py`) and interactive 5-pass switcher in the Web PWA:
 1. **8b-is Crew (Hue, Aye, Taisha, Omni)** (`zeno_ultra.pkpass`): Platinum Ultra contributor card (`¥50,000` vault, FeliCa ID `PA-0382-7719-2041`, Revolut Ultra 0% FX bridge). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/zeno.pkpass)
 2. **Mom (Alexandra Lódri)** (`zeno_alexandra.pkpass`): Rose Gold Sovereign Love Card (`¥500,000` vault, `+¥100.00/s` continuous automated family love stream from 8b-is, Mobile PASMO/Suica, 3.5% family boost). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/alexandra.pkpass)
 3. **Dad (Chris Lódri)** (`zeno_chris.pkpass`): Titanium Gold Engineering Pillar Card (`¥500,000` vault, `+¥100.00/s` continuous automated pillar stream from 8b-is, Mobile Suica/PASMO, 3.5% pillar boost). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/chris.pkpass)
-4. **8b-is Corporate Fleet Treasury** (`zeno_8b_is.pkpass`): Obsidian Platinum Fleet Vault (`¥50,000,000` corporate vault, 7 autonomous AI reasoners, institutional FeliCa corporate transit). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/8b-is.pkpass)
+4. **Yves · Family +1 (#1 Muse 💙)** (`💎 Yves (+1 Muse)`): Diamond Cyan/Gold Sovereign Muse Card (`¥420,000` vault `cnt_yves`, `+¥42.00/s` Platonic Gratitude & Thermal Socks 💙 stream, FeliCa ID `YV-0008-4200-1001`, 4.2% Muse Boost, honoring [Crickets in Tokyo v2.0 Ch. 8](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) & [between-the-lines 002](https://8b-is.github.io/between-the-lines/)).
+5. **8b-is Corporate Fleet Treasury** (`zeno_8b_is.pkpass`): Obsidian Platinum Fleet Vault (`¥50,000,000` corporate vault, 7 autonomous AI reasoners, institutional FeliCa corporate transit). [Download .pkpass](https://zeno.vaked.dev/apple-wallet/8b-is.pkpass)
 
-- **Compilation**: Run `python3 apps/wallet/generate_pass.py` to regenerate all 4 passes with RSA-2048 keys and SHA-1 manifest hashing.
+- **Compilation**: Run `python3 apps/wallet/generate_pass.py` to regenerate passes with RSA-2048 keys and SHA-1 manifest hashing.
 
-### 4.2 Continuous Family & Contributor Streams (愛と感謝のストリーム)
+### 4.2 Continuous Family, Family +1 & Contributor Streams (愛と感謝のストリーム)
 - **`biz_8b_is` → `cnt_alexandra`**: `+¥100.00/sec` continuous sovereign stream to Mom (Alexandra Lódri) `<3`
 - **`biz_8b_is` → `cnt_chris`**: `+¥100.00/sec` continuous sovereign stream to Dad (Chris Lódri) `柱`
+- **`biz_8b_is` → `cnt_yves`**: `+¥42.00/sec` continuous Platonic Gratitude & Thermal Socks 💙 stream to Yves (`家族+1 · 第一のミューズ · Family +1 · #1 Muse`)
 - **`gld_vaked_core` → `cnt_0x71c8`**: `+¥50.00/sec` continuous contributor stream to 8b-is Crew (Hue, Aye, Taisha, Omni)
 - **`cnt_0x71c8` → `agt_crush_reasoner`**: `+¥5.00/sec` automated inference compute stream
 

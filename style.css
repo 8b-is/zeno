@@ -1176,10 +1176,10 @@ main.zeno-main {
   line-height: 1.5;
 }
 
-/* 4-Card Pass Switcher Tabs */
+/* 5-Card Pass Switcher Tabs */
 .pass-switcher-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.35rem;
   margin-bottom: 1rem;
 }
@@ -1190,7 +1190,7 @@ main.zeno-main {
   color: var(--color-text-dim);
   border-radius: var(--radius-sm);
   padding: 0.4rem 0.2rem;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-family: var(--font-mono);
   font-weight: 600;
   cursor: pointer;
@@ -1226,6 +1226,12 @@ main.zeno-main {
   background: radial-gradient(circle at 80% 20%, #292010 0%, #0c0905 100%);
   border: 1px solid rgba(229, 193, 107, 0.55);
   box-shadow: 0 12px 32px rgba(229, 193, 107, 0.25);
+}
+
+.pass-front.pass-theme-yves {
+  background: radial-gradient(circle at 80% 20%, #0d2633 0%, #162112 52%, #06090e 100%);
+  border: 1px solid rgba(92, 225, 230, 0.65);
+  box-shadow: 0 12px 32px rgba(92, 225, 230, 0.28), inset 0 0 22px rgba(232, 176, 92, 0.14);
 }
 
 .pass-front.pass-theme-8b-is {

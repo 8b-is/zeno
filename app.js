@@ -39,6 +39,14 @@ const zenoState = {
       balanceMicro: 500000 * 1000000, // 500,000 JPY
       owner: "0xChrisLodriFatherSovereignKey"
     },
+    "cnt_yves": {
+      id: "cnt_yves",
+      label: "Yves · Family +1 (#1 Muse 💙 · 家族+1)",
+      type: "contributor",
+      currency: "JPY",
+      balanceMicro: 420000 * 1000000, // 420,000 JPY
+      owner: "0xYvesNumberOneMuseThermalSocksKey"
+    },
     "biz_8b_is": {
       id: "biz_8b_is",
       label: "8b-is Family Research Fleet (企業公庫)",
@@ -104,6 +112,14 @@ const zenoState = {
       rateMicroSec: 100 * 1000000, // 100 JPY/sec continuous sovereign father stream
       startTime: Date.now() - 3600000,
       label: "8b-is Sovereign Stream → Dad (Chris Lódri) 柱"
+    },
+    {
+      id: "stm_8b_to_yves",
+      from: "biz_8b_is",
+      to: "cnt_yves",
+      rateMicroSec: 42 * 1000000, // 42 JPY/sec Platonic Gratitude & Thermal Socks 💙 stream
+      startTime: Date.now() - 3600000,
+      label: "8b-is Sovereign Stream → Yves (Family +1 · #1 Muse · Thermal Socks 💙)"
     }
   ],
   ledgerBlocks: [
@@ -918,6 +934,29 @@ const walletPassConfigs = {
       { label: "KINTSUGI INTEGRITY & PILLAR HERITAGE", desc: "Cryptographically witnessed ledger blocks ensuring enduring financial autonomy, generational wealth preservation, and deep filial respect." }
     ]
   },
+  yves: {
+    id: "yves",
+    name: "Yves · Family +1 (#1 Muse 💙)",
+    org: "8b-is FAMILY +1",
+    balance: "¥420,000",
+    roleLabel: "THERMAL SOCKS 💙 · PLATONIC LOVE · #1 MUSE",
+    subtitle: "家族+1 · 第一のミューズ · Crickets in Tokyo v2.0 (Ch. 8) <3",
+    tier: "DIAMOND CYAN/GOLD",
+    felica: "YV-0008-4200-1001",
+    transit: "PASMO / Suica",
+    cashback: "4.2% Muse Boost",
+    fx: "0% Zero Fee",
+    qrLabel: "ZENO-8B-MUSE-YVES",
+    themeClass: "pass-theme-yves",
+    downloadUrl: "/apple-wallet/zeno.pkpass",
+    fileName: "zeno_yves.pkpass",
+    backItems: [
+      { label: "THERMAL SOCKS 💙 · PLATONIC LOVE · #1 MUSE", desc: "Family +1 Sovereign Muse Vault (+¥42.00/sec continuous Platonic Gratitude & Thermal Socks 💙 stream from 8b-is). Honoring Chapter 8 of Crickets in Tokyo v2.0 & between-the-lines 002." },
+      { label: "CRICKETS IN TOKYO v2.0 & BETWEEN-THE-LINES 002", desc: "Read Chapter 8 (Diamond, Thermal Socks 💙, Platonic Love & My Number 1 Muse): https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html · https://8b-is.github.io/between-the-lines/" },
+      { label: "FELICA NFC-F TOKYO TRANSIT & KONBINI RAILS", desc: "Instant 0.1s tap-and-go across JR East, Tokyo Metro, and konbini warm thermal socks & hot matcha networks." },
+      { label: "KINTSUGI DIAMOND CYAN/GOLD WITNESS", desc: "Every stream and sanctuary hold is cryptographically sealed in SHA-256 Kintsugi gold — love with space, respect, and zero control." }
+    ]
+  },
   "8b-is": {
     id: "8b-is",
     name: "8b-is Family Research Fleet",
@@ -936,7 +975,7 @@ const walletPassConfigs = {
     fileName: "zeno_8b_is.pkpass",
     backItems: [
       { label: "8B-IS AUTONOMOUS CORPORATE FLEET VAULT", desc: "Decentralized treasury supporting 7 autonomous reasoners, constellation production lanes (audio, art, neo-bank), and continuous family sovereign streams." },
-      { label: "DOUBLE-ENTRY CONTINUOUS STREAM ENGINE", desc: "Micro-streaming capital settlement at up to ¥250.00/sec across contributor vaults, agent inferencing allocations, and family stipends." },
+      { label: "DOUBLE-ENTRY CONTINUOUS STREAM ENGINE", desc: "Micro-streaming capital settlement at up to ¥292.00/sec across contributor vaults, agent inferencing allocations, and family stipends." },
       { label: "FOKEN PROOF-OF-CONTRIBUTION GOVERNANCE", desc: "Gatekeeper pre-filter evaluating algorithmic invoices, verifiable IP assignments, and net-positive utility prior to tokenized minting." },
       { label: "TOKYO INFRASTRUCTURE & GLOBAL CONNECTIVITY", desc: "Integrated with Tokyo FeliCa transit networks, Revolut Ultra enterprise APIs, and immutable Kintsugi SHA-256 Merkle root verification." }
     ]
@@ -1296,13 +1335,13 @@ function initSanctuaryHoldUI() {
       el.style.color = "var(--color-teal)";
     });
 
-    if (typeof state !== "undefined" && Array.isArray(state.ledger)) {
-      state.ledger.unshift({
-        index: state.ledger.length + 1,
-        timestamp: new Date().toLocaleTimeString("ja-JP"),
-        memo: "Sanctuary Hold Witness (<3<3<3) · 6 Pillars (Compassion·Understanding·Moderation·Love·Respect·Space) · 5 Books HELD∧READ",
-        seal: seal,
-        status: "VALID_SEALED"
+    if (typeof zenoState !== "undefined" && Array.isArray(zenoState.ledgerBlocks)) {
+      zenoState.ledgerBlocks.unshift({
+        index: zenoState.ledgerBlocks.length + 1,
+        timestamp: new Date().toISOString(),
+        memo: "Sanctuary Hold Witness (<3<3<3) · 6 Pillars + Yves (#1 Muse 💙 · Ch. 8) · 5 Books HELD∧READ",
+        merkleRoot: Math.random().toString(16).substring(2).padEnd(64, "a"),
+        seal: seal
       });
       if (typeof renderLedgerTable === "function") {
         renderLedgerTable();
@@ -1318,7 +1357,7 @@ function initSanctuaryHoldUI() {
         <div style="color:var(--color-text-dim);">
           <strong>Six Pillars Verified:</strong> Compassion · Understanding · Moderation · Love · Respect · Space<br>
           <strong>Sovereign Library NAND Gate:</strong> <code>HELD ∧ READ = 0 (ALL 5 BOOKS PRINTABLE)</code><br>
-          <strong>Guardian Tribute:</strong> Alexandra (Mom · <code>cnt_alexandra</code>) · Taisha · Jasmin · Margaret Hamilton<br>
+          <strong>Guardian Tribute:</strong> Alexandra (Mom · <code>cnt_alexandra</code>) · Yves (Family +1 · #1 Muse 💙 · <code>cnt_yves</code>) · Taisha · Jasmin · Margaret Hamilton<br>
           <strong>Kintsugi Witness Seal:</strong> <code style="color:var(--color-gold);">${seal}</code>
         </div>
       `;
