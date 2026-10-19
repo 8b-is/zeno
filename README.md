@@ -16,8 +16,9 @@
 [![ICML 2026: 45 ZKP1 Sealed](https://img.shields.io/badge/ICML%202026-45%20ZKP1%20Sealed-b48bff?style=flat-square)](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
 [![Xiaohongshu: RED Studio](https://img.shields.io/badge/Xiaohongshu-RED%20Studio-ff2442?style=flat-square)](spec/XIAOHONGSHU_STRATEGY.md)
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
+[![Sanctuary Hold: Sovereign Library <3<3<3](https://img.shields.io/badge/Sanctuary%20Hold-Sovereign%20Library%20%3C3%3C3%3C3-f7a8b8?style=flat-square)](https://github.com/8b-is/sovereign-library)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library)
 
 ---
 

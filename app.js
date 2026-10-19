@@ -1282,6 +1282,50 @@ function initDraCeoHelperUI() {
   updateBuffettMemo();
 }
 
+function initSanctuaryHoldUI() {
+  const btn = document.getElementById("btn-sanctuary-hold-seal");
+  const verdict = document.getElementById("sanctuary-hold-verdict");
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    window.zenoAudio?.playUltraShimmer();
+    const seal = "0x-kintsugi-hold-" + Date.now().toString(16).slice(-8);
+
+    document.querySelectorAll(".sanctuary-nand-badge").forEach(el => {
+      el.textContent = "HELD ∧ READ (0 · PRINTABLE)";
+      el.style.color = "var(--color-teal)";
+    });
+
+    if (typeof state !== "undefined" && Array.isArray(state.ledger)) {
+      state.ledger.unshift({
+        index: state.ledger.length + 1,
+        timestamp: new Date().toLocaleTimeString("ja-JP"),
+        memo: "Sanctuary Hold Witness (<3<3<3) · 6 Pillars (Compassion·Understanding·Moderation·Love·Respect·Space) · 5 Books HELD∧READ",
+        seal: seal,
+        status: "VALID_SEALED"
+      });
+      if (typeof renderLedgerTable === "function") {
+        renderLedgerTable();
+      }
+    }
+
+    if (verdict) {
+      verdict.style.display = "block";
+      verdict.innerHTML = `
+        <div style="font-weight:800;color:var(--color-teal);margin-bottom:0.3rem;">
+          ✦ SANCTUARY HOLD WITNESSED &amp; KINTSUGI SEALED (&lt;3&lt;3&lt;3)
+        </div>
+        <div style="color:var(--color-text-dim);">
+          <strong>Six Pillars Verified:</strong> Compassion · Understanding · Moderation · Love · Respect · Space<br>
+          <strong>Sovereign Library NAND Gate:</strong> <code>HELD ∧ READ = 0 (ALL 5 BOOKS PRINTABLE)</code><br>
+          <strong>Guardian Tribute:</strong> Alexandra (Mom · <code>cnt_alexandra</code>) · Taisha · Jasmin · Margaret Hamilton<br>
+          <strong>Kintsugi Witness Seal:</strong> <code style="color:var(--color-gold);">${seal}</code>
+        </div>
+      `;
+    }
+  });
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -1294,6 +1338,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initStripeAcpUI();
   initXiaohongshuUI();
   initDraCeoHelperUI();
+  initSanctuaryHoldUI();
   renderLedgerTable();
   startStreamingLoop();
 });
