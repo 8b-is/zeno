@@ -344,7 +344,8 @@
     }
 
     /**
-     * Prunes dead OTP/3DS challenges older than ttlMs and returns pruned IDs + surviving map.
+     * Prunes dead OTP/3DS challenges older than ttlMs and returns pruned IDs + surviving map,
+     * while accumulating cumulative otpSweptTotal across invocations.
      */
     static sweepExpiredChallenges(challenges, nowMs = Date.now(), ttlMs = 120000) {
       const pruned = [];
@@ -356,33 +357,139 @@
           active.push(ch);
         }
       }
-      return { prunedCount: pruned.length, pruned, activeCount: active.length, active };
+      KintsugiLedger.otpSweptTotal = (KintsugiLedger.otpSweptTotal || 0) + pruned.length;
+      return {
+        prunedCount: pruned.length,
+        otpSweptTotal: KintsugiLedger.otpSweptTotal,
+        sweptTotal: KintsugiLedger.otpSweptTotal,
+        pruned,
+        activeCount: active.length,
+        active
+      };
+    }
+
+    /**
+     * Registers a one-shot or recurring scheduled payment in the ledger registry.
+     */
+    static schedulePayment(item) {
+      const intervalMs = Number(item.intervalMs) || 0;
+      const maxRuns = item.maxRuns !== undefined && item.maxRuns !== null
+        ? Number(item.maxRuns)
+        : (intervalMs > 0 ? Infinity : 1);
+      const executeAtMs = Number(item.executeAtMs ?? item.executeAt ?? 0);
+      const job = {
+        ...item,
+        executeAtMs,
+        executeAt: executeAtMs,
+        intervalMs,
+        maxRuns,
+        runCount: Number(item.runCount) || 0,
+        status: "pending",
+        trit: 0
+      };
+      if (job.id) {
+        KintsugiLedger.scheduledRegistry.set(job.id, job);
+      }
+      return job;
+    }
+
+    /**
+     * Cancels a pending scheduled payment by id (or queue + id, or job reference).
+     */
+    static cancelScheduledPayment(idOrQueue, maybeId = undefined) {
+      let target = null;
+      let id = maybeId;
+      if (Array.isArray(idOrQueue)) {
+        target = idOrQueue.find((item) => item && item.id === maybeId) || null;
+      } else if (typeof idOrQueue === "string") {
+        id = idOrQueue;
+        target = KintsugiLedger.scheduledRegistry.get(id) || null;
+      } else if (idOrQueue && typeof idOrQueue === "object") {
+        target = idOrQueue;
+        id = idOrQueue.id;
+      }
+      if (!target) {
+        return { cancelled: false, id, error: "NOT_FOUND", status: 404 };
+      }
+      if (target.status && target.status !== "pending") {
+        return { cancelled: false, id, status: target.status, error: "ALREADY_PROCESSED", code: 409, job: target };
+      }
+      target.status = "cancelled";
+      target.trit = -1;
+      if (id) {
+        KintsugiLedger.scheduledRegistry.set(id, target);
+      }
+      return { cancelled: true, id, status: "cancelled", trit: -1, job: target };
     }
 
     /**
      * Executes scheduled payments due at or before nowMs while preserving double-entry balance.
+     * Supports recurring payments (intervalMs, maxRuns, runCount) and respects cancelled items.
      */
     static executeScheduledBatch(queue, balances, nowMs = Date.now()) {
       const settled = [];
       const pending = [];
       const rejected = [];
-      for (const item of queue || []) {
-        if (item.executeAtMs > nowMs) {
-          pending.push({ ...item, trit: 0 });
+      const cancelled = [];
+      const items = queue || [...KintsugiLedger.scheduledRegistry.values()];
+      for (const item of items) {
+        if (item.id && !KintsugiLedger.scheduledRegistry.has(item.id)) {
+          KintsugiLedger.scheduledRegistry.set(item.id, item);
+        }
+        const regItem = item.id ? KintsugiLedger.scheduledRegistry.get(item.id) : null;
+        if (item.status === "cancelled" || (regItem && regItem.status === "cancelled")) {
+          item.status = "cancelled";
+          item.trit = -1;
+          cancelled.push({ ...item, status: "cancelled", trit: -1 });
+          continue;
+        }
+        if (item.status === "executed") {
+          continue;
+        }
+        const executeAtMs = Number(item.executeAtMs ?? item.executeAt ?? 0);
+        if (executeAtMs > nowMs) {
+          item.status = item.status || "pending";
+          item.trit = 0;
+          pending.push({ ...item, executeAtMs, executeAt: executeAtMs, runCount: Number(item.runCount) || 0, status: "pending", trit: 0 });
           continue;
         }
         const fromBal = Number(balances[item.from] || 0);
         if (fromBal < item.amount || item.amount <= 0) {
-          rejected.push({ ...item, trit: -1, reason: "INSUFFICIENT_FUNDS" });
+          item.status = "rejected";
+          item.trit = -1;
+          rejected.push({ ...item, status: "rejected", trit: -1, reason: "INSUFFICIENT_FUNDS" });
           continue;
         }
         balances[item.from] = fromBal - item.amount;
         balances[item.to] = Number(balances[item.to] || 0) + item.amount;
-        settled.push({ ...item, trit: 1 });
+        const runCount = (Number(item.runCount) || 0) + 1;
+        const intervalMs = Number(item.intervalMs) || 0;
+        const maxRuns = item.maxRuns !== undefined && item.maxRuns !== null
+          ? Number(item.maxRuns)
+          : (intervalMs > 0 ? Infinity : 1);
+        item.runCount = runCount;
+        item.intervalMs = intervalMs;
+        item.maxRuns = maxRuns;
+        if (intervalMs > 0 && runCount < maxRuns) {
+          const nextExecuteAtMs = executeAtMs + intervalMs;
+          item.executeAtMs = nextExecuteAtMs;
+          item.executeAt = nextExecuteAtMs;
+          item.status = "pending";
+          item.trit = 0;
+          settled.push({ ...item, runCount, maxRuns, intervalMs, executeAtMs: nextExecuteAtMs, executeAt: nextExecuteAtMs, status: "pending", trit: 1 });
+          pending.push({ ...item, runCount, maxRuns, intervalMs, executeAtMs: nextExecuteAtMs, executeAt: nextExecuteAtMs, status: "pending", trit: 0 });
+        } else {
+          item.status = "executed";
+          item.trit = 1;
+          settled.push({ ...item, runCount, maxRuns, intervalMs, status: "executed", trit: 1 });
+        }
       }
-      return { settled, pending, rejected, balances };
+      return { settled, pending, rejected, cancelled, balances };
     }
   }
+
+  KintsugiLedger.otpSweptTotal = 0;
+  KintsugiLedger.scheduledRegistry = new Map();
 
   return {
     version: "1.2.0",

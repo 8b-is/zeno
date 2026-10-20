@@ -310,8 +310,9 @@ Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev co
 
 > **Honest Scope:** ZENO and `oOo.zeno` are neobank simulations — no real money, no PII, and no real 3DS rails are touched.
 
-- `KintsugiLedger.sweepExpiredChallenges`: Prunes expired 3DS/OTP challenges (`> 120,000 ms`) with `trit = -1`.
-- `KintsugiLedger.executeScheduledBatch`: Settles due scheduled payments (`trit = +1`), holds future items (`trit = 0`), and rejects underfunded items (`trit = -1`).
+- `KintsugiLedger.sweepExpiredChallenges`: Prunes expired 3DS/OTP challenges (`> 120,000 ms`) with `trit = -1` and tracks cumulative `otpSweptTotal` across sweeps.
+- `KintsugiLedger.executeScheduledBatch`: Settles due one-shot and recurring scheduled payments (`intervalMs`, `maxRuns`, `runCount`, rescheduling `executeAtMs += intervalMs` as `pending` until `runCount >= maxRuns` transitions to `executed` with `trit = +1`), holds future items (`trit = 0`), and rejects underfunded items (`trit = -1`).
+- `KintsugiLedger.cancelScheduledPayment`: Cancels pending scheduled payments by `id` (`status = "cancelled"`, `trit = -1`) and blocks subsequent execution.
 
 ```bash
 node --test test-scheduled-sweep.mjs
