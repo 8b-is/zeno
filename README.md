@@ -305,7 +305,20 @@ Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev co
 
 ---
 
-## 9. License
+## 9. OTP-Expiry Sweep & Scheduled Payments (`node --test`)
+
+> **Honest Scope:** ZENO and `oOo.zeno` are neobank simulations — no real money, no PII, and no real 3DS rails are touched.
+
+- `KintsugiLedger.sweepExpiredChallenges`: Prunes expired 3DS/OTP challenges (`> 120,000 ms`) with `trit = -1`.
+- `KintsugiLedger.executeScheduledBatch`: Settles due scheduled payments (`trit = +1`), holds future items (`trit = 0`), and rejects underfunded items (`trit = -1`).
+
+```bash
+node --test test-scheduled-sweep.mjs
+```
+
+---
+
+## 10. License
 
 MIT License. Crafted with love, fine touch from within, and devotion to sovereign human and agentic flourishing. 銭・禅・善.
 

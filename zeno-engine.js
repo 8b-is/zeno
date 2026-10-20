@@ -342,6 +342,46 @@
 
       return { valid: true };
     }
+
+    /**
+     * Prunes dead OTP/3DS challenges older than ttlMs and returns pruned IDs + surviving map.
+     */
+    static sweepExpiredChallenges(challenges, nowMs = Date.now(), ttlMs = 120000) {
+      const pruned = [];
+      const active = [];
+      for (const ch of challenges || []) {
+        if (nowMs - Number(ch.born) > ttlMs) {
+          pruned.push({ id: ch.id, trit: -1, reason: "3DS_OTP_EXPIRED" });
+        } else {
+          active.push(ch);
+        }
+      }
+      return { prunedCount: pruned.length, pruned, activeCount: active.length, active };
+    }
+
+    /**
+     * Executes scheduled payments due at or before nowMs while preserving double-entry balance.
+     */
+    static executeScheduledBatch(queue, balances, nowMs = Date.now()) {
+      const settled = [];
+      const pending = [];
+      const rejected = [];
+      for (const item of queue || []) {
+        if (item.executeAtMs > nowMs) {
+          pending.push({ ...item, trit: 0 });
+          continue;
+        }
+        const fromBal = Number(balances[item.from] || 0);
+        if (fromBal < item.amount || item.amount <= 0) {
+          rejected.push({ ...item, trit: -1, reason: "INSUFFICIENT_FUNDS" });
+          continue;
+        }
+        balances[item.from] = fromBal - item.amount;
+        balances[item.to] = Number(balances[item.to] || 0) + item.amount;
+        settled.push({ ...item, trit: 1 });
+      }
+      return { settled, pending, rejected, balances };
+    }
   }
 
   return {
