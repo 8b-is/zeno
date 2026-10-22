@@ -361,23 +361,63 @@
 
     /**
      * Executes scheduled payments due at or before nowMs while preserving double-entry balance.
+     * Amounts and balances are safe integers in the caller's chosen smallest currency unit.
      */
     static executeScheduledBatch(queue, balances, nowMs = Date.now()) {
+      if (!Number.isSafeInteger(nowMs) || nowMs < 0) {
+        throw new RangeError("nowMs must be a non-negative safe integer timestamp");
+      }
+      if (queue != null && !Array.isArray(queue)) {
+        throw new TypeError("queue must be an array");
+      }
+      if (!balances || typeof balances !== "object" || Array.isArray(balances)) {
+        throw new TypeError("balances must be an account map");
+      }
       const settled = [];
       const pending = [];
       const rejected = [];
+      const validAccount = account => typeof account === "string" && account.trim().length > 0
+        && !["__proto__", "constructor", "prototype"].includes(account);
+      const balanceOf = account => Object.prototype.hasOwnProperty.call(balances, account)
+        ? balances[account] : 0;
       for (const item of queue || []) {
+        if (!item || typeof item !== "object" || Array.isArray(item)
+          || !validAccount(item.from) || !validAccount(item.to)) {
+          rejected.push({ ...item, trit: -1, reason: "INVALID_TRANSFER" });
+          continue;
+        }
+        if (!Number.isSafeInteger(item.amount) || item.amount <= 0) {
+          rejected.push({ ...item, trit: -1, reason: "INVALID_AMOUNT" });
+          continue;
+        }
+        if (!Number.isSafeInteger(item.executeAtMs) || item.executeAtMs < 0) {
+          rejected.push({ ...item, trit: -1, reason: "INVALID_TIMESTAMP" });
+          continue;
+        }
         if (item.executeAtMs > nowMs) {
           pending.push({ ...item, trit: 0 });
           continue;
         }
-        const fromBal = Number(balances[item.from] || 0);
-        if (fromBal < item.amount || item.amount <= 0) {
+        const fromBal = balanceOf(item.from);
+        const toBal = balanceOf(item.to);
+        if (!Number.isSafeInteger(fromBal) || fromBal < 0 || !Number.isSafeInteger(toBal) || toBal < 0) {
+          rejected.push({ ...item, trit: -1, reason: "INVALID_BALANCE" });
+          continue;
+        }
+        if (fromBal < item.amount) {
           rejected.push({ ...item, trit: -1, reason: "INSUFFICIENT_FUNDS" });
           continue;
         }
-        balances[item.from] = fromBal - item.amount;
-        balances[item.to] = Number(balances[item.to] || 0) + item.amount;
+        // Check both sides before posting; a self-transfer has no net balance change.
+        if (item.from !== item.to) {
+          const nextToBal = toBal + item.amount;
+          if (!Number.isSafeInteger(nextToBal)) {
+            rejected.push({ ...item, trit: -1, reason: "BALANCE_OVERFLOW" });
+            continue;
+          }
+          balances[item.from] = fromBal - item.amount;
+          balances[item.to] = nextToBal;
+        }
         settled.push({ ...item, trit: 1 });
       }
       return { settled, pending, rejected, balances };

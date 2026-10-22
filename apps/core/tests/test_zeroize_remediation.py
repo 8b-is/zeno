@@ -8,11 +8,13 @@ import hashlib
 import json
 import os
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from unittest.mock import patch
 
 ZENO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ZENO_ROOT / "apps" / "wallet"))
@@ -28,18 +30,48 @@ from zeno_core.stripe_bridge import StripeBridge
 class TestZeroizeRemediation(unittest.TestCase):
     def test_za_0006_pkpass_encrypted_key_and_fail_closed(self):
         """ZA-0006: pass_key.pem is AES-256 encrypted and generate_signature fails closed."""
-        key_path = ZENO_ROOT / "apps" / "wallet" / "certs" / "pass_key.pem"
-        key_bytes = key_path.read_bytes()
-        self.assertIn(b"-----BEGIN ENCRYPTED PRIVATE KEY-----", key_bytes)
-        self.assertNotIn(b"-----BEGIN PRIVATE KEY-----", key_bytes)
-
         with tempfile.TemporaryDirectory() as tmp:
+            certs = Path(tmp) / "generated-certs"
+            passphrase = "synthetic-fixture-only"
+            _, key_path = generate_pass._ensure_encrypted_keypair(certs, passphrase)
+            key_bytes = key_path.read_bytes()
+            self.assertIn(b"-----BEGIN ENCRYPTED PRIVATE KEY-----", key_bytes)
+            self.assertNotIn(b"-----BEGIN PRIVATE KEY-----", key_bytes)
+            self.assertEqual(stat.S_IMODE(key_path.stat().st_mode), 0o600)
+            wrong_password = subprocess.run(
+                ["openssl", "pkey", "-in", str(key_path), "-passin", "pass:incorrect", "-noout"],
+                capture_output=True, timeout=10,
+            )
+            self.assertNotEqual(wrong_password.returncode, 0)
+
             bad_certs = Path(tmp) / "certs"
             bad_certs.mkdir()
             (bad_certs / "pass_cert.pem").write_text("INVALID_CERT")
             (bad_certs / "pass_key.pem").write_text("INVALID_KEY")
             with self.assertRaises(RuntimeError):
                 generate_pass.generate_signature(b'{"pass.json":"deadbeef"}', bad_certs)
+
+    def test_za_0006_temporary_signature_verifies_and_reuses_key(self):
+        """Sign only a synthetic manifest and verify its detached PKCS#7 signature."""
+        manifest = b'{"synthetic.json":"fixture-only"}'
+        with tempfile.TemporaryDirectory() as tmp:
+            certs = Path(tmp) / "certs"
+            with patch.dict(os.environ, {"ZENO_PASS_KEY_PASSPHRASE": "synthetic-fixture-only"}):
+                signature = generate_pass.generate_signature(manifest, certs)
+                original_key = (certs / "pass_key.pem").read_bytes()
+                generate_pass.generate_signature(manifest, certs)
+                self.assertEqual((certs / "pass_key.pem").read_bytes(), original_key)
+            manifest_path = Path(tmp) / "manifest.json"
+            signature_path = Path(tmp) / "signature.der"
+            manifest_path.write_bytes(manifest)
+            signature_path.write_bytes(signature)
+            result = subprocess.run(
+                ["openssl", "smime", "-verify", "-binary", "-inform", "DER",
+                 "-in", str(signature_path), "-content", str(manifest_path), "-noverify"],
+                capture_output=True, timeout=10,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+            self.assertEqual(result.stdout, manifest)
 
     def test_za_0007_stripe_webhook_secret_heap_scrubbed(self):
         """ZA-0007: Clearing StripeBridge.webhook_secret scrubs the CPython heap buffer."""
