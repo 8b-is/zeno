@@ -116,19 +116,27 @@ def _ensure_encrypted_keypair(cert_dir: Path, passphrase: str) -> tuple[Path, Pa
             pass
     else:
         cert_dir.mkdir(parents=True, exist_ok=True)
+        # Generate encrypted PKCS#8 separately: LibreSSL's req has no -aes256 flag.
         subprocess.run(
             [
-                "openssl", "req", "-x509", "-newkey", "rsa:2048",
-                "-aes256",
-                "-passout", f"pass:{passphrase}",
-                "-keyout", str(signer_key), "-out", str(signer_cert),
+                "openssl", "genpkey", "-algorithm", "RSA",
+                "-pkeyopt", "rsa_keygen_bits:2048", "-aes-256-cbc",
+                "-pass", f"pass:{passphrase}", "-out", str(signer_key),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        os.chmod(signer_key, 0o600)
+        subprocess.run(
+            [
+                "openssl", "req", "-x509", "-new", "-key", str(signer_key),
+                "-passin", f"pass:{passphrase}", "-out", str(signer_cert),
                 "-days", "730",
                 "-subj", "/CN=Zeno Sovereign NeoBank Pass/O=8b-is Family Research/C=JP",
             ],
             check=True,
             capture_output=True,
         )
-        os.chmod(signer_key, 0o600)
     return signer_cert, signer_key
 
 
