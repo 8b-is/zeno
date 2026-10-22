@@ -9,6 +9,7 @@ const indexHtml = readFileSync(join(root, "index.html"), "utf8");
 const styleCss = readFileSync(join(root, "style.css"), "utf8");
 const appJs = readFileSync(join(root, "app.js"), "utf8");
 const soundJs = readFileSync(join(root, "sound.js"), "utf8");
+const qrcodeJs = readFileSync(join(root, "qrcode.js"), "utf8");
 const faviconSvg = readFileSync(join(root, "favicon.svg"), "utf8");
 const ogSvg = readFileSync(join(root, "og.svg"), "utf8");
 const robotsTxt = readFileSync(join(root, "robots.txt"), "utf8");
@@ -40,6 +41,7 @@ const INDEX_HTML = ${JSON.stringify(indexHtml)};
 const STYLE_CSS = ${JSON.stringify(styleCss)};
 const APP_JS = ${JSON.stringify(appJs)};
 const SOUND_JS = ${JSON.stringify(soundJs)};
+const QRCODE_JS = ${JSON.stringify(qrcodeJs)};
 const ZENO_ENGINE_JS = ${JSON.stringify(zenoEngineJs)};
 const FAVICON_SVG = ${JSON.stringify(faviconSvg)};
 const OG_SVG = ${JSON.stringify(ogSvg)};
@@ -57,7 +59,7 @@ const STRIPE_ACP_MD = ${JSON.stringify(stripeAcpMd)};
 const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -138,6 +140,16 @@ export default {
 
     if (p === "/sound.js") {
       return new Response(SOUND_JS, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/javascript; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/qrcode.js") {
+      return new Response(QRCODE_JS, {
         headers: {
           ...COMMON_HEADERS,
           "content-type": "application/javascript; charset=utf-8",

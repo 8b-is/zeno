@@ -7,11 +7,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,15 +18,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import dev.vaked.zeno.audio.ZenoAudioEngine
+import dev.vaked.zeno.ui.components.AeonPayQrCard
 import dev.vaked.zeno.ui.components.FeliCaCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
 import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
 import dev.vaked.zeno.ui.theme.BgSumi
 import dev.vaked.zeno.ui.theme.ColorGold
 import dev.vaked.zeno.ui.theme.ColorTeal
+import dev.vaked.zeno.ui.theme.ColorViolet
 import dev.vaked.zeno.ui.theme.ZenoTheme
 
 class MainActivity : ComponentActivity() {
@@ -63,18 +61,29 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = selectedTab == 1,
                                     onClick = { selectedTab = 1 },
-                                    label = { Text("Ultra FX") },
-                                    icon = { Text("💳") }
+                                    label = { Text("AEON Pay") },
+                                    icon = { Text("💠") },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = ColorViolet,
+                                        selectedTextColor = ColorViolet,
+                                        indicatorColor = ColorViolet.copy(alpha = 0.15f)
+                                    )
                                 )
                                 NavigationBarItem(
                                     selected = selectedTab == 2,
                                     onClick = { selectedTab = 2 },
-                                    label = { Text("Ledger") },
-                                    icon = { Text("📜") }
+                                    label = { Text("Ultra FX") },
+                                    icon = { Text("💳") }
                                 )
                                 NavigationBarItem(
                                     selected = selectedTab == 3,
                                     onClick = { selectedTab = 3 },
+                                    label = { Text("Ledger") },
+                                    icon = { Text("📜") }
+                                )
+                                NavigationBarItem(
+                                    selected = selectedTab == 4,
+                                    onClick = { selectedTab = 4 },
                                     label = { Text("Stripe/ACP") },
                                     icon = { Text("⚡") }
                                 )
@@ -151,6 +160,10 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 1 -> {
+                                    // AEON Pay · Alipay-style QR (Asia first) — RFC-005
+                                    AeonPayQrCard()
+                                }
+                                2 -> {
                                     // Revolut Ultra Tab
                                     RevolutUltraCard()
                                     Spacer(modifier = Modifier.height(20.dp))
@@ -186,7 +199,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-                                2 -> {
+                                3 -> {
                                     // Ledger Tab
                                     Text(
                                         "金継ぎ台帳 (Kintsugi Ledger)",
@@ -203,7 +216,7 @@ class MainActivity : ComponentActivity() {
                                         fontFamily = FontFamily.Monospace
                                     )
                                 }
-                                3 -> {
+                                4 -> {
                                     // Stripe & ACP Agentic Commerce Tab
                                     StripeAgenticCommerceCard()
                                 }

@@ -10,6 +10,7 @@ const STATIC_ASSETS = [
   "/style.css",
   "/app.js",
   "/sound.js",
+  "/qrcode.js",
   "/favicon.svg",
   "/og.svg",
   "/beacon.json",

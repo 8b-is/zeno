@@ -219,7 +219,7 @@ Every ACP-compliant agent node advertises its capabilities, supported rails, and
 ```json
 {
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "entity": "8b-is Family Research Company",
   "nodeId": "node_8b_is_edge_tokyo",
   "publicKey": "ed25519:MC4CAQAwBQYDK2VwBCIEIP...8b-is",

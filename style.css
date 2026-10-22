@@ -1242,3 +1242,159 @@ main.zeno-main {
 
 
 
+
+/* ===========================================================================
+   AEON Pay / Alipay-style Asia-first QR payment layer (ZENO)
+   =========================================================================== */
+.qr-pay-asia-panel {
+  margin-top: 1.1rem;
+  padding: 1rem;
+  background: rgba(10, 12, 18, 0.85);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.qr-pay-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.qr-pay-brand {
+  font-weight: 800;
+  color: var(--color-gold);
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+}
+
+.qr-pay-sub {
+  font-size: 0.62rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+.qr-pay-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.qr-pay-mode-btn {
+  flex: 1;
+  background: rgba(180, 139, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--color-text-main);
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qr-pay-mode-btn.active {
+  background: rgba(98, 230, 201, 0.12);
+  border-color: var(--color-teal);
+  color: var(--color-teal);
+}
+
+.qr-pay-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.qr-pay-amount-label {
+  font-size: 0.62rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#qr-pay-amount {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-main);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.45rem 0.6rem;
+  min-width: 0;
+}
+
+.qr-pay-3ds-flag {
+  font-size: 0.58rem;
+  color: var(--color-gold);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.qr-pay-bank {
+  font-size: 0.6rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.qr-3ds-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.qr-3ds-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-bg, #0d0f17);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 32px rgba(232, 176, 92, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.qr-3ds-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-gold);
+  letter-spacing: 0.06em;
+}
+
+.qr-3ds-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+}
+
+#qr-3ds-code {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-main);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  padding: 0.7rem;
+}
+
+.qr-3ds-msg {
+  font-size: 0.72rem;
+  color: var(--color-teal);
+  min-height: 1rem;
+}
+
+.qr-3ds-msg.error {
+  color: #ff6b6b;
+}

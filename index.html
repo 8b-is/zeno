@@ -793,7 +793,7 @@
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
             <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Agent Commerce Protocol</div>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.2.0 Node</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.3.0 Node</div>
             <div style="font-size:0.75rem;color:var(--color-text-dim);">RFQ ➔ Escrow ➔ Settle</div>
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
@@ -1451,12 +1451,10 @@
             </div>
           </div>
 
-          <!-- Barcode Area -->
+          <!-- Barcode Area — ZENO AEON Pay / Alipay-style Asia-first QR layer -->
           <div class="pass-barcode-area">
             <div class="barcode-mock-qr">
-              <svg width="68" height="68" viewBox="0 0 24 24" fill="currentColor" style="color:#000;">
-                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h2v2h-2v-2zm-4 0h2v2h-2v-2zm0 4h2v2h-2v-2zm4 0h2v4h-2v-4zm-2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm6-4h2v4h-2v-4z"/>
-              </svg>
+              <canvas id="wallet-pass-qr" width="168" height="168" style="image-rendering:pixelated;width:168px;height:168px;background:#fff;border-radius:6px;padding:6px;"></canvas>
             </div>
             <div style="font-size:0.7rem;letter-spacing:0.15em;color:rgba(0,0,0,0.7);font-weight:700;margin-top:0.3rem;" id="wallet-pass-qr-label">ZENO-8B-0x71C8</div>
           </div>
@@ -1505,9 +1503,43 @@
           📥 Download .pkpass
         </a>
       </div>
+
+      <!-- AEON Pay / Alipay-style Asia-first QR payment layer -->
+      <div class="qr-pay-asia-panel">
+        <div class="qr-pay-head">
+          <span class="qr-pay-brand">ZENO 銭・禅・善</span>
+          <span class="qr-pay-sub">AEON Pay · Alipay-style Asia-first QR layer</span>
+        </div>
+        <div class="qr-pay-mode-toggle" role="group" aria-label="QR payment mode">
+          <button id="qr-pay-mode-receive" class="qr-pay-mode-btn active" data-mode="receive">🛍 Scan-to-Pay (Receive)</button>
+          <button id="qr-pay-mode-paycode" class="qr-pay-mode-btn" data-mode="paycode">📱 Show Pay-Code</button>
+        </div>
+        <div class="qr-pay-amount-row">
+          <label class="qr-pay-amount-label" for="qr-pay-amount">AMOUNT (¥)</label>
+          <input id="qr-pay-amount" type="number" min="0" step="1" value="0" placeholder="0 = open" />
+          <span id="qr-pay-3ds-flag" class="qr-pay-3ds-flag">🛡 3-D Secure: challenge ≥ ¥1.00</span>
+        </div>
+        <button id="qr-pay-auth-btn" class="btn-primary">🛡 Authenticate (3-D Secure) &amp; Pay</button>
+        <div id="qr-pay-bank" class="qr-pay-bank">8b-is Family Research Company · 三方よし</div>
+      </div>
     </div>
   </div>
 
+  <!-- 3-D Secure challenge overlay -->
+  <div id="qr-3ds-overlay" class="qr-3ds-overlay" style="display:none;">
+    <div class="qr-3ds-card">
+      <div class="qr-3ds-title">🛡 3-D Secure Authentication</div>
+      <div class="qr-3ds-sub">ZENO <span id="qr-3ds-account"></span> · enter the one-time code to approve</div>
+      <input id="qr-3ds-code" type="text" inputmode="numeric" maxlength="12" placeholder="One-time code" autocomplete="one-time-code" />
+      <div id="qr-3ds-msg" class="qr-3ds-msg"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <button id="qr-3ds-cancel" class="btn-pill" style="flex:1;">Cancel</button>
+        <button id="qr-3ds-verify" class="btn-primary" style="flex:1;">Verify</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="qrcode.js"></script>
   <script src="zeno-engine.js"></script>
   <script src="sound.js"></script>
   <script src="app.js"></script>

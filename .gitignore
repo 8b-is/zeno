@@ -23,3 +23,8 @@ apps/wallet/certs/
 *.pem
 *.key
 *.wav
+
+# Android local config
+local.properties
+.idea/
+*.iml

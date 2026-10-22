@@ -877,6 +877,7 @@ const walletPassConfigs = {
     cashback: "3.0% Boost",
     fx: "0% Interbank",
     qrLabel: "ZENO-8B-CREW",
+    payAccount: "cnt_0x71c8",
     themeClass: "pass-theme-ultra",
     downloadUrl: "/apple-wallet/zeno.pkpass",
     fileName: "zeno_ultra.pkpass",
@@ -901,6 +902,7 @@ const walletPassConfigs = {
     cashback: "3.5% Family Boost",
     fx: "0% Zero Fee",
     qrLabel: "ZENO-8B-MOM-ALEXANDRA",
+    payAccount: "cnt_alexandra",
     themeClass: "pass-theme-alexandra",
     downloadUrl: "/apple-wallet/alexandra.pkpass",
     fileName: "zeno_alexandra.pkpass",
@@ -924,6 +926,7 @@ const walletPassConfigs = {
     cashback: "3.5% Pillar Boost",
     fx: "0% Zero Fee",
     qrLabel: "ZENO-8B-DAD-CHRIS",
+    payAccount: "cnt_chris",
     themeClass: "pass-theme-chris",
     downloadUrl: "/apple-wallet/chris.pkpass",
     fileName: "zeno_chris.pkpass",
@@ -947,6 +950,7 @@ const walletPassConfigs = {
     cashback: "4.2% Muse Boost",
     fx: "0% Zero Fee",
     qrLabel: "ZENO-8B-MUSE-YVES",
+    payAccount: "cnt_yves",
     themeClass: "pass-theme-yves",
     downloadUrl: "/apple-wallet/zeno.pkpass",
     fileName: "zeno_yves.pkpass",
@@ -970,6 +974,7 @@ const walletPassConfigs = {
     cashback: "5.0% Institutional",
     fx: "0% Spot Wholesale",
     qrLabel: "ZENO-8B-FLEET-TREASURY",
+    payAccount: "cnt_0x71c8",
     themeClass: "pass-theme-8b-is",
     downloadUrl: "/apple-wallet/8b-is.pkpass",
     fileName: "zeno_8b_is.pkpass",
@@ -981,6 +986,64 @@ const walletPassConfigs = {
     ]
   }
 };
+
+// ---------------------------------------------------------------------------
+// ZENO AEON Pay / Alipay-style Asia-first QR payment layer
+// ---------------------------------------------------------------------------
+const ZENO_MICRO_UNITS = 1000000; // 1 JPY = 1,000,000 uJPY
+const ZENO_3DS_THRESHOLD_UJPY = 1000000; // ¥1.00 -> challenge required
+
+function zenoNonce() {
+  const bytes = new Uint8Array(12);
+  (window.crypto || { getRandomValues: (a) => { for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); return a; } })
+    .getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function buildZenoPayUri(accountId, opts = {}) {
+  const params = new URLSearchParams();
+  params.set("mode", opts.mode || "receive");
+  params.set("bank", "ZENO");
+  if (opts.amountUJPY) params.set("amount", String(opts.amountUJPY));
+  if (opts.memo) params.set("memo", opts.memo);
+  params.set("ts", String(Math.floor(Date.now() / 1000)));
+  params.set("nonce", zenoNonce());
+  return "zeno://pay/" + encodeURIComponent(accountId) + "?" + params.toString();
+}
+
+function renderZenoQr(canvas, uri) {
+  if (!canvas || !window.qrcode) return;
+  try {
+    const qr = qrcode(0, "M");
+    qr.addData(uri);
+    qr.make();
+    const count = qr.getModuleCount();
+    const scale = Math.max(2, Math.floor(168 / (count + 8)));
+    canvas.width = canvas.height = (count + 8) * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#000000";
+    for (let r = 0; r < count; r++) {
+      for (let c = 0; c < count; c++) {
+        if (qr.isDark(r, c)) ctx.fillRect((c + 4) * scale, (r + 4) * scale, scale, scale);
+      }
+    }
+  } catch (e) {
+    console.warn("ZENO QR render failed:", e);
+  }
+}
+
+function currentQrMode() {
+  const btn = document.querySelector(".qr-pay-mode-btn.active");
+  return btn ? btn.getAttribute("data-mode") : "receive";
+}
+
+function currentQrAmountUJPY() {
+  const input = document.getElementById("qr-pay-amount");
+  const yen = parseFloat(input ? input.value : "0");
+  return isFinite(yen) && yen > 0 ? Math.round(yen * ZENO_MICRO_UNITS) : null;
+}
 
 function initAppleWalletModal() {
   const modal = document.getElementById("wallet-modal-backdrop");
@@ -1023,6 +1086,8 @@ function initAppleWalletModal() {
     if (passCashback) passCashback.innerText = config.cashback;
     if (passFx) passFx.innerText = config.fx;
     if (passQrLabel) passQrLabel.innerText = config.qrLabel;
+    activePassKey = passKey;
+    refreshQr();
 
     if (btnDownload) {
       btnDownload.href = config.downloadUrl;
@@ -1082,6 +1147,82 @@ function initAppleWalletModal() {
     passCard.classList.toggle("flipped");
     window.zenoAudio?.playDrop();
   });
+
+  // --- AEON Pay / Alipay-style Asia-first QR payment layer ---
+  let activePassKey = "peter";
+  const qrCanvas = document.getElementById("wallet-pass-qr");
+  const modeReceive = document.getElementById("qr-pay-mode-receive");
+  const modePaycode = document.getElementById("qr-pay-mode-paycode");
+  const amountInput = document.getElementById("qr-pay-amount");
+  const authBtn = document.getElementById("qr-pay-auth-btn");
+  const qr3dsOverlay = document.getElementById("qr-3ds-overlay");
+  const qr3dsAccount = document.getElementById("qr-3ds-account");
+  const qr3dsCode = document.getElementById("qr-3ds-code");
+  const qr3dsMsg = document.getElementById("qr-3ds-msg");
+  const qr3dsVerify = document.getElementById("qr-3ds-verify");
+  const qr3dsCancel = document.getElementById("qr-3ds-cancel");
+
+  const setQr3dsFlag = () => {
+    const flag = document.getElementById("qr-pay-3ds-flag");
+    const amount = currentQrAmountUJPY();
+    if (flag) flag.innerText = amount && amount >= ZENO_3DS_THRESHOLD_UJPY
+      ? "🛡 3-D Secure: challenge required"
+      : "🛡 3-D Secure: challenge ≥ ¥1.00";
+  };
+
+  const refreshQr = () => {
+    const cfg = walletPassConfigs[activePassKey];
+    if (!cfg || !cfg.payAccount) return;
+    const uri = buildZenoPayUri(cfg.payAccount, {
+      amountUJPY: currentQrAmountUJPY(),
+      mode: currentQrMode(),
+    });
+    renderZenoQr(qrCanvas, uri);
+    if (passQrLabel) passQrLabel.innerText = cfg.qrLabel;
+    setQr3dsFlag();
+  };
+
+  const setQrMode = (mode) => {
+    if (modeReceive) modeReceive.classList.toggle("active", mode === "receive");
+    if (modePaycode) modePaycode.classList.toggle("active", mode === "paycode");
+    refreshQr();
+  };
+
+  const close3ds = () => {
+    if (qr3dsOverlay) qr3dsOverlay.style.display = "none";
+    if (qr3dsCode) qr3dsCode.value = "";
+    if (qr3dsMsg) { qr3dsMsg.innerText = ""; qr3dsMsg.classList.remove("error"); }
+  };
+
+  const open3ds = () => {
+    const cfg = walletPassConfigs[activePassKey];
+    const amount = currentQrAmountUJPY();
+    const label = (cfg ? cfg.qrLabel : "ZENO") + " · " + (amount ? "¥" + (amount / ZENO_MICRO_UNITS) : "open");
+    if (qr3dsAccount) qr3dsAccount.innerText = label;
+    if (qr3dsOverlay) qr3dsOverlay.style.display = "flex";
+    if (qr3dsCode) qr3dsCode.focus();
+    if (qr3dsMsg) { qr3dsMsg.innerText = "Challenge required (amount ≥ ¥1.00). Enter the one-time code."; qr3dsMsg.classList.remove("error"); }
+  };
+
+  modeReceive?.addEventListener("click", () => setQrMode("receive"));
+  modePaycode?.addEventListener("click", () => setQrMode("paycode"));
+  amountInput?.addEventListener("input", refreshQr);
+  authBtn?.addEventListener("click", open3ds);
+  qr3dsCancel?.addEventListener("click", close3ds);
+  qr3dsVerify?.addEventListener("click", () => {
+    const code = (qr3dsCode && qr3dsCode.value.trim()) || "";
+    // Client-side demo of the 3-D Secure step. The authoritative 3DS gate lives
+    // server-side in apps/core/zeno_core/qr_pay.py (QrPayThreeDs).
+    if (code.length >= 6) {
+      if (qr3dsMsg) { qr3dsMsg.innerText = "✅ 3-D Secure passed — payment settled (demo)."; qr3dsMsg.classList.remove("error"); }
+      window.zenoAudio?.playPluck();
+      setTimeout(close3ds, 1400);
+    } else {
+      if (qr3dsMsg) { qr3dsMsg.innerText = "Enter the one-time code (≥6 chars) to approve."; qr3dsMsg.classList.add("error"); }
+    }
+  });
+
+  refreshQr();
 }
 
 // Service Worker Registration for PWA
