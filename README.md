@@ -312,7 +312,8 @@ Maintained with devotion by **8b-is** (`8b.is <3`) as part of the **vaked.dev co
 > **Honest Scope:** ZENO and `oOo.zeno` are neobank simulations — no real money, no PII, and no real 3DS rails are touched.
 
 - `KintsugiLedger.sweepExpiredChallenges`: Prunes expired 3DS/OTP challenges (`> 120,000 ms`) with `trit = -1` and tracks cumulative `otpSweptTotal` across sweeps.
-- `KintsugiLedger.executeScheduledBatch`: Settles due one-shot and recurring scheduled payments (`intervalMs`, `maxRuns`, `runCount`, rescheduling `executeAtMs += intervalMs` as `pending` until `runCount >= maxRuns` transitions to `executed` with `trit = +1`), holds future items (`trit = 0`), and rejects underfunded items (`trit = -1`).
+- `KintsugiLedger.executeScheduledBatch`: Settles due one-shot and recurring scheduled payments (`intervalMs`, `maxRuns`, `runCount`, rescheduling `executeAtMs += intervalMs` as `pending` until `runCount >= maxRuns` transitions to `executed` with `trit = +1`), holds future items (`trit = 0`), and rejects underfunded/cancelled items (`trit = -1`).
+  Amounts must be positive safe integers and balances non-negative safe integers in the same smallest currency unit chosen by the caller. Convert decimal currency amounts before calling; strings, fractions, non-finite values and unsafe integers are rejected without changing balances. Timestamps are non-negative safe integer milliseconds. Invalid transfers are rejected even when scheduled for the future; balances are checked when due. Destination overflow is rejected before debiting the sender, and same-account transfers leave balances unchanged. Account IDs must be non-empty strings other than `__proto__`, `constructor` or `prototype`. An invalid batch clock or container throws before any settlement.
 - `KintsugiLedger.cancelScheduledPayment`: Cancels pending scheduled payments by `id` (`status = "cancelled"`, `trit = -1`) and blocks subsequent execution.
 
 ```bash

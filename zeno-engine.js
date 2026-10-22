@@ -424,19 +424,38 @@
 
     /**
      * Executes scheduled payments due at or before nowMs while preserving double-entry balance.
-     * Supports recurring payments (intervalMs, maxRuns, runCount) and respects cancelled items.
+     * Supports recurring payments (intervalMs, maxRuns, runCount), registry lookup and
+     * cancelled items. Amounts and balances are safe integers in the caller's smallest unit.
      */
     static executeScheduledBatch(queue, balances, nowMs = Date.now()) {
+      if (!Number.isSafeInteger(nowMs) || nowMs < 0) {
+        throw new RangeError("nowMs must be a non-negative safe integer timestamp");
+      }
+      if (queue != null && !Array.isArray(queue)) {
+        throw new TypeError("queue must be an array");
+      }
+      if (!balances || typeof balances !== "object" || Array.isArray(balances)) {
+        throw new TypeError("balances must be an account map");
+      }
       const settled = [];
       const pending = [];
       const rejected = [];
       const cancelled = [];
+      const validAccount = account => typeof account === "string" && account.trim().length > 0
+        && !["__proto__", "constructor", "prototype"].includes(account);
+      const balanceOf = account => Object.prototype.hasOwnProperty.call(balances, account)
+        ? balances[account] : 0;
       const items = queue || [...KintsugiLedger.scheduledRegistry.values()];
       for (const item of items) {
-        if (item.id && !KintsugiLedger.scheduledRegistry.has(item.id)) {
-          KintsugiLedger.scheduledRegistry.set(item.id, item);
+        const regItem = item && item.id ? KintsugiLedger.scheduledRegistry.get(item.id) : null;
+        if (!item || typeof item !== "object" || Array.isArray(item)
+          || !validAccount(item.from) || !validAccount(item.to)) {
+          rejected.push({ ...item, trit: -1, reason: "INVALID_TRANSFER" });
+          continue;
         }
-        const regItem = item.id ? KintsugiLedger.scheduledRegistry.get(item.id) : null;
+        if (item.executeAtMs === undefined && item.executeAt !== undefined) {
+          item.executeAtMs = item.executeAt;
+        }
         if (item.status === "cancelled" || (regItem && regItem.status === "cancelled")) {
           item.status = "cancelled";
           item.trit = -1;
@@ -446,22 +465,51 @@
         if (item.status === "executed") {
           continue;
         }
-        const executeAtMs = Number(item.executeAtMs ?? item.executeAt ?? 0);
-        if (executeAtMs > nowMs) {
-          item.status = item.status || "pending";
-          item.trit = 0;
-          pending.push({ ...item, executeAtMs, executeAt: executeAtMs, runCount: Number(item.runCount) || 0, status: "pending", trit: 0 });
+        if (!Number.isSafeInteger(item.amount) || item.amount <= 0) {
+          item.status = "rejected";
+          item.trit = -1;
+          rejected.push({ ...item, status: "rejected", trit: -1, reason: "INVALID_AMOUNT" });
           continue;
         }
-        const fromBal = Number(balances[item.from] || 0);
-        if (fromBal < item.amount || item.amount <= 0) {
+        if (!Number.isSafeInteger(item.executeAtMs) || item.executeAtMs < 0) {
+          item.status = "rejected";
+          item.trit = -1;
+          rejected.push({ ...item, status: "rejected", trit: -1, reason: "INVALID_TIMESTAMP" });
+          continue;
+        }
+        if (item.executeAtMs > nowMs) {
+          item.status = item.status || "pending";
+          item.trit = 0;
+          pending.push({ ...item, executeAtMs: item.executeAtMs, executeAt: item.executeAtMs, runCount: Number(item.runCount) || 0, status: "pending", trit: 0 });
+          continue;
+        }
+        const fromBal = balanceOf(item.from);
+        const toBal = balanceOf(item.to);
+        if (!Number.isSafeInteger(fromBal) || fromBal < 0 || !Number.isSafeInteger(toBal) || toBal < 0) {
+          item.status = "rejected";
+          item.trit = -1;
+          rejected.push({ ...item, status: "rejected", trit: -1, reason: "INVALID_BALANCE" });
+          continue;
+        }
+        if (fromBal < item.amount) {
           item.status = "rejected";
           item.trit = -1;
           rejected.push({ ...item, status: "rejected", trit: -1, reason: "INSUFFICIENT_FUNDS" });
           continue;
         }
-        balances[item.from] = fromBal - item.amount;
-        balances[item.to] = Number(balances[item.to] || 0) + item.amount;
+        // Check both sides before posting; a self-transfer has no net balance change.
+        if (item.from !== item.to) {
+          const nextToBal = toBal + item.amount;
+          if (!Number.isSafeInteger(nextToBal)) {
+            item.status = "rejected";
+            item.trit = -1;
+            rejected.push({ ...item, status: "rejected", trit: -1, reason: "BALANCE_OVERFLOW" });
+            continue;
+          }
+          balances[item.from] = fromBal - item.amount;
+          balances[item.to] = nextToBal;
+        }
+        // Recurrence bookkeeping: advance executeAtMs and runCount until maxRuns.
         const runCount = (Number(item.runCount) || 0) + 1;
         const intervalMs = Number(item.intervalMs) || 0;
         const maxRuns = item.maxRuns !== undefined && item.maxRuns !== null
@@ -471,7 +519,7 @@
         item.intervalMs = intervalMs;
         item.maxRuns = maxRuns;
         if (intervalMs > 0 && runCount < maxRuns) {
-          const nextExecuteAtMs = executeAtMs + intervalMs;
+          const nextExecuteAtMs = item.executeAtMs + intervalMs;
           item.executeAtMs = nextExecuteAtMs;
           item.executeAt = nextExecuteAtMs;
           item.status = "pending";
