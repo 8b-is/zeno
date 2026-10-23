@@ -1058,7 +1058,7 @@ function initAppleWalletModal() {
   const isAndroid = /Android/i.test(navigator.userAgent);
   if (isAndroid && btnNav) {
     btnNav.classList.add("is-android");
-    btnNav.innerHTML = '<span class="gw-glyph" aria-hidden="true">G</span> Add to Google Wallet';
+    btnNav.innerHTML = '<span class="gw-glyph" aria-hidden="true">G</span> Google Wallet';
   }
 
   const passOrg = document.getElementById("wallet-pass-org");
