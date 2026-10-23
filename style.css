@@ -1459,3 +1459,16 @@ main.zeno-main {
 .google-wallet-status.ok {
   color: var(--color-teal);
 }
+
+/* Android visitors: the header CTA becomes the Google Wallet entry point */
+.btn-apple-wallet.is-android {
+  background: #1a73e8;
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+}
+
+.btn-apple-wallet.is-android:hover {
+  background: #1765cc;
+  border-color: #fff;
+  box-shadow: 0 6px 16px rgba(26, 115, 232, 0.5);
+}

@@ -1,0 +1,5 @@
+# Copy to deploy/.dev.vars for local `wrangler dev`; never commit real values.
+# Production sets these with `wrangler secret put ...`.
+GOOGLE_WALLET_ISSUER_ID=3388000000000000000
+# Single-line JSON: private_key must keep its \n escapes.
+GOOGLE_WALLET_SA_JSON={"type":"service_account","client_email":"wallet@project.iam.gserviceaccount.com","private_key":"-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n"}

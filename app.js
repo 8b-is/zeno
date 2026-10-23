@@ -1054,6 +1054,13 @@ function initAppleWalletModal() {
   const passCard = document.getElementById("wallet-pass-card");
   const passFront = document.getElementById("wallet-pass-front");
 
+  // Android visitors get the Google Wallet CTA instead of the Apple one.
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  if (isAndroid && btnNav) {
+    btnNav.classList.add("is-android");
+    btnNav.innerHTML = '<span class="gw-glyph" aria-hidden="true">G</span> Add to Google Wallet';
+  }
+
   const passOrg = document.getElementById("wallet-pass-org");
   const passBalance = document.getElementById("wallet-pass-balance");
   const passRoleLabel = document.getElementById("wallet-pass-role-label");
@@ -1121,6 +1128,12 @@ function initAppleWalletModal() {
     if (!modal) return;
     modal.style.display = "flex";
     window.zenoAudio?.playPluck();
+    if (isAndroid) {
+      // Surface the Android rail first — the pass panel is below the fold on phones.
+      setTimeout(() => {
+        document.getElementById("btn-add-google-wallet")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 180);
+    }
   };
 
   const closeModal = () => {
