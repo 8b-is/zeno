@@ -4,7 +4,7 @@
   "status": "online",
   "constellation": "vaked.dev",
   "governance": "8b-is Family Research Company <3",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "protocol": "spec/vaked-protocol.hcl",
   "security_review": "PASS",
   "description": "Continuous-time micro-streaming neo-bank with Kintsugi double-entry ledger, Q-Wave procedural DSP audio, Foken proof-of-contribution bridge, Tokyo Transit (FeliCa NFC-F), Revolut Ultra rails, and omni-platform Apple Wallet support.",

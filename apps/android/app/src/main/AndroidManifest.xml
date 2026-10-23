@@ -14,6 +14,7 @@
         android:label="ZENO 銭"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
         <activity
@@ -25,7 +26,40 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Verified App Link: https://zeno.vaked.dev/pay/... (see deploy/assetlinks.json) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="zeno.vaked.dev"
+                    android:pathPrefix="/pay" />
+            </intent-filter>
+
+            <!-- Custom scheme: zeno://pay/<account>?mode=...&amount=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="zeno"
+                    android:host="pay" />
+            </intent-filter>
         </activity>
+
+        <!-- Quick Settings tile: one swipe to AEON Pay pay-code -->
+        <service
+            android:name=".wallet.AeonPayTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:label="AEON Pay"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <!-- Host-based Card Emulation Service for FeliCa Transit Gates -->
         <service

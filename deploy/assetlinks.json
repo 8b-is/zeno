@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "dev.vaked.zeno",
+      "sha256_cert_fingerprints": [
+        "E8:B8:17:A4:65:56:B7:E1:A0:DB:4E:F9:2B:34:A7:AA:4F:7D:FC:66:44:C1:1E:39:81:03:EC:55:6D:9D:46:33"
+      ]
+    }
+  }
+]

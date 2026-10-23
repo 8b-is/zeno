@@ -1150,6 +1150,59 @@ function initAppleWalletModal() {
 
   // --- AEON Pay / Alipay-style Asia-first QR payment layer ---
   let activePassKey = "peter";
+
+  // --- Google Wallet (Android) generic pass, mirrors apps/wallet/google_wallet.py ---
+  const btnGoogleWallet = document.getElementById("btn-add-google-wallet");
+  const gwStatus = document.getElementById("google-wallet-status");
+
+  const setGwStatus = (text, kind) => {
+    if (!gwStatus) return;
+    gwStatus.innerText = text || "";
+    gwStatus.classList.remove("error", "ok");
+    if (kind) gwStatus.classList.add(kind);
+  };
+
+  const yenLabelToUjpy = (label) => {
+    const n = parseFloat(String(label).replace(/[^0-9.]/g, ""));
+    return isFinite(n) && n > 0 ? Math.round(n * ZENO_MICRO_UNITS) : null;
+  };
+
+  btnGoogleWallet?.addEventListener("click", async () => {
+    const cfg = walletPassConfigs[activePassKey];
+    if (!cfg || !cfg.payAccount) return;
+
+    btnGoogleWallet.setAttribute("aria-busy", "true");
+    setGwStatus("Preparing Google Wallet pass…");
+
+    try {
+      const params = new URLSearchParams({ account: cfg.payAccount, holder: cfg.name });
+      const balance = yenLabelToUjpy(cfg.balance);
+      if (balance !== null) params.set("balance_ujpy", String(balance));
+
+      const res = await fetch(`/api/wallet/google-pass?${params.toString()}`, {
+        headers: { accept: "application/json" },
+      });
+      const data = await res.json();
+
+      if (data.mode === "live" && data.saveUrl) {
+        setGwStatus("Opening Google Wallet…", "ok");
+        window.location.href = data.saveUrl;
+      } else if (data.mode === "unconfigured") {
+        setGwStatus(
+          "Google Wallet issuer not configured on this deployment (" +
+            (data.missing || []).join(", ") +
+            "). Pass payload is built and validated — see apps/wallet/google_wallet.py.",
+          "error"
+        );
+      } else {
+        setGwStatus("Google Wallet returned an unexpected response.", "error");
+      }
+    } catch (err) {
+      setGwStatus("Google Wallet request failed: " + err.message, "error");
+    } finally {
+      btnGoogleWallet.removeAttribute("aria-busy");
+    }
+  });
   const qrCanvas = document.getElementById("wallet-pass-qr");
   const modeReceive = document.getElementById("qr-pay-mode-receive");
   const modePaycode = document.getElementById("qr-pay-mode-paycode");

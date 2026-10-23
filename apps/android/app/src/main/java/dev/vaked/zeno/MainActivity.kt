@@ -1,6 +1,7 @@
 package dev.vaked.zeno
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -12,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -19,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.vaked.zeno.audio.ZenoAudioEngine
+import dev.vaked.zeno.ui.components.AddToGoogleWalletButton
 import dev.vaked.zeno.ui.components.AeonPayQrCard
 import dev.vaked.zeno.ui.components.FeliCaCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
@@ -28,10 +32,23 @@ import dev.vaked.zeno.ui.theme.ColorGold
 import dev.vaked.zeno.ui.theme.ColorTeal
 import dev.vaked.zeno.ui.theme.ColorViolet
 import dev.vaked.zeno.ui.theme.ZenoTheme
+import dev.vaked.zeno.wallet.GoogleWalletController
 
 class MainActivity : ComponentActivity() {
+
+    private data class DeepLink(val tab: Int, val amountJPY: Int?, val mode: String?)
+
+    private lateinit var walletController: GoogleWalletController
+
+    /** Set from zeno://pay/... or https://zeno.vaked.dev/pay/... (also the QS tile). */
+    private var pendingDeepLink by mutableStateOf<DeepLink?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        walletController = GoogleWalletController(this)
+        walletController.refreshAvailability()
+        handleDeepLink(intent)
 
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
@@ -42,6 +59,16 @@ class MainActivity : ComponentActivity() {
                     color = BgSumi
                 ) {
                     var selectedTab by remember { mutableIntStateOf(0) }
+                    var deepAmountJPY by remember { mutableStateOf<Int?>(null) }
+                    var deepMode by remember { mutableStateOf<String?>(null) }
+
+                    LaunchedEffect(pendingDeepLink) {
+                        val link = pendingDeepLink ?: return@LaunchedEffect
+                        selectedTab = link.tab
+                        deepAmountJPY = link.amountJPY
+                        deepMode = link.mode
+                        pendingDeepLink = null
+                    }
                     var isPasmo by remember { mutableStateOf(true) }
                     var pasmoBalance by remember { mutableIntStateOf(4820) }
                     var suicaBalance by remember { mutableIntStateOf(6450) }
@@ -158,10 +185,22 @@ class MainActivity : ComponentActivity() {
                                     ) {
                                         Text("Recharge +¥3,000 from Revolut Ultra (0% FX)", color = Color.Black)
                                     }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    AddToGoogleWalletButton(
+                                        controller = walletController,
+                                        accountId = "cnt_0x71c8",
+                                        holder = "8b-is Crew",
+                                        balanceJPY = if (isPasmo) pasmoBalance else suicaBalance,
+                                    )
                                 }
                                 1 -> {
                                     // AEON Pay · Alipay-style QR (Asia first) — RFC-005
-                                    AeonPayQrCard()
+                                    AeonPayQrCard(
+                                        initialAmountJPY = deepAmountJPY,
+                                        initialMode = deepMode,
+                                    )
                                 }
                                 2 -> {
                                     // Revolut Ultra Tab
@@ -226,5 +265,41 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    @Deprecated("Google Wallet SDK returns via the legacy activity-result path")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GoogleWalletController.REQUEST_CODE_SAVE_PASS) {
+            walletController.onSaveResult(resultCode, data)
+        }
+    }
+
+    /**
+     * Routes both App Link (https://zeno.vaked.dev/pay/...) and custom scheme
+     * (zeno://pay/...) URIs to the AEON Pay tab, carrying amount + mode.
+     */
+    private fun handleDeepLink(intent: Intent?) {
+        val data = intent?.data ?: return
+        val isZenoScheme = data.scheme == "zeno" && data.host == "pay"
+        val isAppLink = data.scheme == "https" &&
+            data.host == "zeno.vaked.dev" &&
+            (data.path?.startsWith("/pay") == true)
+        if (!isZenoScheme && !isAppLink) return
+
+        val mode = data.getQueryParameter("mode")
+        val amountUJPY = data.getQueryParameter("amount")?.toLongOrNull()
+        val amountJPY = when {
+            amountUJPY == null || amountUJPY <= 0L -> null
+            amountUJPY < 1_000_000L -> 1 // sub-yen amount still means "fixed amount"
+            else -> (amountUJPY / 1_000_000L).toInt()
+        }
+        pendingDeepLink = DeepLink(tab = 1, amountJPY = amountJPY, mode = mode)
     }
 }

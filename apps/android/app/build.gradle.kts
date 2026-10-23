@@ -11,8 +11,8 @@ android {
         applicationId = "dev.vaked.zeno"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.3.0"
+        versionCode = 5
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -59,4 +59,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.google.zxing:core:3.5.3")
+    // Google Wallet (Generic pass) — PayClient.savePassesJwt
+    implementation("com.google.android.gms:play-services-pay:16.5.0")
 }

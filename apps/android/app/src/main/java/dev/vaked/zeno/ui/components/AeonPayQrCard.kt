@@ -71,15 +71,38 @@ private fun buildPayUri(
 }
 
 @Composable
-fun AeonPayQrCard(modifier: Modifier = Modifier) {
-    var mode by remember { mutableStateOf(QrMode.RECEIVE) }
-    var amountText by remember { mutableStateOf("500") }
+fun AeonPayQrCard(
+    modifier: Modifier = Modifier,
+    initialAmountJPY: Int? = null,
+    initialMode: String? = null,
+) {
+    var mode by remember {
+        mutableStateOf(if (initialMode == "paycode") QrMode.PAYCODE else QrMode.RECEIVE)
+    }
+    var amountText by remember {
+        mutableStateOf((initialAmountJPY?.takeIf { it > 0 } ?: 500).toString())
+    }
     var nonce by remember { mutableStateOf(randomNonce()) }
     var stamp by remember { mutableStateOf(nowSeconds()) }
     var authState by remember { mutableStateOf(AuthState.IDLE) }
     var challengeCode by remember { mutableStateOf<String?>(null) }
     var otpInput by remember { mutableStateOf("") }
     var attempts by remember { mutableStateOf(0) }
+
+    // Deep links (zeno://pay/... or https://zeno.vaked.dev/pay/...) and the
+    // Quick Settings tile inject mode/amount here without recreating the card.
+    LaunchedEffect(initialAmountJPY, initialMode) {
+        if (initialAmountJPY != null && initialAmountJPY > 0) {
+            amountText = initialAmountJPY.toString()
+        }
+        mode = if (initialMode == "paycode") QrMode.PAYCODE else QrMode.RECEIVE
+        nonce = randomNonce()
+        stamp = nowSeconds()
+        authState = AuthState.IDLE
+        challengeCode = null
+        otpInput = ""
+        attempts = 0
+    }
 
     val amountJPY = amountText.toLongOrNull() ?: 0L
     val amountUJPY = amountJPY * 1_000_000L

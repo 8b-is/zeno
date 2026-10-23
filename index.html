@@ -5,11 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZENO (銭・禅・善) — Japanese Proof-of-Contribution Sovereign Neo-Bank</title>
   <meta name="description" content="A sovereign neo-bank rooted in Japanese merchant philosophy (Sanpo Yoshi), spatial mindfulness (Ma), and immutable golden auditability (Kintsugi). Synthesizing VAKED with Foken.">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.ico">
   <!-- Open Graph -->
   <meta property="og:title" content="ZENO (銭・禅・善) — Japanese Neo-Bank">
   <meta property="og:description" content="Double-entry Kintsugi ledger, continuous micro-streaming, Foken proof-of-contribution bridge, and autonomous AI agent accounts.">
-  <meta property="og:image" content="https://zeno.vaked.dev/og.svg">
+  <meta property="og:image" content="https://zeno.vaked.dev/icons/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:url" content="https://zeno.vaked.dev/">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -18,7 +24,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ZENO">
-  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <!-- Google Fonts: Shippori Mincho & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -793,7 +799,7 @@
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
             <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Agent Commerce Protocol</div>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.3.0 Node</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.4.0 Node</div>
             <div style="font-size:0.75rem;color:var(--color-text-dim);">RFQ ➔ Escrow ➔ Settle</div>
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
@@ -1502,7 +1508,11 @@
         <a href="/apple-wallet/zeno.pkpass" id="btn-download-pkpass" class="btn-primary" style="flex:1;text-decoration:none;" download="zeno_ultra.pkpass">
           📥 Download .pkpass
         </a>
+        <button id="btn-add-google-wallet" class="btn-google-wallet" style="flex:1;" type="button">
+          <span class="gw-glyph" aria-hidden="true">G</span> Add to Google Wallet
+        </button>
       </div>
+      <div id="google-wallet-status" class="google-wallet-status" role="status" aria-live="polite"></div>
 
       <!-- AEON Pay / Alipay-style Asia-first QR payment layer -->
       <div class="qr-pay-asia-panel">

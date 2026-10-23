@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; Network-first for dynamic state.
  */
 
-const CACHE_NAME = "zeno-v1-static";
+const CACHE_NAME = "zeno-v3-wallet";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -13,6 +13,15 @@ const STATIC_ASSETS = [
   "/qrcode.js",
   "/favicon.svg",
   "/og.svg",
+  "/favicon.ico",
+  "/icons/icon-16.png",
+  "/icons/icon-32.png",
+  "/icons/icon-48.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
+  "/icons/icon-maskable-192.png",
+  "/icons/icon-maskable-512.png",
   "/beacon.json",
   "/manifest.webmanifest"
 ];
