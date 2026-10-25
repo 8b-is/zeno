@@ -26,6 +26,7 @@ import dev.vaked.zeno.ui.components.AddToGoogleWalletButton
 import dev.vaked.zeno.ui.components.AeonPayQrCard
 import dev.vaked.zeno.ui.components.ConstellationCard
 import dev.vaked.zeno.ui.components.FeliCaCard
+import dev.vaked.zeno.ui.components.IcTransitCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
 import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
 import dev.vaked.zeno.ui.theme.BgSumi
@@ -206,6 +207,12 @@ class MainActivity : ComponentActivity() {
                                         holder = "8b-is Crew",
                                         balanceJPY = if (isPasmo) pasmoBalance else suicaBalance,
                                     )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    // Honest Osaifu-Keitai / Samsung Wallet probe + routing.
+                                    // Suica/PASMO are issuer-minted into the FeliCa SE; no app can mint them.
+                                    IcTransitCard(onOpenAeonPay = { selectedTab = 1 })
                                 }
                                 1 -> {
                                     // AEON Pay · Alipay-style QR (Asia first) — RFC-005

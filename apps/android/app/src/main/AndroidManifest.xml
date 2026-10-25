@@ -8,6 +8,16 @@
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
 
+    <!-- Package visibility (API 30+): the IC/Osaifu-Keitai probe and wallet hand-off
+         need to see these issuers, or getPackageInfo throws NameNotFoundException. -->
+    <queries>
+        <package android:name="com.felicanetworks.mfc" />
+        <package android:name="com.mobilepasmo.android" />
+        <package android:name="com.jreast.mobile.suica" />
+        <package android:name="com.samsung.android.spay" />
+        <package android:name="com.google.android.apps.walletnfcrel" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

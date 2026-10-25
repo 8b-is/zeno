@@ -1683,6 +1683,44 @@ SHA-256 (sealed): 8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7
       </div>
       <div id="google-wallet-status" class="google-wallet-status" role="status" aria-live="polite"></div>
 
+      <!-- IC card / Osaifu-Keitai reality check: no app can mint Suica or PASMO. -->
+      <details class="ic-wallet-note" id="ic-wallet-note">
+        <summary>🚇 IC カード (Suica / PASMO) を Samsung Wallet で使うには</summary>
+        <p>
+          Suica / PASMO はアプリが発行するカードではありません。<strong>Mobile FeliCa (Type-F)</strong>
+          チップ上の <em>Osaifu-Keitai</em> 領域に JR東日本 / PASMO協議会 が発行し、発行後に
+          Samsung Wallet の「交通系ICカード」に自動で表示されます。ZENO はカードを発行できません —
+          Android の HCE は ISO-DEP (Type A/B) のみで、FeliCa Type-F を代替できないためです。
+        </p>
+        <table class="ic-wallet-table">
+          <thead><tr><th>必要条件</th><th>確認方法</th></tr></thead>
+          <tbody>
+            <tr><td>Mobile FeliCa チップ</td><td><code>android.hardware.nfc.felica</code></td></tr>
+            <tr><td>Osaifu-Keitai クライアント</td><td><code>com.felicanetworks.mfc</code> が導入済み</td></tr>
+            <tr><td>発行アプリ</td><td>Mobile PASMO / Mobile Suica で発行 → Samsung Wallet に表示</td></tr>
+            <tr><td>端末</td><td>日本国内モデルの Galaxy（US/EU モデルは Type-F 非搭載）</td></tr>
+          </tbody>
+        </table>
+        <p>
+          <strong>それでも東京でタッチする方法:</strong> 東京メトロ・都営地下鉄の改札は
+          <strong>コンタクトレス決済</strong>（Visa / Mastercard / JCB / Amex / Diners / Discover）に
+          対応しています。FeliCa が無い端末でも、Samsung Wallet / Google Wallet に銀行カードを
+          追加すれば、その端末のまま改札と店頭でタッチできます（JR東日本の改札は駅により対応が
+          異なるため、改札のマークを確認してください）。
+        </p>
+        <p>
+          <strong>この端末で今すぐ使える支払い:</strong> 下の AEON Pay QR（<code>zeno://pay/…</code>）は
+          どの Android でも動作します。IC カードが必要な場面では物理カードをご利用ください。
+        </p>
+        <p class="ic-wallet-links">
+          <a href="https://play.google.com/store/apps/details?id=com.mobilepasmo.android" target="_blank" rel="noopener">Mobile PASMO</a>
+          ·
+          <a href="https://play.google.com/store/apps/details?id=com.jreast.mobile.suica" target="_blank" rel="noopener">Mobile Suica</a>
+          ·
+          <a href="https://www.samsung.com/jp/samsung-wallet/" target="_blank" rel="noopener">Samsung Wallet (JP)</a>
+        </p>
+      </details>
+
       <!-- AEON Pay / Alipay-style Asia-first QR payment layer -->
       <div class="qr-pay-asia-panel">
         <div class="qr-pay-head">

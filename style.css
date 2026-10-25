@@ -1267,6 +1267,51 @@ main.zeno-main {
 /* ===========================================================================
    AEON Pay / Alipay-style Asia-first QR payment layer (ZENO)
    =========================================================================== */
+/* IC card / Osaifu-Keitai note (wallet modal) */
+.ic-wallet-note {
+  margin-top: 1rem;
+  border: 1px solid rgba(232, 176, 92, 0.28);
+  border-radius: 10px;
+  background: rgba(232, 176, 92, 0.05);
+  padding: 0.7rem 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--color-text-dim);
+}
+.ic-wallet-note summary {
+  cursor: pointer;
+  color: var(--color-gold);
+  font-weight: 700;
+  font-size: 0.82rem;
+  list-style: none;
+}
+.ic-wallet-note summary::-webkit-details-marker { display: none; }
+.ic-wallet-note summary::before { content: "▸ "; }
+.ic-wallet-note[open] summary::before { content: "▾ "; }
+.ic-wallet-note p { margin: 0.6rem 0 0; }
+.ic-wallet-note strong { color: var(--color-text); }
+.ic-wallet-table {
+  width: 100%;
+  margin-top: 0.6rem;
+  border-collapse: collapse;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+}
+.ic-wallet-table th,
+.ic-wallet-table td {
+  text-align: left;
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  vertical-align: top;
+}
+.ic-wallet-table th { color: var(--color-teal); font-weight: 700; }
+.ic-wallet-note code {
+  color: var(--color-teal);
+  font-size: 0.68rem;
+}
+.ic-wallet-links a { color: var(--color-teal); text-decoration: none; }
+.ic-wallet-links a:hover { text-decoration: underline; }
+
 .qr-pay-asia-panel {
   margin-top: 1.1rem;
   padding: 1rem;

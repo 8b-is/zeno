@@ -20,6 +20,7 @@ const swJs = readFileSync(join(root, "sw.js"), "utf8");
 const assetlinksJson = readFileSync(join(root, "deploy", "assetlinks.json"), "utf8");
 const constellationSrc = JSON.parse(readFileSync(join(root, "constellation.json"), "utf8"));
 const constellationMd = readFileSync(join(root, "spec", "CONSTELLATION_WIRING.md"), "utf8");
+const transitMd = readFileSync(join(root, "spec", "TRANSIT_CARD_PROVISIONING.md"), "utf8");
 
 // Foken net-utility gate: net = futureWorkAvoided - (workAdded + 1.5 * maintenanceDebt)
 const constellationProjects = constellationSrc.projects.map((project) => {
@@ -108,6 +109,7 @@ const PKPASS_8B_BASE64 = ${JSON.stringify(pkpass8bBase64)};
 const VAKED_PROTOCOL_HCL = ${JSON.stringify(vakedProtocolHcl)};
 const STRIPE_ACP_MD = ${JSON.stringify(stripeAcpMd)};
 const CONSTELLATION_MD = ${JSON.stringify(constellationMd)};
+const TRANSIT_MD = ${JSON.stringify(transitMd)};
 const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
@@ -452,6 +454,17 @@ export default {
 
     if (p === "/spec/STRIPE_COMPATIBILITY_MCP_ACP.md" || p === "/rfc-002" || p === "/acp-spec") {
       return new Response(STRIPE_ACP_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/spec/TRANSIT_CARD_PROVISIONING.md" || p === "/ic-card") {
+      return new Response(TRANSIT_MD, {
         headers: {
           ...COMMON_HEADERS,
           "content-type": "text/markdown; charset=utf-8",

@@ -222,6 +222,25 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
   - `ZA-0009`: `kompress.unpack()` scrubs raw decompressed frame locals before raising `PackIntegrityError`.
   - `ZA-0010`: CLI state enforced at `0600` (`~/.zeno/state.json`) and hardcoded `authenticationToken` redacted from `pass*.json` templates.
 
+### 4.1 IC カード · Samsung Wallet 交通系カード (honest provisioning)
+
+Suica / PASMO cannot be minted by any app: they are issued by JR East / the
+PASMO Association into the **Mobile FeliCa (Type-F)** secure element, and
+Android HCE (ISO-DEP A/B) cannot emulate Type F. `TransitCapability.probe()`
+therefore reports the truth instead of a fake success:
+
+| Signal | Meaning |
+|--------|---------|
+| `android.hardware.nfc.felica` | Mobile FeliCa radio (JP SKUs only) |
+| `com.felicanetworks.mfc` | Osaifu-Keitai client |
+| `NFC + Samsung/Google Wallet` | **Contactless EMV** — tap Tokyo Metro / Toei gates with a bank card |
+
+On devices without FeliCa the card shows `CONTACTLESS EMV READY` and routes to
+Samsung Wallet (bank card → gate tap) plus the ZENO QR fallback; on JP devices
+it routes to Mobile PASMO / Suica issuance, after which the card appears in
+Samsung Wallet's 交通系IC slot. Full constraints and the commercial path:
+[spec/TRANSIT_CARD_PROVISIONING.md](spec/TRANSIT_CARD_PROVISIONING.md).
+
 ---
 
 ## 5. Verification & Tests
