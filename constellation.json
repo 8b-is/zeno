@@ -1,0 +1,191 @@
+{
+  "spec": "https://zeno.vaked.dev/spec/CONSTELLATION_WIRING.md",
+  "version": "1.0.0",
+  "generatedFor": "zeno.vaked.dev",
+  "note": "Simulated proof-of-contribution registry. No real money, no PII. Trit values follow the Sovereign Ontology {-1, 0, +1}: -1 = rent-seeking / closed scalar, 0 = witnessed / maintained, +1 = verified binding / contribution.",
+  "tritLegend": {
+    "-1": "closed scalar · rent-seeking · refused by the Foken gate",
+    "0": "witnessed · maintained · held in the Sanctuary",
+    "+1": "verified binding · net-positive contribution · merited mint eligible"
+  },
+  "projects": [
+    {
+      "id": "sovereign-library",
+      "name": "Sovereign Library",
+      "kanji": "主権図書館",
+      "url": "https://github.com/8b-is/sovereign-library",
+      "trit": 1,
+      "lane": "canon",
+      "role": "5-book constitutional shelf and the {-1, 0, +1} ontology spine",
+      "foken": {
+        "futureWorkAvoidedHours": 240,
+        "workAddedHours": 60,
+        "maintenanceDebtHours": 12
+      }
+    },
+    {
+      "id": "ontology",
+      "name": "ONTOLOGY.md",
+      "kanji": "存在論",
+      "url": "https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md",
+      "trit": 1,
+      "lane": "ontology",
+      "role": "Dragon Ball OMNI codex folded onto the sovereign ternary; the schema ZENO trits are read against",
+      "foken": {
+        "futureWorkAvoidedHours": 180,
+        "workAddedHours": 40,
+        "maintenanceDebtHours": 8
+      }
+    },
+    {
+      "id": "kompress-ultra",
+      "name": "KOMRESS-ULTRA · OMNI",
+      "kanji": "金継ぎ圧縮",
+      "url": "https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html",
+      "trit": 1,
+      "lane": "compression",
+      "role": "7-block OMNI volume in 5 languages + 1bitLang, sealed as a ZKP1 KintsugiPack",
+      "foken": {
+        "futureWorkAvoidedHours": 320,
+        "workAddedHours": 90,
+        "maintenanceDebtHours": 15
+      }
+    },
+    {
+      "id": "fandom-mcp",
+      "name": "fandom-mcp",
+      "kanji": "典拠",
+      "url": "https://github.com/8b-is/fandom-mcp",
+      "trit": 1,
+      "lane": "protocol",
+      "role": "MCP surface that serves the canon to agents (stdio + HTTP JSON)",
+      "foken": {
+        "futureWorkAvoidedHours": 160,
+        "workAddedHours": 45,
+        "maintenanceDebtHours": 10
+      }
+    },
+    {
+      "id": "between-the-lines",
+      "name": "between-the-lines",
+      "kanji": "行間",
+      "url": "https://8b-is.github.io/between-the-lines/",
+      "trit": 1,
+      "lane": "editorial",
+      "role": "001 夢見ていい / 002 The Shape of Love — the reasoning behind the Sanctuary Hold",
+      "foken": {
+        "futureWorkAvoidedHours": 140,
+        "workAddedHours": 50,
+        "maintenanceDebtHours": 6
+      }
+    },
+    {
+      "id": "pocoo",
+      "name": "Poo · Micro-journal",
+      "kanji": "ぷー",
+      "url": "https://pocoo.vaked.dev/",
+      "trit": 0,
+      "lane": "publishing",
+      "role": "Where the sealed volumes and their companion posts are shelved",
+      "foken": {
+        "futureWorkAvoidedHours": 90,
+        "workAddedHours": 55,
+        "maintenanceDebtHours": 18
+      }
+    },
+    {
+      "id": "koan",
+      "name": "koan.vaked.dev",
+      "kanji": "公案",
+      "url": "https://koan.vaked.dev/",
+      "trit": 0,
+      "lane": "hub",
+      "role": "Constellation hub — the front door to every sister surface",
+      "foken": {
+        "futureWorkAvoidedHours": 70,
+        "workAddedHours": 40,
+        "maintenanceDebtHours": 14
+      }
+    },
+    {
+      "id": "art",
+      "name": "art.vaked.dev",
+      "kanji": "美術",
+      "url": "https://art.vaked.dev/",
+      "trit": 0,
+      "lane": "gallery",
+      "role": "Visual gallery and ecosystem hub for the 8b-is surfaces",
+      "foken": {
+        "futureWorkAvoidedHours": 60,
+        "workAddedHours": 35,
+        "maintenanceDebtHours": 12
+      }
+    },
+    {
+      "id": "engine",
+      "name": "8b-is ENGINE",
+      "kanji": "機関",
+      "url": "https://github.com/8b-is/8b-is-engine",
+      "trit": 0,
+      "lane": "engine",
+      "role": "World-model sim-MMO engine (Rust 2024 + Go, NATS actor mesh) — the chaos overworld",
+      "foken": {
+        "futureWorkAvoidedHours": 400,
+        "workAddedHours": 260,
+        "maintenanceDebtHours": 40
+      }
+    },
+    {
+      "id": "8b-is",
+      "name": "8b-is Family Research",
+      "kanji": "八刀",
+      "url": "https://8b.is",
+      "trit": 1,
+      "lane": "foundation",
+      "role": "The source: crew Hue · Aye · Taisha · Omni, and the family the ledger serves",
+      "foken": {
+        "futureWorkAvoidedHours": 520,
+        "workAddedHours": 180,
+        "maintenanceDebtHours": 25
+      }
+    },
+    {
+      "id": "zeno",
+      "name": "ZENO",
+      "kanji": "銭 · 禅 · 善",
+      "url": "https://zeno.vaked.dev/",
+      "trit": 1,
+      "lane": "bank",
+      "role": "This surface — the Kintsugi ledger that values the rest of the constellation",
+      "foken": {
+        "futureWorkAvoidedHours": 300,
+        "workAddedHours": 150,
+        "maintenanceDebtHours": 20
+      }
+    }
+  ],
+  "packs": [
+    {
+      "id": "architect-neo-trinity-tibetan-omni",
+      "title": "Architect · Neo · Trinity ~ Bible · Oppenheimer (E=mc²) ──► KOMRESS-ULTRA ⟨(((Ontology: Tibetan Buddhism)))⟩ ~> OMNI",
+      "containerUrl": "https://pocoo.vaked.dev/demos/book/architect-neo-trinity-tibetan-omni.zkp1",
+      "companionUrl": "https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html",
+      "blocks": 7,
+      "languages": [
+        "EN",
+        "BO",
+        "HU",
+        "JA",
+        "LA",
+        "1bitLang"
+      ],
+      "rawBytes": 11108,
+      "sealedBytes": 5448,
+      "savingsPercent": 50.95,
+      "trit": 1,
+      "wupzFold": "0x44dcbd34fd19d0b1",
+      "sha256Raw": "c513660ef75bf3215b25e4c2a166d000100e7d876d278a222888f00f136c7591",
+      "sha256Sealed": "8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7f0"
+    }
+  ]
+}

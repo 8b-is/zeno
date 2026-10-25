@@ -106,6 +106,15 @@ public struct ContentView: View {
             .tabItem {
                 Label("Stripe/ACP", systemImage: "network")
             }
+            // Constellation & KOMRESS-ULTRA ZKP1 Tab (RFC-007)
+            NavigationView {
+                ConstellationView()
+                    .navigationTitle("星座 (Constellation)")
+                    .background(Color(red: 0.03, green: 0.03, blue: 0.04).ignoresSafeArea())
+            }
+            .tabItem {
+                Label("星座", systemImage: "circle.hexagongrid.fill")
+            }
         }
         .accentColor(Color(red: 0.91, green: 0.69, blue: 0.36)) // Gold accent
         .preferredColorScheme(.dark)

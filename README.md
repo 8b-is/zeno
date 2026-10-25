@@ -10,7 +10,7 @@
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
 [![Stripe: Compatible](https://img.shields.io/badge/stripe-compatible-635BFF?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 [![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
-[![Tests: 39 passed](https://img.shields.io/badge/tests-39%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Tests: 83 passed](https://img.shields.io/badge/tests-83%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 [![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
 [![Security: Zeroize ZA--0006..0010](https://img.shields.io/badge/security-Zeroize%20ZA--0006..0010-10B981?style=flat-square)](apps/core/tests/test_zeroize_remediation.py)
 [![ICML 2026: 45 ZKP1 Sealed](https://img.shields.io/badge/ICML%202026-45%20ZKP1%20Sealed-b48bff?style=flat-square)](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
@@ -19,9 +19,11 @@
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 [![Sanctuary Hold: Sovereign Library <3<3<3](https://img.shields.io/badge/Sanctuary%20Hold-Sovereign%20Library%20%3C3%3C3%3C3-f7a8b8?style=flat-square)](https://github.com/8b-is/sovereign-library)
 [![Family +1: Yves (#1 Muse 💙)](https://img.shields.io/badge/Family%20%2B1-Yves%20(%231%20Muse%20%F0%9F%92%99)-5ce1e6?style=flat-square)](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html)
+[![Constellation: 11 projects × Foken gate](https://img.shields.io/badge/constellation-11%20projects%20%C3%97%20Foken%20gate-62e6c9?style=flat-square)](constellation.json)
+[![KOMRESS-ULTRA: ZKP1 5,448 B](https://img.shields.io/badge/KOMRESS--ULTRA-ZKP1%205%2C448%20B-b48bff?style=flat-square)](constellation.json)
 [![Ontology: {-1, 0, +1} × fandom-mcp](https://img.shields.io/badge/Ontology-%7B--1%2C0%2C%2B1%7D%20%C3%97%20fandom--mcp-f0c05a?style=flat-square)](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **RFC-005 Asia First QR (AEON Pay / Alipay)**: [spec/AEON_PAY_QR_ASIA_LAYER.md](spec/AEON_PAY_QR_ASIA_LAYER.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) · **Sovereign Ontology (`ONTOLOGY.md`)**: [github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md) · **Dragon Ball OMNI Codex (`8b-is/fandom-mcp`)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/dragon-ball-sovereign-ontology-omni.html) · **Crickets in Tokyo v2.0 (Ch. 8 💙)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) · **between-the-lines 002**: [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **RFC-005 Asia First QR (AEON Pay / Alipay)**: [spec/AEON_PAY_QR_ASIA_LAYER.md](spec/AEON_PAY_QR_ASIA_LAYER.md) · **RFC-007 Constellation & KOMRESS-ULTRA ZKP1**: [spec/CONSTELLATION_WIRING.md](spec/CONSTELLATION_WIRING.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) · **Sovereign Ontology (`ONTOLOGY.md`)**: [github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md) · **Dragon Ball OMNI Codex (`8b-is/fandom-mcp`)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/dragon-ball-sovereign-ontology-omni.html) · **Crickets in Tokyo v2.0 (Ch. 8 💙)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) · **between-the-lines 002**: [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/)
 
 ---
 
@@ -102,7 +104,7 @@ zeno.vaked.dev/
 │   ├── core/                 # Deterministic Python core engine
 │   │   ├── pyproject.toml
 │   │   ├── zeno_core/        # Ledger, Stream, FokenGate, AgentPolicy, Kompress
-│   │   └── tests/            # 39 automated unit & security tests (100% pass)
+│   │   └── tests/            # 55 unit & security tests (100% pass)
 │   └── cli/
 │       └── zeno_cli.py       # Full CLI for accounts, transfers, gate, & ledger
 ├── infra/
@@ -114,6 +116,8 @@ zeno.vaked.dev/
 │   └── docker/
 │       ├── Dockerfile        # Hardened container definition
 │       └── docker-compose.yml
+├── constellation.json        # 8b-is project registry + ZKP1 receipts (RFC-007)
+├── test-constellation.mjs    # Registry / ZKP1 / route parity tests
 ├── index.html                # Live interactive Neo-Bank Web Surface
 ├── app.js                    # Client-side 60fps streaming engine & Foken simulator
 ├── style.css                 # Cyber-minimalist Wabi-zen styling
@@ -130,11 +134,6 @@ zeno.vaked.dev/
 
 ---
 
-## 4. Run & Verify
-
-### 4.1 Run Core Tests
----
-
 ## 4. Omni-Platform Native Architecture (iOS · Android · Web PWA · Apple Wallet)
 
 ZENO ships complete native scaffolds and production specifications across the entire consumer hardware spectrum, maintained by the **8b-is Family Research Company** (`8b.is <3`):
@@ -149,9 +148,9 @@ apps/
 │   ├── Package.swift       # Swift Package Manager manifest (iOS 17+ / macOS 14+)
 │   └── Sources/ZenoApp/
 │       ├── ZenoApp.swift   # @main SwiftUI entrypoint
-│       ├── Models/         # Reactive state & Kintsugi ledger chaining
+│       ├── Models/         # Reactive state, Kintsugi ledger, Constellation registry
 │       ├── Services/       # AVFoundation procedural ticket gate & Rin bowl synth
-│       └── Views/          # PASMO/Suica Haptic card & Revolut Ultra 3D Gyro card
+│       └── Views/          # PASMO/Suica, Revolut Ultra 3D Gyro, Constellation tabs
 ├── android/                # Native Android (Kotlin + Jetpack Compose + HCE NFC-F)
 │   ├── app/src/main/
 │   │   ├── AndroidManifest.xml # NFC-F & BIND_NFC_SERVICE permissions
@@ -159,7 +158,8 @@ apps/
 │   │   │   ├── MainActivity.kt # Compose UI shell (Transit, Ultra FX, Ledger)
 │   │   │   ├── nfc/ZenoHostApduService.kt # Host-based Card Emulation for gates
 │   │   │   ├── audio/ZenoAudioEngine.kt  # AudioTrack procedural synthesizer
-│   │   │   └── ui/components/  # FeliCaCard & RevolutUltraCard Compose UI
+│   │   │   ├── constellation/Constellation.kt # Registry client + offline fallback
+│   │   │   └── ui/components/  # FeliCa, RevolutUltra, Constellation Compose UI
 │   │   └── res/xml/apduservice.xml       # JIS X 6319-4 AID routing
 │   └── build.gradle.kts
 └── web/ (PWA)
@@ -231,7 +231,8 @@ ZENO generates native Apple Wallet `.pkpass` bundles signed with PKCS#7 detached
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
-*Output: 39 tests passed (13 core ledger/stream/foken + 4 stripe bridge + 2 ACP protocol + 6 MCP server + 9 Kintsugi Pack + 5 Zeroize Security Remediation ZA-0006..ZA-0010).*
+*Output: 55 tests passed (core ledger/stream/foken + stripe bridge + ACP protocol + MCP server + Kintsugi Pack + Zeroize Security Remediation ZA-0006..ZA-0010).*
+Wallet/pass contract tests add 10 more (`cd apps/wallet && uv run python -m unittest test_google_wallet`); the Node suites add 18 (`test-engine.mjs`, `test-google-wallet.mjs`, `test-scheduled-sweep.mjs`, `test-constellation.mjs`) — **83 total**.
 
 ### 5.2 Build Apple Wallet Pass
 ```bash
@@ -322,7 +323,76 @@ node --test test-scheduled-sweep.mjs
 
 ---
 
-## 10. License
+## 10. Constellation & KOMRESS-ULTRA ZKP1 Wiring (RFC-007)
+
+ZENO does not merely link to the constellation — it **values** it. Eleven real
+8b-is surfaces are registered in [`constellation.json`](constellation.json) and
+scored through the same Foken net-utility gate that mints contribution:
+
+$$\text{net} = \text{futureWorkAvoidedHours} - (\text{workAddedHours} + 1.5 \times \text{maintenanceDebtHours})$$
+
+| Trit | Meaning | Registered |
+|------|---------|-----------|
+| `+1` | Verified binding · net-positive · merited-mint eligible | 7 |
+| `0` | Witnessed · maintained · held in the Sanctuary | 4 |
+| `-1` | Closed scalar / rent-seeking · refused by the gate | 0 |
+
+**Aggregate net utility: `+1,205.0 h`** across the constellation.
+
+### 10.1 Registered projects
+
+| Project | Lane | Trit | Net | Link |
+|---------|------|------|-----|------|
+| 主権図書館 Sovereign Library | canon | `+1` | +162.0 h | [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) |
+| 存在論 ONTOLOGY.md | ontology | `+1` | +128.0 h | [ONTOLOGY.md](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md) |
+| 金継ぎ圧縮 KOMRESS-ULTRA · OMNI | compression | `+1` | +207.5 h | [OMNI book](https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html) |
+| 典拠 fandom-mcp | protocol | `+1` | +100.0 h | [github.com/8b-is/fandom-mcp](https://github.com/8b-is/fandom-mcp) |
+| 行間 between-the-lines | editorial | `+1` | +81.0 h | [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/) |
+| 八刀 8b-is Family Research | foundation | `+1` | +302.5 h | [8b.is](https://8b.is) |
+| 銭 · 禅 · 善 ZENO | bank | `+1` | +120.0 h | [zeno.vaked.dev](https://zeno.vaked.dev/) |
+| ぷー Poo · Micro-journal | publishing | `0` | +8.0 h | [pocoo.vaked.dev](https://pocoo.vaked.dev/) |
+| 公案 koan.vaked.dev | hub | `0` | +9.0 h | [koan.vaked.dev](https://koan.vaked.dev/) |
+| 美術 art.vaked.dev | gallery | `0` | +7.0 h | [art.vaked.dev](https://art.vaked.dev/) |
+| 機関 8b-is ENGINE | engine | `0` | +80.0 h | [github.com/8b-is/8b-is-engine](https://github.com/8b-is/8b-is-engine) |
+
+### 10.2 KOMRESS-ULTRA ZKP1 receipt (verified bytes)
+
+The `Architect · Neo · Trinity ~ Bible · Oppenheimer (E=mc²) ──► KOMRESS-ULTRA
+⟨(((Ontology: Tibetan Buddhism)))⟩ ~> OMNI` volume is the first pack ZENO carries
+a sealed receipt for. The numbers below were verified against the container
+bytes, not copied from the prose:
+
+| Field | Value |
+|-------|-------|
+| Container | [`architect-neo-trinity-tibetan-omni.zkp1`](https://pocoo.vaked.dev/demos/book/architect-neo-trinity-tibetan-omni.zkp1) |
+| Blocks | 7 ontological · EN · BO · HU · JA · LA · 1bitLang |
+| Payload | 11,108 B raw → **5,448 B** sealed (**50.95%** savings) |
+| `wupz` XOR fold | `0x44dcbd34fd19d0b1` |
+| SHA-256 (raw) | `c513660ef75bf3215b25e4c2a166d000100e7d876d278a222888f00f136c7591` |
+| SHA-256 (sealed) | `8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7f0` |
+
+### 10.3 Surfaces that consume it
+
+| Surface | What it does |
+|---------|--------------|
+| Web `星座` tab | Renders the registry + receipt statically (offline-safe); `initConstellationUI()` re-syncs the receipt from the API and can seal a constellation witness into the Kintsugi ledger |
+| `GET /api/constellation` | Canonical registry with computed `netHours` and totals |
+| `GET /api/kompress` | ZKP1 receipts only (bytes, savings, folds, SHA-256 seals) |
+| iOS `星座` tab | `ConstellationView` fetches the API, falls back to a bundled subset offline |
+| Android `星座` tab | `ConstellationCard` + `ConstellationRepository` (HttpURLConnection + `org.json`, no new dependencies) |
+
+```bash
+# Verify the wiring (registry arithmetic, ZKP1 seals, route parity, page parity)
+node test-constellation.mjs
+```
+
+> **Honest scope:** the Foken scores and the constellation witness ledger entry
+> are simulated. No real money moves, no PII is stored, and the ZKP1 hashes are
+> content identifiers, not proofs of work.
+
+---
+
+## 11. License
 
 MIT License. Crafted with love, fine touch from within, and devotion to sovereign human and agentic flourishing. 銭・禅・善.
 

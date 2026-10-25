@@ -96,6 +96,7 @@
       <button class="tab-btn" data-tab="xiaohongshu">📕 小红书 (RED Studio)</button>
       <button class="tab-btn" data-tab="dra-ceo">🎩 Dra CEO (Buffett × WhatsApp)</button>
       <button class="tab-btn" data-tab="sanctuary-hold">🏛️ 主権図書館・守護 (Sovereign Library &amp; HOLD &lt;3&lt;3&lt;3)</button>
+      <button class="tab-btn" data-tab="constellation">🌌 星座・金継ぎ圧縮 (Constellation &amp; KOMRESS)</button>
       <button class="tab-btn" data-tab="philosophy">設計思想 (Philosophy &amp; Spec)</button>
     </nav>
   </section>
@@ -799,7 +800,7 @@
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
             <div style="font-size:0.7rem;color:var(--color-text-dim);text-transform:uppercase;">Agent Commerce Protocol</div>
-            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.4.0 Node</div>
+            <div style="font-size:1.1rem;font-weight:700;color:var(--color-violet);margin:0.2rem 0;">ACP v1.5.0 Node</div>
             <div style="font-size:0.75rem;color:var(--color-text-dim);">RFQ ➔ Escrow ➔ Settle</div>
           </div>
           <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);">
@@ -1357,6 +1358,174 @@
         </div>
       </div>
     </div>
+    <!-- 12. CONSTELLATION & KOMRESS-ULTRA ZKP1 (RFC-007) -->
+    <div id="tab-constellation" class="tab-pane">
+      <div class="zeno-card" style="margin-bottom:1.5rem;border-color:rgba(98,230,201,0.45);">
+        <div class="card-kintsugi-edge" style="background:linear-gradient(90deg,#62e6c9,#b48bff,#e8b05c);"></div>
+        <div class="card-header">
+          <div>
+            <div class="card-title" style="font-size:1.25rem;color:#62e6c9;">🌌 星座 (Constellation) × 金継ぎ圧縮 (KOMRESS-ULTRA)</div>
+            <div class="card-subtitle">
+              The 8b-is projects ZENO reads and values, scored through the Foken net-utility gate
+              <code>net = futureWorkAvoided − (workAdded + 1.5 × maintenanceDebt)</code>.
+            </div>
+          </div>
+          <span class="badge" style="border-color:#62e6c9;color:#62e6c9;">{-1, 0, +1}</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.85rem;margin-top:1rem;">
+          <div style="background:rgba(98,230,201,0.08);border:1px solid rgba(98,230,201,0.28);border-radius:8px;padding:0.75rem;">
+            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;">Registry</div>
+            <div id="constellation-summary" style="font-size:1.1rem;font-weight:800;color:#62e6c9;">11 projects</div>
+            <div style="font-size:0.7rem;color:var(--color-text-dim);margin-top:0.2rem;">7 verified binding · 4 witnessed · 0 refused</div>
+          </div>
+          <div style="background:rgba(232,176,92,0.08);border:1px solid rgba(232,176,92,0.28);border-radius:8px;padding:0.75rem;">
+            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;">Aggregate Net Utility</div>
+            <div style="font-size:1.1rem;font-weight:800;color:var(--color-gold);">+1,205.0 h</div>
+            <div style="font-size:0.7rem;color:var(--color-text-dim);margin-top:0.2rem;">merited-mint eligible across the constellation</div>
+          </div>
+          <div style="background:rgba(180,139,255,0.08);border:1px solid rgba(180,139,255,0.28);border-radius:8px;padding:0.75rem;">
+            <div style="font-size:0.65rem;color:var(--color-text-dim);text-transform:uppercase;">ZKP1 Seals</div>
+            <div style="font-size:1.1rem;font-weight:800;color:#b48bff;">1 pack</div>
+            <div style="font-size:0.7rem;color:var(--color-text-dim);margin-top:0.2rem;">11,108 B raw → 5,448 B sealed</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:1.5rem;">
+        <!-- Left: the registry -->
+        <div class="zeno-card">
+          <div class="card-kintsugi-edge"></div>
+          <div class="card-title" style="margin-bottom:0.25rem;">星座台帳 (Constellation Registry)</div>
+          <div class="card-subtitle" style="margin-bottom:1rem;">
+            Each row is a real, linked 8b-is surface. Machine-readable mirror:
+            <a href="/api/constellation" target="_blank" rel="noopener noreferrer" style="color:#62e6c9;">/api/constellation</a>.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <div data-constellation-id="sovereign-library" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>主権図書館 Sovereign Library</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· canon</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">5-book constitutional shelf and the {-1, 0, +1} ontology spine · <strong style="color:#62e6c9;">+162.0 h</strong></div>
+                <a href="https://github.com/8b-is/sovereign-library" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">github.com/8b-is/sovereign-library</a>
+              </div>
+            </div>
+            <div data-constellation-id="ontology" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>存在論 ONTOLOGY.md</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· ontology</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">Dragon Ball OMNI codex folded onto the ternary schema ZENO reads · <strong style="color:#62e6c9;">+128.0 h</strong></div>
+                <a href="https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">sovereign-library/ONTOLOGY.md</a>
+              </div>
+            </div>
+            <div data-constellation-id="kompress-ultra" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>金継ぎ圧縮 KOMRESS-ULTRA · OMNI</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· compression</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">7-block volume, 5 languages + 1bitLang, sealed as a ZKP1 pack · <strong style="color:#62e6c9;">+207.5 h</strong></div>
+                <a href="https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">pocoo.vaked.dev · OMNI book</a>
+              </div>
+            </div>
+            <div data-constellation-id="fandom-mcp" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>典拠 fandom-mcp</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· protocol</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">MCP surface that serves the canon to agents (stdio + HTTP JSON) · <strong style="color:#62e6c9;">+100.0 h</strong></div>
+                <a href="https://github.com/8b-is/fandom-mcp" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">github.com/8b-is/fandom-mcp</a>
+              </div>
+            </div>
+            <div data-constellation-id="between-the-lines" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>行間 between-the-lines</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· editorial</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">001 夢見ていい / 002 The Shape of Love — the reasoning behind HOLD · <strong style="color:#62e6c9;">+81.0 h</strong></div>
+                <a href="https://8b-is.github.io/between-the-lines/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">8b-is.github.io/between-the-lines</a>
+              </div>
+            </div>
+            <div data-constellation-id="8b-is" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>八刀 8b-is Family Research</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· foundation</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">Crew Hue · Aye · Taisha · Omni, and the family the ledger serves · <strong style="color:#62e6c9;">+302.5 h</strong></div>
+                <a href="https://8b.is" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">8b.is</a>
+              </div>
+            </div>
+            <div data-constellation-id="zeno" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(98,230,201,0.07);border:1px solid rgba(98,230,201,0.28);">
+              <code style="color:#62e6c9;font-weight:800;">+1</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>銭 · 禅 · 善 ZENO</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· bank</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">This surface — the Kintsugi ledger that values the rest · <strong style="color:#62e6c9;">+120.0 h</strong></div>
+                <a href="https://zeno.vaked.dev/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#62e6c9;">zeno.vaked.dev</a>
+              </div>
+            </div>
+            <div data-constellation-id="pocoo" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(232,176,92,0.07);border:1px solid rgba(232,176,92,0.26);">
+              <code style="color:var(--color-gold);font-weight:800;">0</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>ぷー Poo · Micro-journal</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· publishing</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">Where the sealed volumes and companion posts are shelved · <strong style="color:var(--color-gold);">+8.0 h</strong></div>
+                <a href="https://pocoo.vaked.dev/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--color-gold);">pocoo.vaked.dev</a>
+              </div>
+            </div>
+            <div data-constellation-id="koan" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(232,176,92,0.07);border:1px solid rgba(232,176,92,0.26);">
+              <code style="color:var(--color-gold);font-weight:800;">0</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>公案 koan.vaked.dev</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· hub</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">Constellation hub — the front door to every sister surface · <strong style="color:var(--color-gold);">+9.0 h</strong></div>
+                <a href="https://koan.vaked.dev/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--color-gold);">koan.vaked.dev</a>
+              </div>
+            </div>
+            <div data-constellation-id="art" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(232,176,92,0.07);border:1px solid rgba(232,176,92,0.26);">
+              <code style="color:var(--color-gold);font-weight:800;">0</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>美術 art.vaked.dev</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· gallery</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">Visual gallery and ecosystem hub for the 8b-is surfaces · <strong style="color:var(--color-gold);">+7.0 h</strong></div>
+                <a href="https://art.vaked.dev/" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--color-gold);">art.vaked.dev</a>
+              </div>
+            </div>
+            <div data-constellation-id="engine" style="display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-radius:8px;background:rgba(232,176,92,0.07);border:1px solid rgba(232,176,92,0.26);">
+              <code style="color:var(--color-gold);font-weight:800;">0</code>
+              <div style="flex:1;min-width:0;">
+                <div><strong>機関 8b-is ENGINE</strong> <span style="color:var(--color-text-dim);font-size:0.72rem;">· engine</span></div>
+                <div style="font-size:0.72rem;color:var(--color-text-dim);">World-model sim-MMO engine (Rust 2024 + Go, NATS actor mesh) · <strong style="color:var(--color-gold);">+80.0 h</strong></div>
+                <a href="https://github.com/8b-is/8b-is-engine" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:var(--color-gold);">github.com/8b-is/8b-is-engine</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: the ZKP1 receipt and the witness seal -->
+        <div class="zeno-card" style="display:flex;flex-direction:column;justify-content:space-between;">
+          <div class="card-kintsugi-edge" style="background:linear-gradient(90deg,#b48bff,#62e6c9);"></div>
+          <div>
+            <div class="card-title" style="margin-bottom:0.25rem;">⟦ ZKP1 · KintsugiPack Receipt ⟧</div>
+            <div class="card-subtitle" style="margin-bottom:0.9rem;">
+              Kompress-ULTRA OMNI, verified against the sealed container bytes on 2026-10-25.
+              Machine-readable mirror: <a href="/api/kompress" target="_blank" rel="noopener noreferrer" style="color:#b48bff;">/api/kompress</a>.
+            </div>
+
+            <pre id="kompress-receipt" style="white-space:pre-wrap;font-size:0.72rem;line-height:1.65;background:rgba(5,6,10,0.75);padding:0.85rem;border-radius:8px;border:1px solid rgba(180,139,255,0.3);color:#f3f1ea;margin-bottom:0.9rem;">Container: architect-neo-trinity-tibetan-omni.zkp1
+Blocks:    7 ontological · 5 languages + 1bitLang
+Payload:   11,108 B raw ──► 5,448 B ZKP1 (50.95% savings)
+wupz fold: 0x44dcbd34fd19d0b1
+SHA-256 (raw):    c513660ef75bf3215b25e4c2a166d000100e7d876d278a222888f00f136c7591
+SHA-256 (sealed): 8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7f0</pre>
+
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.9rem;">
+              <a href="https://pocoo.vaked.dev/demos/book/architect-neo-trinity-tibetan-omni.zkp1" target="_blank" rel="noopener noreferrer" class="btn-pill" style="text-decoration:none;color:#b48bff;border-color:rgba(180,139,255,0.5);">⬇ ZKP1 container (5,448 B)</a>
+              <a href="https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html" target="_blank" rel="noopener noreferrer" class="btn-pill" style="text-decoration:none;color:#62e6c9;border-color:rgba(98,230,201,0.5);">📖 Companion OMNI post</a>
+            </div>
+          </div>
+
+          <div>
+            <button id="btn-constellation-seal" type="button" class="btn-primary" style="width:100%;background:linear-gradient(90deg,#62e6c9,#b48bff);color:#05060a;font-weight:800;padding:0.8rem 1rem;border-radius:10px;cursor:pointer;">
+              🌌 SEAL CONSTELLATION WITNESS INTO THE KINTSUGI LEDGER
+            </button>
+            <div id="constellation-verdict" style="display:none;margin-top:0.75rem;padding:0.75rem;border-radius:8px;border:1px solid rgba(98,230,201,0.4);background:rgba(98,230,201,0.08);font-size:0.78rem;line-height:1.55;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Lovetta Lane Constellation Footer -->

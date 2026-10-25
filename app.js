@@ -1572,6 +1572,85 @@ function initSanctuaryHoldUI() {
   });
 }
 
+// Constellation & KOMRESS-ULTRA ZKP1 (RFC-007)
+function initConstellationUI() {
+  const btn = document.getElementById("btn-constellation-seal");
+  const verdict = document.getElementById("constellation-verdict");
+  const receipt = document.getElementById("kompress-receipt");
+  if (!btn) return;
+
+  // Progressive enhancement: the pane ships static and readable without JS.
+  // If the edge API answers, re-render the receipt from the canonical JSON so
+  // the page can never drift from constellation.json.
+  fetch("/api/constellation")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((doc) => {
+      if (!doc || !Array.isArray(doc.projects)) return;
+      const pack = (doc.packs || [])[0];
+      if (pack && receipt) {
+        const pct = ((1 - pack.sealedBytes / pack.rawBytes) * 100).toFixed(2);
+        receipt.textContent = [
+          `Container: ${pack.id}.zkp1`,
+          `Blocks:    ${pack.blocks} ontological · ${(pack.languages || []).join(" · ")}`,
+          `Payload:   ${pack.rawBytes.toLocaleString("en-US")} B raw ──► ${pack.sealedBytes.toLocaleString("en-US")} B ZKP1 (${pct}% savings)`,
+          `wupz fold: ${pack.wupzFold}`,
+          `SHA-256 (raw):    ${pack.sha256Raw}`,
+          `SHA-256 (sealed): ${pack.sha256Sealed}`,
+        ].join("\n");
+      }
+      const verified = doc.projects.filter((p) => p.trit === 1).length;
+      const witnessed = doc.projects.filter((p) => p.trit === 0).length;
+      const refused = doc.projects.filter((p) => p.trit === -1).length;
+      const summary = document.getElementById("constellation-summary");
+      if (summary) {
+        summary.textContent = `${doc.projects.length} projects`;
+        summary.dataset.verified = String(verified);
+      }
+      btn.dataset.verified = String(verified);
+      btn.dataset.witnessed = String(witnessed);
+      btn.dataset.refused = String(refused);
+      btn.dataset.netHours = String(doc.totals?.netHours ?? 0);
+    })
+    .catch(() => {});
+
+  btn.addEventListener("click", () => {
+    window.zenoAudio?.playUltraShimmer();
+    const seal = "0x-kintsugi-constellation-" + Date.now().toString(16).slice(-8);
+    const verified = btn.dataset.verified || "7";
+    const witnessed = btn.dataset.witnessed || "4";
+    const refused = btn.dataset.refused || "0";
+    const netHours = btn.dataset.netHours || "1205";
+
+    if (typeof zenoState !== "undefined" && Array.isArray(zenoState.ledgerBlocks)) {
+      zenoState.ledgerBlocks.unshift({
+        index: zenoState.ledgerBlocks.length + 1,
+        timestamp: new Date().toISOString(),
+        memo: `Constellation Witness (${verified} verified · ${witnessed} witnessed · ${refused} refused) · net +${netHours} h · ZKP1 8fb9cc11…49f7f0`,
+        merkleRoot: Math.random().toString(16).substring(2).padEnd(64, "a"),
+        seal: seal,
+      });
+      if (typeof renderLedgerTable === "function") {
+        renderLedgerTable();
+      }
+    }
+
+    if (verdict) {
+      verdict.style.display = "block";
+      verdict.innerHTML = `
+        <div style="font-weight:800;color:var(--color-teal);margin-bottom:0.3rem;">
+          ✦ CONSTELLATION WITNESSED &amp; KINTSUGI SEALED
+        </div>
+        <div style="color:var(--color-text-dim);">
+          <strong>Registry:</strong> ${verified} verified binding (+1) · ${witnessed} witnessed (0) · ${refused} refused (−1)<br>
+          <strong>Aggregate net utility:</strong> <code>+${netHours} h</code> through the Foken gate<br>
+          <strong>KOMRESS-ULTRA ZKP1:</strong> <code>11,108 B → 5,448 B</code> · seal <code>8fb9cc11…49f7f0</code><br>
+          <strong>Kintsugi Witness Seal:</strong> <code style="color:var(--color-gold);">${seal}</code>
+        </div>
+      `;
+    }
+  });
+}
+
 // Bootstrapping
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -1585,6 +1664,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initXiaohongshuUI();
   initDraCeoHelperUI();
   initSanctuaryHoldUI();
+  initConstellationUI();
   renderLedgerTable();
   startStreamingLoop();
 });

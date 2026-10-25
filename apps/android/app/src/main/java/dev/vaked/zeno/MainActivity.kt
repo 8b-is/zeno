@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import dev.vaked.zeno.audio.ZenoAudioEngine
 import dev.vaked.zeno.ui.components.AddToGoogleWalletButton
 import dev.vaked.zeno.ui.components.AeonPayQrCard
+import dev.vaked.zeno.ui.components.ConstellationCard
 import dev.vaked.zeno.ui.components.FeliCaCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
 import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
@@ -113,6 +114,17 @@ class MainActivity : ComponentActivity() {
                                     onClick = { selectedTab = 4 },
                                     label = { Text("Stripe/ACP") },
                                     icon = { Text("⚡") }
+                                )
+                                NavigationBarItem(
+                                    selected = selectedTab == 5,
+                                    onClick = { selectedTab = 5 },
+                                    label = { Text("星座") },
+                                    icon = { Text("🌌") },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = ColorTeal,
+                                        selectedTextColor = ColorTeal,
+                                        indicatorColor = ColorTeal.copy(alpha = 0.15f)
+                                    )
                                 )
                             }
                         }
@@ -258,6 +270,10 @@ class MainActivity : ComponentActivity() {
                                 4 -> {
                                     // Stripe & ACP Agentic Commerce Tab
                                     StripeAgenticCommerceCard()
+                                }
+                                5 -> {
+                                    // Constellation & KOMRESS-ULTRA ZKP1 — RFC-007
+                                    ConstellationCard()
                                 }
                             }
                         }
