@@ -91,21 +91,37 @@ class MainActivity : ComponentActivity() {
                             nfcAdapter?.disableReaderMode(activity)
                             return@LaunchedEffect
                         }
+                        val enabled = nfcAdapter != null
+                        android.util.Log.i("ZenoIc", "enableReaderMode adapter=" + enabled)
                         nfcAdapter?.enableReaderMode(
                             activity,
                             { tag ->
+                                android.util.Log.i(
+                                    "ZenoIc",
+                                    "tag dispatched techs=" + tag.techList.joinToString(),
+                                )
                                 val nfcF = NfcF.get(tag)
                                 val read = if (nfcF == null) {
                                     IcReadResult(error = "NFC-F (FeliCa) タグではありません")
                                 } else {
                                     PhysicalIcReader.read(nfcF)
                                 }
+                                android.util.Log.i(
+                                    "ZenoIc",
+                                    "read done error=" + (read.error ?: "null") +
+                                        " balance=" + (read.balanceJPY ?: -1) +
+                                        " entries=" + read.entries.size,
+                                )
                                 activity.runOnUiThread {
                                     icResult = read
                                     icReading = false
                                 }
                             },
-                            NfcAdapter.FLAG_READER_NFC_F,
+                            NfcAdapter.FLAG_READER_NFC_F or
+                                NfcAdapter.FLAG_READER_NFC_A or
+                                NfcAdapter.FLAG_READER_NFC_B or
+                                NfcAdapter.FLAG_READER_NFC_V or
+                                NfcAdapter.FLAG_READER_NFC_BARCODE,
                             null,
                         )
                     }

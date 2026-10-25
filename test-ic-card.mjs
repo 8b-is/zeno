@@ -77,6 +77,10 @@ test("physical IC reader pins the verified FeliCa wire protocol", () => {
   assert.ok(reader.includes("dateRaw and 0x1F"), "5-bit day packing");
   assert.ok(!reader.includes("tag.readWithoutEncryption("), "must use raw transceive, not a phantom API");
   assert.ok(reader.includes("tag.close()"), "must release the tag");
+  assert.ok(reader.includes("val offset = resp.size - count * BLOCK_SIZE"), "adaptive frame header offset");
+  assert.ok(reader.includes("private fun poll(tag: NfcF)"), "must poll system 0x0003 before reading");
+  assert.ok(reader.includes("val used = parsed.takeWhile { be(it, 4, 2) != 0 }"), "date-word terminator");
+  assert.ok(reader.includes("TagLostException"), "must tolerate tag loss with partial results");
 });
 
 test("physical read is read-only and privacy-preserving in UI", () => {

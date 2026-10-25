@@ -88,7 +88,7 @@ fun PhysicalIcCard(
                     Column {
                         Text("残高 (BALANCE)", color = TextDim, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
                         Text(
-                            "¥%,d".format(read.balanceJPY ?: 0),
+                            read.balanceJPY?.let { "¥%,d".format(it) } ?: "—",
                             color = ColorTeal,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
@@ -115,7 +115,7 @@ fun PhysicalIcCard(
                 read.entries.take(20).forEach { entry ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(
                             "${entry.date} ${entry.kind}",
@@ -137,13 +137,20 @@ fun PhysicalIcCard(
                             color = TextDim,
                             fontSize = 10.sp,
                             fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.widthIn(min = 72.dp)
+                            modifier = Modifier.widthIn(min = 84.dp)
                         )
                     }
                 }
 
+                if (read.partial) {
+                    Text(
+                        "部分読取: カードが途中で離れました。カードを机に置き、端末を裏返して重ねると安定します。",
+                        color = ColorGold,
+                        fontSize = 10.sp
+                    )
+                }
                 Text(
-                    "読取は readWithoutEncryption のみ（書込なし）。表示は端末内だけで、保存・送信はしません。",
+                    "読取は READ_WO_ENCRYPTION のみ（書込なし）。表示は端末内だけで、保存・送信はしません。",
                     color = Color(0xFF6D6A80),
                     fontSize = 9.sp
                 )

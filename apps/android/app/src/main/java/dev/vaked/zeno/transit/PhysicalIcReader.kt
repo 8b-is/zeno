@@ -33,6 +33,7 @@ data class IcReadResult(
     val balanceJPY: Int? = null,
     val entries: List<IcEntry> = emptyList(),
     val error: String? = null,
+    val partial: Boolean = false,
 )
 
 object PhysicalIcReader {
@@ -43,6 +44,7 @@ object PhysicalIcReader {
     private const val BLOCK_SIZE = 16
     private const val HISTORY_BLOCKS = 20
     private const val MAX_BLOCKS_PER_READ = 15
+    private const val READ_ATTEMPTS = 3
 
     fun read(tag: NfcF): IcReadResult {
         val idm = tag.manufacturer
@@ -59,8 +61,20 @@ object PhysicalIcReader {
         }
         return try {
             tag.connect()
-            val raw = readHistoryBlocks(tag, idm)
-            parseHistory(idmHex, "0x%04x".format(systemCode), raw)
+            val polledIdm = poll(tag) ?: idm
+            var partial = false
+            val raw = try {
+                readHistoryBlocks(tag, polledIdm).also {
+                    android.util.Log.i(
+                        "ZenoIc",
+                        "raw=" + it.take(32).joinToString("") { b -> "%02x".format(b.toInt() and 0xFF) },
+                    )
+                }
+            } catch (lost: android.nfc.TagLostException) {
+                partial = true
+                partialBuffer
+            }
+            parseHistory(idmHex, "0x%04x".format(systemCode), raw).copy(partial = partial)
         } catch (e: Exception) {
             IcReadResult(
                 idmHex = idmHex,
@@ -77,23 +91,51 @@ object PhysicalIcReader {
      * does not expose it, so the frame goes over [NfcF.transceive].
      * Response: len, 0x07, IDm(8), statusFlag1, statusFlag2, then 16 B per block.
      */
+    private var partialBuffer: ByteArray = ByteArray(0)
+
     private fun readHistoryBlocks(tag: NfcF, idm: ByteArray): ByteArray {
         var out = ByteArray(0)
         var block = 0
         while (block < HISTORY_BLOCKS) {
             val count = minOf(MAX_BLOCKS_PER_READ, HISTORY_BLOCKS - block)
-            val chunk = readChunk(tag, idm, block, count)
-            if (chunk == null) {
-                for (b in block until block + count) {
-                    val single = readChunk(tag, idm, b, 1) ?: break
-                    out += single
+            try {
+                val chunk = readChunk(tag, idm, block, count)
+                if (chunk == null) {
+                    for (b in block until block + count) {
+                        val single = readChunk(tag, idm, b, 1) ?: break
+                        out += single
+                    }
+                } else {
+                    out += chunk
                 }
-            } else {
-                out += chunk
+            } catch (lost: android.nfc.TagLostException) {
+                partialBuffer = out
+                throw lost
             }
             block += count
         }
+        partialBuffer = ByteArray(0)
         return out
+    }
+
+    /**
+     * FeliCa POLLING (0x00) with the Japan-IC system code. Suica/PASMO expect a
+     * dedicated poll before service commands; Android's wildcard poll alone
+     * makes the first READ time out ("Tag was lost").
+     */
+    private fun poll(tag: NfcF): ByteArray? {
+        val cmd = byteArrayOf(
+            0x06, 0x00,
+            (SYSTEM_CODE_JAPAN_IC shr 8).toByte(),
+            (SYSTEM_CODE_JAPAN_IC and 0xFF).toByte(),
+            0x00, 0x00,
+        )
+        return try {
+            val resp = tag.transceive(cmd)
+            if (resp.size >= 10 && (resp[1].toInt() and 0xFF) == 0x01) resp.copyOfRange(2, 10) else null
+        } catch (e: java.io.IOException) {
+            null
+        }
     }
 
     /** Block data for [count] blocks from [block]; null on a recoverable card error. */
@@ -113,10 +155,19 @@ object PhysicalIcReader {
         idm.copyInto(cmd, 2)
         body.copyInto(cmd, 2 + idm.size)
 
-        val resp = try {
-            tag.transceive(cmd)
-        } catch (e: java.io.IOException) {
-            if (count == 1) throw e
+        var lastError: java.io.IOException? = null
+        var resp: ByteArray? = null
+        for (attempt in 0 until READ_ATTEMPTS) {
+            try {
+                resp = tag.transceive(cmd)
+                lastError = null
+                break
+            } catch (e: java.io.IOException) {
+                lastError = e
+            }
+        }
+        if (resp == null) {
+            if (count == 1) throw lastError ?: java.io.IOException("no response")
             return null
         }
         if (resp.size < 12 || (resp[1].toInt() and 0xFF) != RESP_READ_WITHOUT_ENCRYPTION) {
@@ -129,14 +180,18 @@ object PhysicalIcReader {
             if (count == 1) throw java.io.IOException("sf 0x%02x/0x%02x".format(sf1, sf2))
             return null
         }
-        return resp.copyOfRange(12, minOf(resp.size, 12 + count * BLOCK_SIZE))
+        val offset = resp.size - count * BLOCK_SIZE
+        if (offset < 10 || offset > 16) {
+            throw java.io.IOException("unexpected frame len %d for %d blocks".format(resp.size, count))
+        }
+        return resp.copyOfRange(offset, offset + count * BLOCK_SIZE)
     }
 
     /** Pure parser over concatenated 16-byte history blocks (block 0 = newest). */
     fun parseHistory(idmHex: String, systemCodeHex: String, raw: ByteArray): IcReadResult {
         val blocks = raw.size / BLOCK_SIZE
         val parsed = (0 until blocks).map { i -> raw.copyOfRange(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE) }
-        val used = parsed.takeWhile { it.any { b -> b != 0.toByte() } }
+        val used = parsed.takeWhile { be(it, 4, 2) != 0 }
         if (used.isEmpty()) {
             return IcReadResult(idmHex, systemCodeHex, balanceJPY = null, entries = emptyList())
         }

@@ -97,6 +97,10 @@ public `NfcF` exposes only `transceive`, not `readWithoutEncryption`):
 | Date | bytes [4..5]: 7-bit year from 2000, 4-bit month, 5-bit day |
 | Fare | balance(i+1) − balance(i); charges appear negative |
 | Status flags | resp[10], resp[11] must be `0x00`; multi-block reads fall back to 1-block reads |
+| Poll first | Send FeliCa `POLLING` (`0x00`) with system `0x0003` before any service command; the wildcard poll Android performs is not enough (first READ times out as "tag lost") |
+| Frame header | Samsung's raw `transceive` response prefix is **13 bytes**, not the 12 the spec implies. Compute the data offset adaptively: `offset = resp.size - blocks*16` (validated 10..16) instead of hard-coding |
+| Empty history | A block whose date word `[4..5]` is zero terminates history (unused blocks carry a `0x80` marker at [3], so "any non-zero byte" is wrong) |
+| Tag loss | `TagLostException` mid-read yields a partial result (balance first, history as far as it got) flagged `partial` in the UI |
 
 Layout cross-checked against Metrodroid (GPL-3.0), `transit/suica` package.
 Strictly read-only: no write command exists in the reader, IDm is truncated in
