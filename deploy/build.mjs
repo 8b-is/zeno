@@ -113,7 +113,7 @@ const TRANSIT_MD = ${JSON.stringify(transitMd)};
 const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",

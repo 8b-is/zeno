@@ -57,10 +57,16 @@ object PhysicalIcReader {
         val partial = try {
             tag.connect()
             runCatching { tag.transceive(NativeBridge.buildPollFrame()) }
-            readAll(tag, idm, box)
-            false
+            !readAll(tag, idm, box)
         } catch (lost: TagLostException) {
-            box.data.isNotEmpty()
+            if (box.data.isEmpty()) {
+                return IcReadResult(
+                    idmHex = idmHex,
+                    systemCodeHex = "0x%04x".format(systemCode),
+                    error = "読取失敗: カードが離れました（Tag lost）",
+                )
+            }
+            true
         } catch (e: Exception) {
             return IcReadResult(
                 idmHex = idmHex,
@@ -107,7 +113,8 @@ object PhysicalIcReader {
         }
     }
 
-    private fun readAll(tag: NfcF, idm: ByteArray, box: Box) {
+    /** True when every history block was read; false = truncated (partial). */
+    private fun readAll(tag: NfcF, idm: ByteArray, box: Box): Boolean {
         var block = 0
         while (block < HISTORY_BLOCKS) {
             val count = minOf(MAX_BLOCKS_PER_READ, HISTORY_BLOCKS - block)
@@ -115,7 +122,7 @@ object PhysicalIcReader {
             if (chunk == null) {
                 var cursor = block
                 while (cursor < block + count) {
-                    val single = readChunk(tag, idm, cursor, 1) ?: return
+                    val single = readChunk(tag, idm, cursor, 1) ?: return false
                     box.data += single
                     cursor++
                 }
@@ -124,6 +131,7 @@ object PhysicalIcReader {
             }
             block += count
         }
+        return true
     }
 
     private fun readChunk(tag: NfcF, idm: ByteArray, block: Int, count: Int): ByteArray? {

@@ -1,54 +1,98 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <defs>
-    <radialGradient id="bgGlow" cx="70%" cy="30%" r="60%">
-      <stop offset="0%" stop-color="#181528"/>
-      <stop offset="60%" stop-color="#07080b"/>
-      <stop offset="100%" stop-color="#040508"/>
-    </radialGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fff2c2"/>
-      <stop offset="50%" stop-color="#e8b05c"/>
-      <stop offset="100%" stop-color="#9d691f"/>
-    </linearGradient>
-    <linearGradient id="asagiGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#62e6c9"/>
-      <stop offset="100%" stop-color="#b48bff"/>
-    </linearGradient>
-  </defs>
+  <!-- Sumi Background -->
+  <rect width="1200" height="630" fill="#07080B"/>
 
-  <!-- Background -->
-  <rect width="1200" height="630" fill="url(#bgGlow)"/>
-  
-  <!-- Subtle Grid Lines (Ma spacing) -->
-  <line x1="120" y1="0" x2="120" y2="630" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
-  <line x1="1080" y1="0" x2="1080" y2="630" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
-  <line x1="0" y1="120" x2="1200" y2="120" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
-  <line x1="0" y1="510" x2="1200" y2="510" stroke="rgba(180, 139, 255, 0.06)" stroke-width="1"/>
+  <!-- Subtle Structural Frame -->
+  <rect x="48" y="44" width="1104" height="542" rx="16" fill="none" stroke="#B48BFF" stroke-opacity="0.22" stroke-width="2"/>
+  <line x1="48" y1="518" x2="1152" y2="518" stroke="#E8B05C" stroke-opacity="0.35" stroke-width="2"/>
 
-  <!-- Kintsugi Golden Fracture Art -->
-  <path d="M 850,80 Q 920,180 890,260 T 960,390 T 910,540" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round"/>
-  <path d="M 890,260 L 810,310 M 960,390 L 1040,430" fill="none" stroke="url(#goldGrad)" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Left Column: Wordmark + Tagline + Sovereign Accents -->
+  <g>
+    <!-- Top Sovereign Pill -->
+    <rect x="96" y="106" width="256" height="34" rx="17" fill="#07080B" stroke="#62E6C9" stroke-width="2"/>
+    <circle cx="118" cy="123" r="5" fill="#62E6C9"/>
+    <text x="134" y="129" font-family="sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#62E6C9">VAKED · SOVEREIGN EDGE</text>
 
-  <!-- Logo Coin Emblem -->
-  <g transform="translate(860, 240)">
-    <circle cx="64" cy="64" r="70" fill="#0b0e18" stroke="url(#goldGrad)" stroke-width="3"/>
-    <rect x="46" y="46" width="36" height="36" rx="4" fill="#07080b" stroke="url(#goldGrad)" stroke-width="3"/>
-    <circle cx="64" cy="64" r="5" fill="#62e6c9"/>
+    <!-- Wordmark: ZENO 銭・禅・善 -->
+    <text x="96" y="246" font-family="sans-serif" font-size="92" font-weight="900" letter-spacing="2" fill="#EDEBF2">ZENO</text>
+    <text x="382" y="240" font-family="sans-serif" font-size="46" font-weight="700" letter-spacing="4" fill="#E8B05C">銭・禅・善</text>
+
+    <!-- Kintsugi Divider Accent -->
+    <path d="M 96 278 L 280 278 L 302 268 L 328 284 L 540 278" fill="none" stroke="#E8B05C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="302" cy="268" r="4" fill="#62E6C9"/>
+
+    <!-- Tagline: Sovereign Neo-Bank · Kintsugi Ledger -->
+    <text x="96" y="334" font-family="sans-serif" font-size="28" font-weight="700" letter-spacing="1" fill="#62E6C9">Sovereign Neo-Bank · Kintsugi Ledger</text>
+
+    <!-- Sub-caption / Ternary Proof Metrics -->
+    <text x="96" y="388" font-family="sans-serif" font-size="18" font-weight="600" fill="#EDEBF2" fill-opacity="0.82">Double-Entry Equilibrium (Σ = 0) · Zero Debt Minting · Foken Gate {-1, 0, +1}</text>
+    <text x="96" y="422" font-family="sans-serif" font-size="17" font-weight="600" fill="#B48BFF">ZKP1 KintsugiPack Witness · 11-Node Sovereign Constellation</text>
   </g>
 
-  <!-- Title & Headers -->
-  <text x="140" y="200" font-family="'Shippori Mincho', 'Noto Serif JP', serif" font-size="28" fill="#e8b05c" letter-spacing="6">銭 · 禅 · 善</text>
-  <text x="140" y="290" font-family="'JetBrains Mono', 'Geist Mono', monospace" font-size="82" font-weight="800" fill="#f7f6f2" letter-spacing="-2">ZENO</text>
-  <text x="140" y="350" font-family="'JetBrains Mono', monospace" font-size="24" fill="url(#asagiGrad)" letter-spacing="3">JAPANESE PROOF-OF-CONTRIBUTION NEO-BANK</text>
+  <!-- Right Column: Constellation Arc of 11 Stars joined by Gold Kintsugi Seams over Sumi -->
+  <g>
+    <!-- Ambient Orbital Guide Arcs -->
+    <path d="M 690 465 A 250 250 0 0 1 1070 120" fill="none" stroke="#62E6C9" stroke-opacity="0.22" stroke-width="2" stroke-dasharray="8 8"/>
+    <path d="M 650 380 A 210 210 0 0 0 1095 360" fill="none" stroke="#B48BFF" stroke-opacity="0.28" stroke-width="2"/>
 
-  <!-- Bullets / Pillars -->
-  <text x="140" y="420" font-family="'JetBrains Mono', monospace" font-size="16" fill="#8c89a4" letter-spacing="1">
-    ✧ Double-Entry Kintsugi Ledger  ✧ Continuous µJPY Micro-Streaming  ✧ Foken Valuation Gate
-  </text>
-  <text x="140" y="450" font-family="'JetBrains Mono', monospace" font-size="16" fill="#8c89a4" letter-spacing="1">
-    ✧ Autonomous AI Agent Accounts  ✧ Sanpo Yoshi Ethical Capital     ✧ VAKED Constellation
-  </text>
+    <!-- Gold Kintsugi Seams Joining the 11 Stars -->
+    <g fill="none" stroke="#E8B05C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Primary Constellation Spine Arc -->
+      <path d="M 660 440 L 708 362 L 732 268 L 796 194 L 878 142 L 968 124 L 1054 162 L 1092 246 L 1068 338 L 992 406 L 888 446"/>
+      <!-- Secondary Kintsugi Cross-Fracture Seams -->
+      <path d="M 708 362 L 842 296 L 968 124" stroke-width="2.5"/>
+      <path d="M 796 194 L 842 296 L 992 406" stroke-width="2.5"/>
+      <path d="M 842 296 L 1068 338" stroke-width="2.5"/>
+      <path d="M 732 268 L 888 446" stroke-width="2" stroke-opacity="0.75"/>
+    </g>
 
-  <!-- URL footer -->
-  <text x="140" y="540" font-family="'JetBrains Mono', monospace" font-size="18" fill="#e8b05c">zeno.vaked.dev</text>
+    <!-- Violet ZKP1 Stitch Thread Across Arc -->
+    <path d="M 660 440 Q 850 280 1054 162" fill="none" stroke="#B48BFF" stroke-width="2.5" stroke-dasharray="6 6"/>
+
+    <!-- Central Kintsugi Hub Node (ZENO Core) -->
+    <circle cx="842" cy="296" r="22" fill="#07080B" stroke="#62E6C9" stroke-width="4"/>
+    <text x="842" y="304" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="900" fill="#EDEBF2">銭</text>
+
+    <!-- 11 Constellation Stars -->
+    <!-- Star 1: Sovereign Library -->
+    <circle cx="660" cy="440" r="9" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+    <circle cx="660" cy="440" r="4" fill="#EDEBF2"/>
+    <!-- Star 2: ONTOLOGY.md -->
+    <circle cx="708" cy="362" r="8" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+    <circle cx="708" cy="362" r="3.5" fill="#EDEBF2"/>
+    <!-- Star 3: KOMRESS-ULTRA -->
+    <circle cx="732" cy="268" r="9" fill="#07080B" stroke="#B48BFF" stroke-width="3"/>
+    <circle cx="732" cy="268" r="4" fill="#EDEBF2"/>
+    <!-- Star 4: fandom-mcp -->
+    <circle cx="796" cy="194" r="8" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+    <circle cx="796" cy="194" r="3.5" fill="#EDEBF2"/>
+    <!-- Star 5: between-the-lines -->
+    <circle cx="878" cy="142" r="8.5" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+    <circle cx="878" cy="142" r="4" fill="#EDEBF2"/>
+    <!-- Star 6: pocoo -->
+    <circle cx="968" cy="124" r="9.5" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+    <circle cx="968" cy="124" r="4.5" fill="#EDEBF2"/>
+    <!-- Star 7: koan.vaked.dev -->
+    <circle cx="1054" cy="162" r="8.5" fill="#07080B" stroke="#B48BFF" stroke-width="3"/>
+    <circle cx="1054" cy="162" r="4" fill="#EDEBF2"/>
+    <!-- Star 8: art.vaked.dev -->
+    <circle cx="1092" cy="246" r="8" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+    <circle cx="1092" cy="246" r="3.5" fill="#EDEBF2"/>
+    <!-- Star 9: 8b-is ENGINE -->
+    <circle cx="1068" cy="338" r="9" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+    <circle cx="1068" cy="338" r="4" fill="#EDEBF2"/>
+    <!-- Star 10: 8b-is Family Research -->
+    <circle cx="992" cy="406" r="9.5" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+    <circle cx="992" cy="406" r="4.5" fill="#EDEBF2"/>
+    <!-- Star 11: ZENO -->
+    <circle cx="888" cy="446" r="10" fill="#07080B" stroke="#E8B05C" stroke-width="3.5"/>
+    <circle cx="888" cy="446" r="5" fill="#62E6C9"/>
+  </g>
+
+  <!-- Footer Strip: RFC-007 Constellation · KOMRESS-ULTRA ZKP1 -->
+  <g>
+    <circle cx="96" cy="552" r="6" fill="#E8B05C"/>
+    <text x="116" y="559" font-family="sans-serif" font-size="20" font-weight="700" letter-spacing="2" fill="#EDEBF2">RFC-007 Constellation · KOMRESS-ULTRA ZKP1</text>
+    <text x="1104" y="559" text-anchor="end" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" fill="#62E6C9">zeno.vaked.dev</text>
+  </g>
 </svg>

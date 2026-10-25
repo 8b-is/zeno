@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <!-- Sumi Background -->
+  <rect width="1600" height="900" fill="#07080B"/>
+
+  <!-- Outer Architectural Border -->
+  <rect x="40" y="36" width="1520" height="828" rx="18" fill="none" stroke="#B48BFF" stroke-opacity="0.25" stroke-width="2"/>
+  <line x1="40" y1="128" x2="1560" y2="128" stroke="#E8B05C" stroke-opacity="0.28" stroke-width="1.5"/>
+  <line x1="40" y1="560" x2="1560" y2="560" stroke="#62E6C9" stroke-opacity="0.22" stroke-width="1.5"/>
+
+  <!-- Top Banner Header -->
+  <g>
+    <circle cx="88" cy="82" r="18" fill="#07080B" stroke="#62E6C9" stroke-width="3.5"/>
+    <text x="88" y="89" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="900" fill="#EDEBF2">銭</text>
+    <text x="122" y="92" font-family="sans-serif" font-size="34" font-weight="900" letter-spacing="3" fill="#EDEBF2">ZENO</text>
+    <text x="255" y="90" font-family="sans-serif" font-size="24" font-weight="700" letter-spacing="3" fill="#E8B05C">銭・禅・善</text>
+    <text x="415" y="89" font-family="sans-serif" font-size="20" font-weight="600" letter-spacing="1.5" fill="#62E6C9">Sovereign Neo-Bank · Kintsugi Ledger · Proof-of-Contribution</text>
+    <text x="1512" y="89" text-anchor="end" font-family="sans-serif" font-size="18" font-weight="700" letter-spacing="2" fill="#B48BFF">RFC-007 · VAKED CONSTELLATION</text>
+  </g>
+
+  <!-- Upper Canvas: Wide 11-Star Constellation & Gold Kintsugi Seams -->
+  <g>
+    <!-- Sweeping Orbital Reference Arcs -->
+    <path d="M 100 470 Q 800 90 1500 450" fill="none" stroke="#B48BFF" stroke-opacity="0.2" stroke-width="2" stroke-dasharray="10 8"/>
+    <path d="M 160 220 Q 800 520 1440 210" fill="none" stroke="#62E6C9" stroke-opacity="0.18" stroke-width="2"/>
+
+    <!-- Gold Kintsugi Seams across the Wide Constellation -->
+    <g fill="none" stroke="#E8B05C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Primary Spine Joining All 11 Stars -->
+      <path d="M 130 420 L 255 260 L 395 365 L 530 210 L 680 310 L 800 185 L 945 295 L 1090 195 L 1230 340 L 1365 225 L 1475 390"/>
+      <!-- Kintsugi Fracture Repair Branches -->
+      <path d="M 255 260 L 530 210 L 800 185 L 1090 195 L 1365 225" stroke-width="2.2" stroke-opacity="0.75"/>
+      <path d="M 395 365 L 680 310 L 945 295 L 1230 340" stroke-width="2.5" stroke-opacity="0.85"/>
+      <path d="M 680 310 L 760 440 L 945 295" stroke-width="2.5"/>
+    </g>
+
+    <!-- Violet ZKP1 Stitch Line -->
+    <path d="M 130 420 L 395 365 L 800 185 L 1230 340 L 1475 390" fill="none" stroke="#B48BFF" stroke-width="2.5" stroke-dasharray="7 6"/>
+
+    <!-- 11 Constellation Stars + Labels -->
+    <!-- 1: sovereign-library -->
+    <g transform="translate(130,420)">
+      <circle r="10" fill="#07080B" stroke="#E8B05C" stroke-width="3.5"/>
+      <circle r="4.5" fill="#EDEBF2"/>
+      <text y="28" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#EDEBF2">主権図書館 · Library</text>
+    </g>
+    <!-- 2: ontology -->
+    <g transform="translate(255,260)">
+      <circle r="9" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#62E6C9">存在論 · ONTOLOGY</text>
+    </g>
+    <!-- 3: kompress-ultra -->
+    <g transform="translate(395,365)">
+      <circle r="10" fill="#07080B" stroke="#B48BFF" stroke-width="3.5"/>
+      <circle r="4.5" fill="#EDEBF2"/>
+      <text y="28" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#B48BFF">金継ぎ圧縮 · KOMRESS</text>
+    </g>
+    <!-- 4: fandom-mcp -->
+    <g transform="translate(530,210)">
+      <circle r="9" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#EDEBF2">典拠 · fandom-mcp</text>
+    </g>
+    <!-- 5: between-the-lines -->
+    <g transform="translate(680,310)">
+      <circle r="9" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#EDEBF2">行間 · between-lines</text>
+    </g>
+    <!-- 6: zeno (Apex Star) -->
+    <g transform="translate(800,185)">
+      <circle r="16" fill="#07080B" stroke="#E8B05C" stroke-width="4"/>
+      <circle r="10" fill="none" stroke="#62E6C9" stroke-width="2"/>
+      <circle r="4.5" fill="#62E6C9"/>
+      <text y="-24" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="900" fill="#E8B05C">ZENO · 銭・禅・善</text>
+    </g>
+    <!-- 7: pocoo -->
+    <g transform="translate(945,295)">
+      <circle r="9" fill="#07080B" stroke="#B48BFF" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#EDEBF2">ぷー · pocoo</text>
+    </g>
+    <!-- 8: koan -->
+    <g transform="translate(1090,195)">
+      <circle r="9" fill="#07080B" stroke="#62E6C9" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#62E6C9">公案 · koan</text>
+    </g>
+    <!-- 9: art -->
+    <g transform="translate(1230,340)">
+      <circle r="9" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="28" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#EDEBF2">美術 · art</text>
+    </g>
+    <!-- 10: engine -->
+    <g transform="translate(1365,225)">
+      <circle r="9.5" fill="#07080B" stroke="#B48BFF" stroke-width="3"/>
+      <circle r="4" fill="#EDEBF2"/>
+      <text y="-18" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#B48BFF">機関 · ENGINE</text>
+    </g>
+    <!-- 11: 8b-is -->
+    <g transform="translate(1475,390)">
+      <circle r="11" fill="#07080B" stroke="#E8B05C" stroke-width="3.5"/>
+      <circle r="5" fill="#62E6C9"/>
+      <text y="28" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#E8B05C">八刀 · 8b-is</text>
+    </g>
+  </g>
+
+  <!-- Center-Bottom: ZKP1 Cryptographic Receipt Panel -->
+  <g transform="translate(510, 430)">
+    <rect x="0" y="0" width="580" height="210" rx="14" fill="#07080B" stroke="#E8B05C" stroke-width="3"/>
+    <rect x="10" y="10" width="560" height="190" rx="10" fill="none" stroke="#62E6C9" stroke-opacity="0.4" stroke-width="1.5"/>
+
+    <!-- Panel Header -->
+    <circle cx="36" cy="38" r="6" fill="#62E6C9"/>
+    <text x="54" y="44" font-family="sans-serif" font-size="15" font-weight="800" letter-spacing="2" fill="#62E6C9">KINTSUGIPACK WITNESS RECEIPT · TRIT +1</text>
+    <line x1="24" y1="60" x2="556" y2="60" stroke="#E8B05C" stroke-opacity="0.4" stroke-width="1.5"/>
+
+    <!-- Primary Required Receipt Reading -->
+    <text x="290" y="108" text-anchor="middle" font-family="sans-serif" font-size="27" font-weight="900" letter-spacing="1" fill="#EDEBF2">ZKP1 5,448 B · 50.95% · 8fb9cc11…</text>
+
+    <!-- Supporting Receipt Metadata -->
+    <text x="290" y="146" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="600" fill="#B48BFF">RAW 11,108 B → SEALED 5,448 B · WUPZ 0x44dcbd34fd19d0b1</text>
+    <text x="290" y="176" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" letter-spacing="1.5" fill="#E8B05C">DOUBLE-ENTRY VERIFIED · Σ POSTINGS = 0 µJPY</text>
+  </g>
+
+  <!-- Bottom-Left: FeliCa Wave Arcs -->
+  <g>
+    <!-- Emitter Origin Node -->
+    <circle cx="110" cy="800" r="14" fill="#07080B" stroke="#62E6C9" stroke-width="4"/>
+    <circle cx="110" cy="800" r="6" fill="#E8B05C"/>
+
+    <!-- Concentric FeliCa 13.56 MHz Carrier Wave Arcs -->
+    <path d="M 110 752 A 48 48 0 0 1 158 800" fill="none" stroke="#62E6C9" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 110 712 A 88 88 0 0 1 198 800" fill="none" stroke="#62E6C9" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 110 670 A 130 130 0 0 1 240 800" fill="none" stroke="#E8B05C" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M 110 626 A 174 174 0 0 1 284 800" fill="none" stroke="#B48BFF" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 7"/>
+    <path d="M 110 582 A 218 218 0 0 1 328 800" fill="none" stroke="#62E6C9" stroke-opacity="0.65" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- FeliCa Label -->
+    <text x="96" y="838" font-family="sans-serif" font-size="16" font-weight="800" letter-spacing="2" fill="#62E6C9">FELICA · JIS X 6319-4 CARRIER</text>
+  </g>
+
+  <!-- Bottom-Right: NFC-F Read Beam Hitting a Physical IC Card Silhouette -->
+  <g>
+    <!-- NFC-F Reader Transceiver Node -->
+    <rect x="1125" y="690" width="90" height="44" rx="8" fill="#07080B" stroke="#B48BFF" stroke-width="3"/>
+    <circle cx="1150" cy="712" r="6" fill="#62E6C9"/>
+    <text x="1182" y="717" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="800" fill="#EDEBF2">NFC-F</text>
+
+    <!-- NFC-F Read Beam Cones & Pulse Wavefronts Hitting the Card -->
+    <path d="M 1215 704 L 1335 648 L 1335 768 L 1215 720 Z" fill="#62E6C9" fill-opacity="0.12"/>
+    <line x1="1215" y1="712" x2="1352" y2="704" stroke="#62E6C9" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 6"/>
+    <line x1="1215" y1="704" x2="1340" y2="662" stroke="#B48BFF" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="1215" y1="720" x2="1340" y2="752" stroke="#B48BFF" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Wavefront ripples inside beam -->
+    <path d="M 1255 684 A 36 36 0 0 1 1255 740" fill="none" stroke="#E8B05C" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 1292 670 A 52 52 0 0 1 1292 752" fill="none" stroke="#62E6C9" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Physical IC Card Silhouette (Tilted ISO/IEC 7810 ID-1 Sovereign Pass) -->
+    <g transform="translate(1325, 622) rotate(-8)">
+      <!-- Card Body -->
+      <rect x="0" y="0" width="190" height="120" rx="12" fill="#07080B" stroke="#EDEBF2" stroke-width="3.5"/>
+      <!-- Kintsugi Vein on IC Card -->
+      <path d="M 0 82 L 68 66 L 124 88 L 190 54" fill="none" stroke="#E8B05C" stroke-width="2.5"/>
+      <!-- Gold Metallic IC Chip Pad -->
+      <rect x="22" y="36" width="34" height="26" rx="4" fill="#E8B05C" stroke="#07080B" stroke-width="1.5"/>
+      <line x1="39" y1="36" x2="39" y2="62" stroke="#07080B" stroke-width="1.5"/>
+      <line x1="22" y1="49" x2="56" y2="49" stroke="#07080B" stroke-width="1.5"/>
+      <!-- Impact / Read Resonance Ring on Card Antenna -->
+      <circle cx="28" cy="49" r="24" fill="none" stroke="#62E6C9" stroke-width="2.5" stroke-dasharray="5 4"/>
+      <!-- Card Sovereign Branding -->
+      <text x="168" y="32" text-anchor="end" font-family="sans-serif" font-size="16" font-weight="900" fill="#EDEBF2">ZENO 銭</text>
+      <text x="22" y="102" font-family="sans-serif" font-size="11" font-weight="700" letter-spacing="1.5" fill="#62E6C9">IC · FELICA PASS</text>
+    </g>
+
+    <text x="1512" y="838" text-anchor="end" font-family="sans-serif" font-size="16" font-weight="800" letter-spacing="2" fill="#E8B05C">NFC-F READ BEAM · PHYSICAL IC SILHOUETTE</text>
+  </g>
+</svg>

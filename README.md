@@ -10,7 +10,7 @@
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
 [![Stripe: Compatible](https://img.shields.io/badge/stripe-compatible-635BFF?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
 [![Protocol: MCP%20%7C%20ACP](https://img.shields.io/badge/protocol-MCP%20%7C%20ACP-b48bff?style=flat-square)](spec/STRIPE_COMPATIBILITY_MCP_ACP.md)
-[![Tests: 83 passed](https://img.shields.io/badge/tests-83%20passed-62e6c9?style=flat-square)](apps/core/tests/)
+[![Tests: 108 passed](https://img.shields.io/badge/tests-108%20passed-62e6c9?style=flat-square)](apps/core/tests/)
 [![Pack: Kintsugi × wupz](https://img.shields.io/badge/pack-Kintsugi%20%C3%97%20wupz-e8b05c?style=flat-square)](spec/WUPZ_BRIDGE.md)
 [![Security: Zeroize ZA--0006..0010](https://img.shields.io/badge/security-Zeroize%20ZA--0006..0010-10B981?style=flat-square)](apps/core/tests/test_zeroize_remediation.py)
 [![ICML 2026: 45 ZKP1 Sealed](https://img.shields.io/badge/ICML%202026-45%20ZKP1%20Sealed-b48bff?style=flat-square)](spec/research/ICML_2026_WORKSHOPS_8B_IS.md)
@@ -23,7 +23,7 @@
 [![KOMRESS-ULTRA: ZKP1 5,448 B](https://img.shields.io/badge/KOMRESS--ULTRA-ZKP1%205%2C448%20B-b48bff?style=flat-square)](constellation.json)
 [![Ontology: {-1, 0, +1} × fandom-mcp](https://img.shields.io/badge/Ontology-%7B--1%2C0%2C%2B1%7D%20%C3%97%20fandom--mcp-f0c05a?style=flat-square)](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md)
 
-**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **RFC-005 Asia First QR (AEON Pay / Alipay)**: [spec/AEON_PAY_QR_ASIA_LAYER.md](spec/AEON_PAY_QR_ASIA_LAYER.md) · **RFC-007 Constellation & KOMRESS-ULTRA ZKP1**: [spec/CONSTELLATION_WIRING.md](spec/CONSTELLATION_WIRING.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) · **Sovereign Ontology (`ONTOLOGY.md`)**: [github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md) · **Dragon Ball OMNI Codex (`8b-is/fandom-mcp`)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/dragon-ball-sovereign-ontology-omni.html) · **Crickets in Tokyo v2.0 (Ch. 8 💙)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) · **between-the-lines 002**: [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/)
+**Live Edge Surface**: [https://zeno.vaked.dev/](https://zeno.vaked.dev/) · **RFC-002 Architecture**: [spec/STRIPE_COMPATIBILITY_MCP_ACP.md](spec/STRIPE_COMPATIBILITY_MCP_ACP.md) · **RFC-003 RED Strategy**: [spec/XIAOHONGSHU_STRATEGY.md](spec/XIAOHONGSHU_STRATEGY.md) · **RFC-004 Dra CEO Helper**: [spec/DRA_BUFFETT_CEO_HELPER.md](spec/DRA_BUFFETT_CEO_HELPER.md) · **RFC-005 Asia First QR (AEON Pay / Alipay)**: [spec/AEON_PAY_QR_ASIA_LAYER.md](spec/AEON_PAY_QR_ASIA_LAYER.md) · **RFC-007 Constellation & KOMRESS-ULTRA ZKP1**: [spec/CONSTELLATION_WIRING.md](spec/CONSTELLATION_WIRING.md) · **ICML 2026 ZKP1 Index**: [spec/research/ICML_2026_WORKSHOPS_8B_IS.md](spec/research/ICML_2026_WORKSHOPS_8B_IS.md) · **Universal Dedication Seal (OM MANI PADME HUNG HUMM · Karmapa Csenno)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/posts/2026-10-26-om-mani-padme-hung-humm-karmapa-csenno-buddha-nature-dedication.html) · **Sovereign Library (`HOLD <3<3<3`)**: [github.com/8b-is/sovereign-library](https://github.com/8b-is/sovereign-library) · **Sovereign Ontology (`ONTOLOGY.md`)**: [github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md) · **Dragon Ball OMNI Codex (`8b-is/fandom-mcp`)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/dragon-ball-sovereign-ontology-omni.html) · **Crickets in Tokyo v2.0 (Ch. 8 💙)**: [pocoo.vaked.dev](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html) · **between-the-lines 002**: [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/)
 
 ---
 
@@ -274,8 +274,8 @@ zig run tools/zkp1_verify.zig -- \\
 cd apps/core
 uv run python -m unittest discover -s tests
 ```
-*Output: 55 tests passed (core ledger/stream/foken + stripe bridge + ACP protocol + MCP server + Kintsugi Pack + Zeroize Security Remediation ZA-0006..ZA-0010).*
-Wallet/pass contract tests add 10 more (`cd apps/wallet && uv run python -m unittest test_google_wallet`); the Node suites add 18 (`test-engine.mjs`, `test-google-wallet.mjs`, `test-scheduled-sweep.mjs`, `test-constellation.mjs`) — **83 total**.
+*Output: 59 tests passed (core ledger/stream/foken/transit-envelope + stripe bridge + ACP protocol + MCP server + Kintsugi Pack + Zeroize Security Remediation ZA-0006..ZA-0010).*
+Wallet/pass contract tests add 10 more (`cd apps/wallet && uv run python -m unittest test_google_wallet`); the Node suites add 39 (`test-constellation.mjs` 10, `test-ic-card.mjs` 11, `test-google-wallet.mjs` 6, `test-scheduled-sweep.mjs` 12) — **108 total**, plus 6 Rust `cargo test`s in `apps/rust/zeno-native` and the Zig ZKP1 witness.
 
 ### 5.2 Build Apple Wallet Pass
 ```bash
