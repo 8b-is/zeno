@@ -4,6 +4,9 @@ from zeno_core.ledger import ZenoLedger
 from zeno_core.transit_envelope import (
     CREW_WALLET,
     ENVELOPE_WALLET,
+    SUNGLASSES_CABLES_FOOD_JPY,
+    TOTAL_FIELD_ENVELOPE_JPY,
+    allocate_sunglasses_cables_food_envelope,
     allocate_transit_envelope,
     envelope_balance_jpy,
     ensure_crew_treasury,
@@ -43,6 +46,19 @@ class TransitEnvelopeTests(unittest.TestCase):
     def test_chain_still_verifies_after_allocation(self):
         ensure_crew_treasury(self.ledger, deposit_jpy=4_820)
         allocate_transit_envelope(self.ledger, amount_jpy=1_000)
+        self.assertTrue(self.ledger.verify_chain())
+
+    def test_sunglasses_cables_and_food_adds_2000_jpy_for_dra_chris_peter(self):
+        ensure_crew_treasury(self.ledger, deposit_jpy=4_820)
+        allocate_transit_envelope(self.ledger, amount_jpy=1_000)
+        envelope_id, tx = allocate_sunglasses_cables_food_envelope(self.ledger)
+
+        self.assertEqual(envelope_id, ENVELOPE_WALLET)
+        self.assertEqual(SUNGLASSES_CABLES_FOOD_JPY, 2_000)
+        self.assertEqual(sum(p.amount for p in tx.postings), 0)
+        self.assertEqual(envelope_balance_jpy(self.ledger), TOTAL_FIELD_ENVELOPE_JPY)
+        self.assertEqual(envelope_balance_jpy(self.ledger), 3_000)
+        self.assertEqual(-self.ledger.get_balance(CREW_WALLET) // 1_000_000, 1_820)
         self.assertTrue(self.ledger.verify_chain())
 
 

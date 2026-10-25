@@ -15,6 +15,8 @@ ENVELOPE_WALLET = "wallet:transit_envelope:ichigo"
 UJPY_PER_JPY = 1_000_000
 
 DEFAULT_ENVELOPE_JPY = 1_000
+SUNGLASSES_CABLES_FOOD_JPY = 2_000
+TOTAL_FIELD_ENVELOPE_JPY = DEFAULT_ENVELOPE_JPY + SUNGLASSES_CABLES_FOOD_JPY
 
 
 def ensure_crew_treasury(ledger: ZenoLedger, deposit_jpy: int) -> None:
@@ -61,6 +63,15 @@ def allocate_transit_envelope(
         memo,
     )
     return ENVELOPE_WALLET, tx
+
+
+def allocate_sunglasses_cables_food_envelope(
+    ledger: ZenoLedger,
+    amount_jpy: int = SUNGLASSES_CABLES_FOOD_JPY,
+    memo: str = "Sunglasses, cables & food for Dra, Chris & Peter",
+) -> Tuple[str, Transaction]:
+    """Move ``amount_jpy`` (+¥2,000) for sunglasses, cables & food for Dra, Chris & Peter."""
+    return allocate_transit_envelope(ledger, amount_jpy=amount_jpy, memo=memo)
 
 
 def envelope_balance_jpy(ledger: ZenoLedger) -> int:

@@ -23,6 +23,8 @@ import dev.vaked.zeno.ui.theme.TextDim
 import dev.vaked.zeno.ui.theme.TextMain
 
 private const val ENVELOPE_JPY = 1_000
+private const val SUNGLASSES_CABLES_FOOD_JPY = 2_000
+private const val TOTAL_ENVELOPE_JPY = ENVELOPE_JPY + SUNGLASSES_CABLES_FOOD_JPY
 
 /**
  * 物理ICカード読取 — read-only balance + last-20-use history from a physical
@@ -104,6 +106,24 @@ fun PhysicalIcCard(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
+                "サングラス・ケーブル・食事 (Dra · Chris · Peter)",
+                color = ColorGold,
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "+¥%,d".format(SUNGLASSES_CABLES_FOOD_JPY),
+                color = ColorGold,
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
                 "活動資金合計 (envelope + card)",
                 color = TextMain,
                 fontSize = 11.sp,
@@ -112,7 +132,7 @@ fun PhysicalIcCard(
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "¥%,d".format((result?.balanceJPY ?: 0) + ENVELOPE_JPY),
+                "¥%,d".format((result?.balanceJPY ?: 0) + TOTAL_ENVELOPE_JPY),
                 color = ColorTeal,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
