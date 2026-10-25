@@ -22,6 +22,8 @@ import dev.vaked.zeno.ui.theme.ColorTeal
 import dev.vaked.zeno.ui.theme.TextDim
 import dev.vaked.zeno.ui.theme.TextMain
 
+private const val ENVELOPE_JPY = 1_000
+
 /**
  * 物理ICカード読取 — read-only balance + last-20-use history from a physical
  * Suica / PASMO (system 0x0003, history service 0x090f). Nothing is written to
@@ -78,6 +80,50 @@ fun PhysicalIcCard(
         result?.error?.let { error ->
             Text(error, color = Color(0xFFFF8A5B), fontSize = 11.sp)
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                "ZENO 交通経費封筒 (8b-crew treasury)",
+                color = ColorGold,
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "+¥%,d".format(ENVELOPE_JPY),
+                color = ColorGold,
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                "活動資金合計 (envelope + card)",
+                color = TextMain,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "¥%,d".format((result?.balanceJPY ?: 0) + ENVELOPE_JPY),
+                color = ColorTeal,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+            )
+        }
+        Text(
+            "一期一会 — core ledger に複式計上済み (wallet:crew_8b → wallet:transit_envelope:ichigo)。物理カードへのチャージは券売機で。",
+            color = Color(0xFF6D6A80),
+            fontSize = 9.sp
+        )
 
         result?.let { read ->
             if (read.error == null) {

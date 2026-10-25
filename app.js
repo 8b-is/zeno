@@ -136,6 +136,13 @@ const zenoState = {
       memo: "Foken Proof-of-Contribution Mint #inv_01jb2w (100 FOKEN)",
       merkleRoot: "3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e9d0c1b2a3f4e5d6c7b8a908f5a2d1e0c",
       seal: "d0c1b2a3f4e5d6c7b8a908f5a2d1e0c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e9"
+    },
+    {
+      index: 3,
+      timestamp: new Date(Date.now() - 1800000).toISOString(),
+      memo: "Transit Envelope ← 8b-crew Treasury ¥1,000 (ichigo-ichie Japan field work · physical Suica top-up fund)",
+      merkleRoot: "1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
+      seal: "2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e"
     }
   ]
 };

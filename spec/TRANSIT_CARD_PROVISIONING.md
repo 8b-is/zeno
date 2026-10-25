@@ -106,6 +106,15 @@ Layout cross-checked against Metrodroid (GPL-3.0), `transit/suica` package.
 Strictly read-only: no write command exists in the reader, IDm is truncated in
 UI, nothing is persisted or transmitted.
 
+## 6.1 Transit envelope: field-work funds
+
+The physical card is read-only, so ZENO books the working funds instead
+(`apps/core/zeno_core/transit_envelope.py`): a fiat-escrow deposit funds
+`wallet:crew_8b`, then ¥1,000 moves to `wallet:transit_envelope:ichigo` —
+double-entry, zero-sum, no debt minted (escrow asset still backs every claim).
+The Android card shows the envelope next to the read balance and the combined
+working funds; the physical top-up itself happens at any ticket machine.
+
 ## 7. What the web surface says
 
 The wallet modal carries a matching disclosure (`#ic-wallet-note`) with the
