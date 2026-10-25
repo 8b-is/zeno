@@ -246,6 +246,25 @@ history service `0x090f`; no writes, IDm truncated, nothing leaves the device.
 Full constraints, wire protocol and the commercial path:
 [spec/TRANSIT_CARD_PROVISIONING.md](spec/TRANSIT_CARD_PROVISIONING.md).
 
+### 4.2 Native core: Rust brain, Zig witness, Kotlin hands
+
+The physical-IC protocol lives in **Rust** (`apps/rust/zeno-native`, cdylib →
+`jniLibs/arm64-v8a/libzeno_native.so`): frame layout, adaptive header offset,
+history parsing, date bit-packing, fare deltas — all `cargo test`ed (6 tests).
+Kotlin only moves bytes between the NFC controller and Rust
+(`native/NativeBridge.kt`) and renders pixels. No protocol logic in Java/Kotlin.
+
+**Zig** (`tools/zkp1_verify.zig`) is the third independent implementation: it
+re-hashes the sealed ZKP1 container and re-derives the savings against
+`constellation.json`, cross-checking the Node worker and the Rust core.
+
+```bash
+cd apps/rust/zeno-native && cargo test
+zig run tools/zkp1_verify.zig -- \\
+  ../../../../pocoo.vaked.dev/dist/demos/book/architect-neo-trinity-tibetan-omni.zkp1 \\
+  constellation.json
+```
+
 ---
 
 ## 5. Verification & Tests

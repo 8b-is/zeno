@@ -23,6 +23,12 @@ cd apps/core && PYTHONPATH=. uv run --quiet pytest -q
 # Wallet/pass contract tests
 cd apps/wallet && uv run python -m unittest test_google_wallet
 
+# Native core (Rust) + ZKP1 witness (Zig)
+cd apps/rust/zeno-native && cargo test
+zig run tools/zkp1_verify.zig -- \\
+  /Users/lodripeter/workspace/peterlodri-sec/pocoo.vaked.dev/dist/demos/book/architect-neo-trinity-tibetan-omni.zkp1 \\
+  constellation.json
+
 # Engine tests (Node, run from repo root)
 node test-engine.mjs
 node test-scheduled-sweep.mjs

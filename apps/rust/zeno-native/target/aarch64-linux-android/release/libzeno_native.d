@@ -1,0 +1,1 @@
+/Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/target/aarch64-linux-android/release/libzeno_native.so: /Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/src/felica.rs /Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/src/lib.rs

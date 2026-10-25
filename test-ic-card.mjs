@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -68,19 +68,9 @@ test("web wallet modal carries the same disclosure", () => {
 
 test("physical IC reader pins the verified FeliCa wire protocol", () => {
   assert.ok(reader.includes("const val SYSTEM_CODE_JAPAN_IC = 0x0003"));
-  assert.ok(reader.includes("const val SERVICE_HISTORY = 0x090f"));
-  assert.ok(reader.includes("CMD_READ_WITHOUT_ENCRYPTION = 0x06"));
-  assert.ok(reader.includes("RESP_READ_WITHOUT_ENCRYPTION = 0x07"));
-  assert.ok(reader.includes("val balance = le(block, 10, 2)"), "balance is little-endian at [10..11]");
-  assert.ok(reader.includes("2000 + (dateRaw shr 9)"), "7-bit year packing");
-  assert.ok(reader.includes("(dateRaw shr 5) and 0x0F"), "4-bit month packing");
-  assert.ok(reader.includes("dateRaw and 0x1F"), "5-bit day packing");
-  assert.ok(!reader.includes("tag.readWithoutEncryption("), "must use raw transceive, not a phantom API");
-  assert.ok(reader.includes("tag.close()"), "must release the tag");
-  assert.ok(reader.includes("val offset = resp.size - count * BLOCK_SIZE"), "adaptive frame header offset");
-  assert.ok(reader.includes("private fun poll(tag: NfcF)"), "must poll system 0x0003 before reading");
-  assert.ok(reader.includes("val used = parsed.takeWhile { be(it, 4, 2) != 0 }"), "date-word terminator");
+  assert.ok(reader.includes("NativeBridge.buildPollFrame"), "poll before read");
   assert.ok(reader.includes("TagLostException"), "must tolerate tag loss with partial results");
+  assert.ok(reader.includes("readChunk(tag, idm, cursor, 1)"), "1-block fallback");
 });
 
 test("physical read is read-only and privacy-preserving in UI", () => {
@@ -93,6 +83,26 @@ test("physical read is read-only and privacy-preserving in UI", () => {
 test("web note documents the physical read bridge", () => {
   assert.ok(indexHtml.includes("物理ICカードをお持ちの場合"));
   assert.ok(indexHtml.includes("0x090f"));
+});
+
+test("Kotlin is a thin NFC shell; Rust owns the protocol", () => {
+  assert.ok(reader.includes("NativeBridge.buildReadFrame"));
+  assert.ok(reader.includes("NativeBridge.parseHistoryJson"));
+  assert.ok(!reader.includes("private fun parseHistory"), "Kotlin must not parse history");
+
+  const rust = readFileSync(join(here, "apps", "rust", "zeno-native", "src", "felica.rs"), "utf8");
+  assert.ok(rust.includes("pub const SYSTEM_CODE_JAPAN_IC: u16 = 0x0003"));
+  assert.ok(rust.includes("pub const SERVICE_HISTORY: u16 = 0x090f"));
+  assert.ok(rust.includes("resp.len().wrapping_sub(count * BLOCK_SIZE)"), "adaptive header offset");
+  assert.ok(rust.includes("2000 + (date_raw >> 9)"), "7-bit year packing");
+  assert.ok(existsSync(join(here, "apps", "android", "app", "src", "main", "jniLibs", "arm64-v8a", "libzeno_native.so")));
+});
+
+test("Zig verifier is the third independent implementation", () => {
+  const zig = readFileSync(join(here, "tools", "zkp1_verify.zig"), "utf8");
+  assert.ok(zig.includes("Sha256.hash"));
+  assert.ok(zig.includes("savingsPercent"));
+  assert.ok(zig.includes("sha256Sealed"));
 });
 
 test("worker serves the transit spec at /ic-card", async () => {

@@ -1,0 +1,10 @@
+/Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/target/aarch64-linux-android/release/deps/log-ec5e7664ae5cdf5d.d: /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/lib.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/macros.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/serde.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/__private_api.rs
+
+/Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/target/aarch64-linux-android/release/deps/liblog-ec5e7664ae5cdf5d.rlib: /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/lib.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/macros.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/serde.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/__private_api.rs
+
+/Users/lodripeter/workspace/peterlodri-sec/zeno.vaked.dev/apps/rust/zeno-native/target/aarch64-linux-android/release/deps/liblog-ec5e7664ae5cdf5d.rmeta: /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/lib.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/macros.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/serde.rs /Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/__private_api.rs
+
+/Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/lib.rs:
+/Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/macros.rs:
+/Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/serde.rs:
+/Users/lodripeter/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.34/src/__private_api.rs:
