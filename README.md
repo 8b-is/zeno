@@ -238,7 +238,12 @@ therefore reports the truth instead of a fake success:
 On devices without FeliCa the card shows `CONTACTLESS EMV READY` and routes to
 Samsung Wallet (bank card → gate tap) plus the ZENO QR fallback; on JP devices
 it routes to Mobile PASMO / Suica issuance, after which the card appears in
-Samsung Wallet's 交通系IC slot. Full constraints and the commercial path:
+Samsung Wallet's 交通系IC slot.
+
+A **physical** Suica / PASMO is read read-only over NFC-F (`PhysicalIcReader`):
+balance + last 20 uses via FeliCa `READ_WO_ENCRYPTION` on system `0x0003`,
+history service `0x090f`; no writes, IDm truncated, nothing leaves the device.
+Full constraints, wire protocol and the commercial path:
 [spec/TRANSIT_CARD_PROVISIONING.md](spec/TRANSIT_CARD_PROVISIONING.md).
 
 ---

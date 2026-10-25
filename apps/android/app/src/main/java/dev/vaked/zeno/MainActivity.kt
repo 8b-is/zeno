@@ -2,6 +2,8 @@ package dev.vaked.zeno
 
 import android.content.Context
 import android.content.Intent
+import android.nfc.NfcAdapter
+import android.nfc.tech.NfcF
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -27,6 +29,7 @@ import dev.vaked.zeno.ui.components.AeonPayQrCard
 import dev.vaked.zeno.ui.components.ConstellationCard
 import dev.vaked.zeno.ui.components.FeliCaCard
 import dev.vaked.zeno.ui.components.IcTransitCard
+import dev.vaked.zeno.ui.components.PhysicalIcCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
 import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
 import dev.vaked.zeno.ui.theme.BgSumi
@@ -34,6 +37,8 @@ import dev.vaked.zeno.ui.theme.ColorGold
 import dev.vaked.zeno.ui.theme.ColorTeal
 import dev.vaked.zeno.ui.theme.ColorViolet
 import dev.vaked.zeno.ui.theme.ZenoTheme
+import dev.vaked.zeno.transit.IcReadResult
+import dev.vaked.zeno.transit.PhysicalIcReader
 import dev.vaked.zeno.wallet.GoogleWalletController
 
 class MainActivity : ComponentActivity() {
@@ -75,6 +80,38 @@ class MainActivity : ComponentActivity() {
                     var pasmoBalance by remember { mutableIntStateOf(4820) }
                     var suicaBalance by remember { mutableIntStateOf(6450) }
                     var accumulatedCashback by remember { mutableDoubleStateOf(14280.0) }
+                    var icReading by remember { mutableStateOf(false) }
+                    var icResult by remember { mutableStateOf<IcReadResult?>(null) }
+                    val nfcAdapter = remember { NfcAdapter.getDefaultAdapter(this@MainActivity) }
+
+                    // NFC-F reader mode: physical Suica/PASMO are read-only here.
+                    LaunchedEffect(icReading) {
+                        val activity = this@MainActivity
+                        if (!icReading) {
+                            nfcAdapter?.disableReaderMode(activity)
+                            return@LaunchedEffect
+                        }
+                        nfcAdapter?.enableReaderMode(
+                            activity,
+                            { tag ->
+                                val nfcF = NfcF.get(tag)
+                                val read = if (nfcF == null) {
+                                    IcReadResult(error = "NFC-F (FeliCa) タグではありません")
+                                } else {
+                                    PhysicalIcReader.read(nfcF)
+                                }
+                                activity.runOnUiThread {
+                                    icResult = read
+                                    icReading = false
+                                }
+                            },
+                            NfcAdapter.FLAG_READER_NFC_F,
+                            null,
+                        )
+                    }
+                    DisposableEffect(Unit) {
+                        onDispose { nfcAdapter?.disableReaderMode(this@MainActivity) }
+                    }
 
                     Scaffold(
                         bottomBar = {
@@ -213,6 +250,15 @@ class MainActivity : ComponentActivity() {
                                     // Honest Osaifu-Keitai / Samsung Wallet probe + routing.
                                     // Suica/PASMO are issuer-minted into the FeliCa SE; no app can mint them.
                                     IcTransitCard(onOpenAeonPay = { selectedTab = 1 })
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    // Physical IC card: read-only balance + last 20 uses.
+                                    PhysicalIcCard(
+                                        reading = icReading,
+                                        result = icResult,
+                                        onToggleRead = { icReading = !icReading },
+                                    )
                                 }
                                 1 -> {
                                     // AEON Pay · Alipay-style QR (Asia first) — RFC-005

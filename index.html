@@ -1709,6 +1709,12 @@ SHA-256 (sealed): 8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7
           異なるため、改札のマークを確認してください）。
         </p>
         <p>
+          <strong>物理ICカードをお持ちの場合:</strong> Android 版 ZENO は NFC-F リーダーモードで
+          物理 Suica / PASMO を<strong>読取専用</strong>で読めます（残高 + 直近20件、system
+          <code>0x0003</code> / history service <code>0x090f</code>、FeliCa
+          READ_WO_ENCRYPTION）。書込はせず、IDm は短縮表示、データは端末外へ送りません。
+        </p>
+        <p>
           <strong>この端末で今すぐ使える支払い:</strong> 下の AEON Pay QR（<code>zeno://pay/…</code>）は
           どの Android でも動作します。IC カードが必要な場面では物理カードをご利用ください。
         </p>

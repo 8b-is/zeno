@@ -82,13 +82,33 @@ To go further (ZENO-branded transit card), the only legitimate route is a
 co-branded issuance agreement with the issuer + Samsung Wallet Partner SDK
 approval. That is a commercial agreement, not a code change.
 
-## 6. What the web surface says
+## 6. Physical IC cards: read-only bridge
+
+A physical Suica / PASMO *can* be read by any NFC-F reader — no issuer involved.
+`transit/PhysicalIcReader.kt` implements the wire protocol by hand (Android's
+public `NfcF` exposes only `transceive`, not `readWithoutEncryption`):
+
+| Step | Value |
+|------|-------|
+| Poll system code | `0x0003` (all Japan IC cards) |
+| Command | FeliCa `READ_WO_ENCRYPTION` `0x06`, response `0x07` |
+| History service | `0x090f`, 20 × 16 B blocks, block 0 newest |
+| Balance | bytes [10..11] **little-endian** of the newest block |
+| Date | bytes [4..5]: 7-bit year from 2000, 4-bit month, 5-bit day |
+| Fare | balance(i+1) − balance(i); charges appear negative |
+| Status flags | resp[10], resp[11] must be `0x00`; multi-block reads fall back to 1-block reads |
+
+Layout cross-checked against Metrodroid (GPL-3.0), `transit/suica` package.
+Strictly read-only: no write command exists in the reader, IDm is truncated in
+UI, nothing is persisted or transmitted.
+
+## 7. What the web surface says
 
 The wallet modal carries a matching disclosure (`#ic-wallet-note`) with the
 requirement table, the "no app can mint it" statement, and links to the issuer
 apps — so the product does not imply a capability it lacks.
 
-## 7. Non-goals
+## 8. Non-goals
 
 - No card emulation, no cloned/replayed FeliCa frames, no "demo" card presented
   as real value.
