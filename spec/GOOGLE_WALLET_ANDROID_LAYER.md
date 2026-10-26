@@ -105,3 +105,31 @@ adb shell pm get-app-links dev.vaked.zeno   # → zeno.vaked.dev: verified
   loyalty AID (`nfc/ZenoHostApduService.kt`); impersonating transit or payment
   credentials is non-functional and unlawful.
 - No pass *updates* via the REST API yet (balance is snapshotted per save).
+
+
+## Obtaining the credentials (ELI5)
+
+The Wallet pass stays `mode:"unconfigured"` until two secrets exist. They come
+from Google, never from GitHub — GitHub is only the place they must NEVER go.
+
+1. **Cloud project**: console.cloud.google.com → New Project (e.g.
+   `zeno-wallet`). Free.
+2. **Flip the breaker**: APIs & Services → Library → search *Google Wallet
+   API* → Enable.
+3. **Issuer ID** (who you are): pay.google.com/business-console → same Google
+   account → accept terms → the 19-20 digit number at the top =
+   `GOOGLE_WALLET_ISSUER_ID`.
+4. **Robot key** (prove it is you): Cloud Console → IAM & Admin → Service
+   Accounts → Create (`zeno-wallet-signer`, no role) → Keys → Add Key →
+   Create new key → **JSON** → downloaded file = `GOOGLE_WALLET_SA_JSON`.
+5. **Let the robot in**: business console → team/settings → add the service
+   account email (`…@…iam.gserviceaccount.com`) as admin, or Google ignores
+   its signatures.
+6. **Secrets to the worker, not the repo**:
+   `npx wrangler secret put GOOGLE_WALLET_ISSUER_ID` and
+   `npx wrangler secret put GOOGLE_WALLET_SA_JSON` (paste file content).
+   Local dev may use gitignored `.dev.vars`; never commit either.
+7. **Leak drill**: Cloud Console → Service Accounts → Keys → delete the key.
+   Dead instantly.
+8. **Test mode**: add your Google email under *Test accounts* in the business
+   console; passes install on your phones until production branding approval.
