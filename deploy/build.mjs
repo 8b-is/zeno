@@ -81,6 +81,7 @@ const pkpass8bBase64 = readFileSync(pkpass8bPath).toString("base64");
 const vakedProtocolHcl = readFileSync(join(root, "spec", "vaked-protocol.hcl"), "utf8");
 const stripeAcpMd = readFileSync(join(root, "spec", "STRIPE_COMPATIBILITY_MCP_ACP.md"), "utf8");
 const icmlWorkshopsMd = readFileSync(join(root, "spec", "research", "ICML_2026_WORKSHOPS_8B_IS.md"), "utf8");
+const issuerAngelMd = readFileSync(join(root, "spec", "GOOGLE_WALLET_ISSUER_ANGEL.md"), "utf8");
 const zenoEngineJs = readFileSync(join(root, "zeno-engine.js"), "utf8");
 
 const worker = `// zeno.vaked.dev — Japanese Proof-of-Contribution Sovereign Neo-Bank
@@ -111,6 +112,7 @@ const STRIPE_ACP_MD = ${JSON.stringify(stripeAcpMd)};
 const CONSTELLATION_MD = ${JSON.stringify(constellationMd)};
 const TRANSIT_MD = ${JSON.stringify(transitMd)};
 const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
+const ISSUER_ANGEL_MD = ${JSON.stringify(issuerAngelMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
   "version": "1.6.0",
@@ -493,6 +495,36 @@ export default {
           "access-control-allow-origin": "*",
           "cache-control": "public, max-age=3600",
         },
+      });
+    }
+
+    if (p === "/spec/GOOGLE_WALLET_ISSUER_ANGEL.md" || p === "/issuer-angel") {
+      return new Response(ISSUER_ANGEL_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
+    if (p === "/api/wallet/issuer-angel") {
+      return gwJson({
+        serviceAccountName: "zeno-wallet-issuer-angel",
+        description: "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.",
+        googleProjectNumber: "812856185326",
+        oauthClientId: "812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com",
+        rustKernel: {
+          crate: "apps/rust/zeno-issuer-angel",
+          noStd: true,
+          rationalMath: "p/q (i64/u64 checked with i128 GCD reduction, zero float drift)",
+          felicaGateWindowSec: "1/5",
+          transitTransferWindowSec: "1800/1",
+          traceChain: "FIPS 180-4 SHA-256 H(prev_trace || ':' || payload)",
+          wupzWitnessSealHex: "5755505a000002d73d3d4a5a5943095b31a7ef3716f7ab509986d6ec8dc8cd59",
+        },
+        specUrl: "https://zeno.vaked.dev/issuer-angel",
       });
     }
 

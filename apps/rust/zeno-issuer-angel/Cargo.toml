@@ -1,0 +1,10 @@
+[package]
+name = "zeno-issuer-angel"
+version = "0.1.0"
+edition = "2024"
+description = "no_std ZENO Kintsugi Ledger Bridge: p/q rational FeliCa transit time-windows, SHA-256 trace-chaining, and 32B wupz witness seals for zeno-wallet-issuer-angel (Client ID 812856185326)"
+license = "LicenseRef-Proprietary"
+
+[lib]
+name = "zeno_issuer_angel"
+path = "src/lib.rs"
