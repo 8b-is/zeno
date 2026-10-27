@@ -210,6 +210,38 @@ mod tests {
         assert_eq!(parsed.entries[2].station_hex, "12-34");
     }
 
+    /// Exact chain captured from the live Suica read on 2026-10-26
+    /// (SM-S928U1, NFC-F, read-only): issue 1,500 → gates/vending → 241.
+    #[test]
+    fn real_world_captured_chain_2026_10_26() {
+        const D24: u16 = (26 << 9) | (10 << 5) | 24;
+        const D25: u16 = (26 << 9) | (10 << 5) | 25;
+        let mut raw = Vec::new();
+        raw.extend_from_slice(&block(0x16, 0x01, D25, 241));
+        raw.extend_from_slice(&block(0x16, 0x01, D25, 461));
+        raw.extend_from_slice(&block(0x16, 0x01, D24, 681));
+        raw.extend_from_slice(&block(0xc8, 0x46, D24, 901));
+        raw.extend_from_slice(&block(0x16, 0x01, D24, 1081));
+        raw.extend_from_slice(&block(0x16, 0x01, D24, 1301));
+        raw.extend_from_slice(&block(0x00, 0x07, D24, 1500));
+
+        let parsed = parse_history(&raw);
+        assert_eq!(parsed.balance, Some(241));
+        assert_eq!(parsed.entries.len(), 7);
+        let kinds: Vec<&str> = parsed.entries.iter().map(|e| e.kind.as_str()).collect();
+        assert_eq!(
+            kinds,
+            vec!["改札", "改札", "改札", "物販", "改札", "改札", "新規発行"]
+        );
+        let deltas: Vec<Option<i64>> = parsed.entries.iter().map(|e| e.delta).collect();
+        assert_eq!(
+            deltas,
+            vec![Some(220), Some(220), Some(220), Some(180), Some(220), Some(199), None]
+        );
+        assert_eq!(parsed.entries[0].date, "2026-10-25");
+        assert_eq!(parsed.entries[6].date, "2026-10-24");
+    }
+
     #[test]
     fn charge_shows_as_positive_delta() {
         let mut raw = block(0x09, 0x02, DATE, 5000);
