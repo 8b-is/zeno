@@ -1,10 +1,11 @@
 # RFC-006B: `zeno-wallet-issuer-angel` — ELI5 & `#![no_std]` Kernel Specification
 
 **Project:** `Zeno-wallet` (Google Cloud Project Number `812856185326`)  
+**Google Pay Merchant ID:** `BCR2DN6DZKGJ5BI5`  
 **OAuth 2.0 Client ID:** `812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com`  
 **Service Account Name:** `zeno-wallet-issuer-angel`  
 **Service Account Description:**  
-> `ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.`
+> `ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326 (Merchant ID BCR2DN6DZKGJ5BI5). Integrity enforced via SHA-256 trace-chaining.`
 
 ---
 

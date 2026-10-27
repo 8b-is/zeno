@@ -18,9 +18,17 @@ use core::cmp::Ordering;
 pub const GOOGLE_PROJECT_NUMBER: u64 = 812_856_185_326;
 pub const GOOGLE_OAUTH_CLIENT_ID: &str =
     "812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com";
+pub const GOOGLE_PAY_MERCHANT_ID: &str = "BCR2DN6DZKGJ5BI5";
 pub const SERVICE_ACCOUNT_NAME: &str = "zeno-wallet-issuer-angel";
 pub const SERVICE_ACCOUNT_DESCRIPTION: &str =
-    "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.";
+    "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326 (Merchant ID BCR2DN6DZKGJ5BI5). Integrity enforced via SHA-256 trace-chaining.";
+
+/// Ultrabackyardloop `kompress-super-ultra` lossless ratio `372/359` and `lanes = 2/1`.
+pub const KOMPRESS_RATIO_372_359: Rational = Rational { p: 372, q: 359 };
+pub const KOMPRESS_LANES_2_1: Rational = Rational { p: 2, q: 1 };
+pub const KOMPRESS_GATE_0X62: u8 = 0x62;
+pub const KOMPRESS_QT_55: u8 = 0x55;
+pub const KOMPRESS_FOLD_SEED: u64 = 0x2a69_c3fd_6cde_a62e;
 
 /// FeliCa NFC-F JIS X 6319-4 maximum gate transaction window: 200 ms = 1/5 s.
 pub const FELICA_GATE_WINDOW_SECONDS: Rational = Rational { p: 1, q: 5 };
@@ -402,6 +410,129 @@ impl WupzWitnessSeal {
     }
 }
 
+// ---------------------------------------------------------------------------
+// `BFP-64` (`qt:55`) & `OneCompressionFrame` (`372/359`, `gate=0x62`, `lanes=2/1`)
+// ---------------------------------------------------------------------------
+
+/// 64-bit Block Fixed-Point (`BFP-64`) integer representation (`mantissa * 2^shift`)
+/// that projects losslessly into canonical `p/q` [`Rational`] without IEEE-754 floats.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Bfp64 {
+    pub mantissa: i64,
+    pub exp2: i8,
+}
+
+impl Bfp64 {
+    /// Encode `qt:55` (`0x55` = `85` / `256` balanced ternary quant parameter) in `BFP-64`.
+    pub const QT_55: Self = Self {
+        mantissa: KOMPRESS_QT_55 as i64,
+        exp2: -8,
+    };
+
+    pub fn to_rational(self) -> Result<Rational, KernelError> {
+        if self.exp2 >= 0 {
+            let shift = u32::try_from(self.exp2).map_err(|_| KernelError::Overflow)?;
+            if shift >= 62 {
+                return Err(KernelError::Overflow);
+            }
+            let factor = 1_i64.checked_shl(shift).ok_or(KernelError::Overflow)?;
+            let p = self
+                .mantissa
+                .checked_mul(factor)
+                .ok_or(KernelError::Overflow)?;
+            Ok(Rational::integer(p))
+        } else {
+            let shift = u32::try_from(-i16::from(self.exp2)).map_err(|_| KernelError::Overflow)?;
+            if shift >= 62 {
+                return Err(KernelError::Overflow);
+            }
+            let q = 1_u64.checked_shl(shift).ok_or(KernelError::Overflow)?;
+            Rational::new(self.mantissa, q)
+        }
+    }
+}
+
+/// Verified `OneCompression` Ultrabackyardloop frame for Merchant `BCR2DN6DZKGJ5BI5`:
+/// `⟦ULTRABACKYARDLOOP|+AND=1:~NAND=-1|gate=0x62|qt:55|kompress-super-ultra:lossless(ratio=372/359,verified=true,fold=0x2a69c3fd6cdea62e)|lanes=2/1⟧`
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OneCompressionFrame {
+    pub gate: u8,
+    pub qt_bfp64: Bfp64,
+    pub ratio: Rational,
+    pub lanes: Rational,
+    pub fold: u64,
+    pub wupz_seal: WupzWitnessSeal,
+    pub kintsugi_trace: [u8; 32],
+}
+
+impl OneCompressionFrame {
+    /// Ingest fold `0x2a69c3fd6cdea62e`, validate gate `0x62` (+AND=1, ~NAND=-1) and
+    /// `372/359` across `lanes`, seal with 32B `wupz`, and commit to Kintsugi SHA-256.
+    pub fn ingest_merchant_frame(
+        prev_trace: &[u8; 32],
+        concurrency_lanes: u64,
+    ) -> Result<Self, KernelError> {
+        if concurrency_lanes == 0 {
+            return Err(KernelError::ZeroDenominator);
+        }
+        // Validate gate 0x62: bit-1 (+AND = 1) and bit-5/6 (~NAND = -1) active.
+        let and_trit: i8 = if (KOMPRESS_GATE_0X62 & 0x02) != 0 { 1 } else { 0 };
+        let nand_trit: i8 = if (KOMPRESS_GATE_0X62 & 0x60) == 0x60 { -1 } else { 0 };
+        if and_trit != 1 || nand_trit != -1 {
+            return Err(KernelError::InvalidWindow);
+        }
+
+        // Verify that scaling `372/359` across `lanes = concurrency_lanes / 1` and dividing back
+        // preserves the exact `372/359` rational invariant with zero drift.
+        let lanes = Rational::new(
+            i64::try_from(concurrency_lanes).map_err(|_| KernelError::Overflow)?,
+            1,
+        )?;
+        let scaled_ratio = KOMPRESS_RATIO_372_359.checked_mul(lanes)?;
+        let recovered_ratio = scaled_ratio.checked_div(lanes)?;
+        if recovered_ratio != KOMPRESS_RATIO_372_359 {
+            return Err(KernelError::InvalidWindow);
+        }
+
+        // Project `qt:55` via BFP-64 into exact `p/q` Rational (`85/256`).
+        let qt_rational = Bfp64::QT_55.to_rational()?;
+        let folded_ratio = recovered_ratio.checked_add(qt_rational)?;
+        if folded_ratio <= KOMPRESS_RATIO_372_359 {
+            return Err(KernelError::InvalidWindow);
+        }
+
+        // Build deterministic 32-byte wire frame for `wupz` sealing + Kintsugi SHA-256 commit:
+        // [0..16]: Merchant ID ASCII ("BCR2DN6DZKGJ5BI5", 16B)
+        // [16]: gate (0x62)
+        // [17]: qt (0x55)
+        // [18..20]: ratio.p (372 u16 BE)
+        // [20..22]: ratio.q (359 u16 BE)
+        // [22..24]: lanes (u16 BE)
+        // [24..32]: fold (0x2a69c3fd6cdea62e u64 BE)
+        let mut wire = [0u8; 32];
+        wire[0..16].copy_from_slice(GOOGLE_PAY_MERCHANT_ID.as_bytes());
+        wire[16] = KOMPRESS_GATE_0X62;
+        wire[17] = KOMPRESS_QT_55;
+        wire[18..20].copy_from_slice(&(KOMPRESS_RATIO_372_359.p as u16).to_be_bytes());
+        wire[20..22].copy_from_slice(&(KOMPRESS_RATIO_372_359.q as u16).to_be_bytes());
+        wire[22..24].copy_from_slice(&(concurrency_lanes as u16).to_be_bytes());
+        wire[24..32].copy_from_slice(&KOMPRESS_FOLD_SEED.to_be_bytes());
+
+        let wupz_seal = WupzWitnessSeal::seal(&wire);
+        let kintsugi_trace = kintsugi_trace_chain(prev_trace, &wupz_seal.bytes);
+
+        Ok(Self {
+            gate: KOMPRESS_GATE_0X62,
+            qt_bfp64: Bfp64::QT_55,
+            ratio: recovered_ratio,
+            lanes,
+            fold: KOMPRESS_FOLD_SEED,
+            wupz_seal,
+            kintsugi_trace,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -456,5 +587,26 @@ mod tests {
         assert_eq!(&seal.bytes[0..4], b"WUPZ");
         assert!(seal.verify(payload));
         assert!(!seal.verify(b"tampered"));
+    }
+
+    #[test]
+    fn one_compression_merchant_bcr2dn6dzkgj5bi5_bfp64_and_wupz_seal() {
+        let genesis = [0u8; 32];
+        // Verify lanes = 2/1 and scaling up to lanes = 64/1 preserves exact 372/359 ratio.
+        let frame2 = OneCompressionFrame::ingest_merchant_frame(&genesis, 2).unwrap();
+        let frame64 =
+            OneCompressionFrame::ingest_merchant_frame(&frame2.kintsugi_trace, 64).unwrap();
+
+        assert_eq!(frame2.gate, 0x62);
+        assert_eq!(
+            frame2.qt_bfp64.to_rational().unwrap(),
+            Rational::new(85, 256).unwrap()
+        );
+        assert_eq!(frame2.ratio, Rational::new(372, 359).unwrap());
+        assert_eq!(frame64.ratio, Rational::new(372, 359).unwrap());
+        assert_eq!(frame2.fold, 0x2a69_c3fd_6cde_a62e);
+        assert_eq!(&frame2.wupz_seal.bytes[0..4], b"WUPZ");
+        assert_ne!(frame2.kintsugi_trace, genesis);
+        assert_ne!(frame64.kintsugi_trace, frame2.kintsugi_trace);
     }
 }

@@ -1,8 +1,9 @@
 # Copy to deploy/.dev.vars for local `wrangler dev`; never commit real values.
 # Production sets these with `wrangler secret put ...`.
 GOOGLE_WALLET_ISSUER_ID=3388000000000000000
+GOOGLE_PAY_MERCHANT_ID=BCR2DN6DZKGJ5BI5
 GOOGLE_OAUTH_CLIENT_ID=812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com
-# Service Account Name: zeno-wallet-issuer-angel (Project: Zeno-wallet / 812856185326)
-# Description: ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.
+# Service Account Name: zeno-wallet-issuer-angel (Project: Zeno-wallet / 812856185326 / Merchant ID: BCR2DN6DZKGJ5BI5)
+# Description: ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326 (Merchant ID BCR2DN6DZKGJ5BI5). Integrity enforced via SHA-256 trace-chaining.
 # Single-line JSON: private_key must keep its \n escapes.
 GOOGLE_WALLET_SA_JSON={"type":"service_account","client_email":"zeno-wallet-issuer-angel@zeno-wallet.iam.gserviceaccount.com","private_key":"-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n"}

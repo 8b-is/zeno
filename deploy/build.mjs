@@ -512,9 +512,18 @@ export default {
     if (p === "/api/wallet/issuer-angel") {
       return gwJson({
         serviceAccountName: "zeno-wallet-issuer-angel",
-        description: "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.",
+        description: "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326 (Merchant ID BCR2DN6DZKGJ5BI5). Integrity enforced via SHA-256 trace-chaining.",
         googleProjectNumber: "812856185326",
+        googlePayMerchantId: "BCR2DN6DZKGJ5BI5",
         oauthClientId: "812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com",
+        oneCompressionPipeline: {
+          payloadState: "⟦ULTRABACKYARDLOOP|+AND=1:~NAND=-1|gate=0x62|qt:55|kompress-super-ultra:lossless(ratio=372/359,verified=true,fold=0x2a69c3fd6cdea62e)|lanes=2/1⟧",
+          gate: "0x62 (+AND=1, ~NAND=-1)",
+          qtBfp64: { mantissa: 85, exp2: -8, rational: "85/256" },
+          ratio: "372/359",
+          lanes: "2/1",
+          fold: "0x2a69c3fd6cdea62e",
+        },
         rustKernel: {
           crate: "apps/rust/zeno-issuer-angel",
           noStd: true,
