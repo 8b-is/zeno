@@ -354,15 +354,29 @@ pub fn kintsugi_trace_chain(prev_trace: &[u8; 32], payload: &[u8]) -> [u8; 32] {
 // 32-Byte `wupz` Witness Seal (`WupzWitnessSeal`)
 // ---------------------------------------------------------------------------
 
-/// `wupz` C ABI v1 compatible 64-bit XOR-fold kernel (`wupz_xor_fold`).
+/// `wupz` C ABI v1 compatible 4-way unrolled 64-bit XOR-fold kernel (`wupz_xor_fold`).
 pub fn wupz_xor_fold(bytes: &[u8]) -> u64 {
-    let mut acc = 0u64;
-    let mut chunks = bytes.chunks_exact(8);
-    for c in &mut chunks {
-        let word = u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]);
-        acc ^= word;
+    let mut a0 = 0u64;
+    let mut a1 = 0u64;
+    let mut a2 = 0u64;
+    let mut a3 = 0u64;
+    let mut chunks64 = bytes.chunks_exact(64);
+    for c in &mut chunks64 {
+        a0 ^= u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]])
+            ^ u64::from_le_bytes([c[32], c[33], c[34], c[35], c[36], c[37], c[38], c[39]]);
+        a1 ^= u64::from_le_bytes([c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15]])
+            ^ u64::from_le_bytes([c[40], c[41], c[42], c[43], c[44], c[45], c[46], c[47]]);
+        a2 ^= u64::from_le_bytes([c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23]])
+            ^ u64::from_le_bytes([c[48], c[49], c[50], c[51], c[52], c[53], c[54], c[55]]);
+        a3 ^= u64::from_le_bytes([c[24], c[25], c[26], c[27], c[28], c[29], c[30], c[31]])
+            ^ u64::from_le_bytes([c[56], c[57], c[58], c[59], c[60], c[61], c[62], c[63]]);
     }
-    let rem = chunks.remainder();
+    let mut acc = (a0 ^ a1) ^ (a2 ^ a3);
+    let mut chunks8 = chunks64.remainder().chunks_exact(8);
+    for c in &mut chunks8 {
+        acc ^= u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]);
+    }
+    let rem = chunks8.remainder();
     if !rem.is_empty() {
         let mut tail = [0u8; 8];
         tail[..rem.len()].copy_from_slice(rem);
@@ -371,12 +385,59 @@ pub fn wupz_xor_fold(bytes: &[u8]) -> u64 {
     acc
 }
 
-/// `wupz` C ABI v1 compatible popcount kernel (`wupz_popcount`).
+/// `wupz` C ABI v1 compatible 4-way unrolled 64-bit popcount kernel (`wupz_popcount`).
 pub fn wupz_popcount(bytes: &[u8]) -> u32 {
-    let mut count = 0u32;
-    let mut i = 0;
-    while i < bytes.len() {
-        count = count.wrapping_add(bytes[i].count_ones());
+    let mut c0 = 0u32;
+    let mut c1 = 0u32;
+    let mut c2 = 0u32;
+    let mut c3 = 0u32;
+    let mut chunks32 = bytes.chunks_exact(32);
+    for c in &mut chunks32 {
+        c0 = c0.wrapping_add(
+            u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]).count_ones(),
+        );
+        c1 = c1.wrapping_add(
+            u64::from_le_bytes([c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15]]).count_ones(),
+        );
+        c2 = c2.wrapping_add(
+            u64::from_le_bytes([c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23]])
+                .count_ones(),
+        );
+        c3 = c3.wrapping_add(
+            u64::from_le_bytes([c[24], c[25], c[26], c[27], c[28], c[29], c[30], c[31]])
+                .count_ones(),
+        );
+    }
+    let mut count = (c0.wrapping_add(c1)).wrapping_add(c2.wrapping_add(c3));
+    for &b in chunks32.remainder() {
+        count = count.wrapping_add(b.count_ones());
+    }
+    count
+}
+
+/// `wupz` C ABI v1 compatible 64-bit SWAR byte-diff kernel (`wupz_byte_diff`).
+pub fn wupz_byte_diff(a: &[u8], b: &[u8]) -> u64 {
+    let n = a.len().min(b.len());
+    let mut count = 0u64;
+    let mut i = 0usize;
+    while i + 8 <= n {
+        let wa = u64::from_le_bytes([
+            a[i], a[i + 1], a[i + 2], a[i + 3], a[i + 4], a[i + 5], a[i + 6], a[i + 7],
+        ]);
+        let wb = u64::from_le_bytes([
+            b[i], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7],
+        ]);
+        let d = wa ^ wb;
+        if d != 0 {
+            let msb = ((d & 0x7f7f_7f7f_7f7f_7f7f) + 0x7f7f_7f7f_7f7f_7f7f) | d;
+            count += u64::from((msb & 0x8080_8080_8080_8080).count_ones());
+        }
+        i += 8;
+    }
+    while i < n {
+        if a[i] != b[i] {
+            count += 1;
+        }
         i += 1;
     }
     count
