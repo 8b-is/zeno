@@ -41,6 +41,7 @@ pub enum KernelError {
     Overflow,
     InvalidWindow,
     ExpiredTransitWindow,
+    ReplayDetected,
 }
 
 /// Canonical `#![no_std]` checked `p/q` rational number (zero-float).
@@ -533,6 +534,56 @@ impl OneCompressionFrame {
     }
 }
 
+/// Ephemeral Single-Use Handshake for the Secure Element bridge (`zeno-wallet-issuer-angel`):
+/// binds a strictly monotonic single-use counter (`nonce`), an exact `p/q` FeliCa transit
+/// window (`1/5 s`), a 32-byte `wupz` witness seal, and a Kintsugi SHA-256 chain digest.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EphemeralSingleUseHandshake {
+    pub last_consumed_nonce: u64,
+    pub chain_tip: [u8; 32],
+}
+
+impl EphemeralSingleUseHandshake {
+    pub const fn new(genesis_tip: [u8; 32]) -> Self {
+        Self {
+            last_consumed_nonce: 0,
+            chain_tip: genesis_tip,
+        }
+    }
+
+    /// Consume a single-use token handshake at `t_tap_sec` within `window`, advancing the
+    /// monotonic nonce and returning the 32-byte `WupzWitnessSeal` + remaining `p/q` window ratio.
+    pub fn consume_once(
+        &mut self,
+        nonce: u64,
+        window: FelicaTransitWindow,
+        t_tap_sec: Rational,
+        se_payload: &[u8],
+    ) -> Result<(WupzWitnessSeal, Rational), KernelError> {
+        if nonce <= self.last_consumed_nonce {
+            return Err(KernelError::ReplayDetected);
+        }
+        let remaining_ratio = window.verify_tap(t_tap_sec)?;
+        let next_tip = kintsugi_trace_chain(&self.chain_tip, se_payload);
+
+        // Pack 32-byte Secure Element transit frame for WUPZ sealing:
+        // [0..8]: nonce (u64 BE)
+        // [8..16]: remaining_ratio.p (i64 BE)
+        // [16..24]: remaining_ratio.q (u64 BE)
+        // [24..32]: upper 8B of next_tip
+        let mut frame32 = [0u8; 32];
+        frame32[0..8].copy_from_slice(&nonce.to_be_bytes());
+        frame32[8..16].copy_from_slice(&remaining_ratio.numerator().to_be_bytes());
+        frame32[16..24].copy_from_slice(&remaining_ratio.denominator().to_be_bytes());
+        frame32[24..32].copy_from_slice(&next_tip[0..8]);
+
+        let seal = WupzWitnessSeal::seal(&frame32);
+        self.last_consumed_nonce = nonce;
+        self.chain_tip = kintsugi_trace_chain(&next_tip, &seal.bytes);
+        Ok((seal, remaining_ratio))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -608,5 +659,37 @@ mod tests {
         assert_eq!(&frame2.wupz_seal.bytes[0..4], b"WUPZ");
         assert_ne!(frame2.kintsugi_trace, genesis);
         assert_ne!(frame64.kintsugi_trace, frame2.kintsugi_trace);
+    }
+
+    #[test]
+    fn ephemeral_single_use_handshake_rejects_replay_and_packs_wupz_32b() {
+        let mut bridge = EphemeralSingleUseHandshake::new([0x42u8; 32]);
+        let t_open = Rational::integer(1_730_000_500);
+        let window = FelicaTransitWindow::new(t_open, FELICA_GATE_WINDOW_SECONDS).unwrap();
+        let t_tap = t_open.checked_add(Rational::new(1, 10).unwrap()).unwrap();
+
+        let (seal, rem) = bridge
+            .consume_once(1, window, t_tap, b"se:BCR2DN6DZKGJ5BI5:0x661bf095f5d21682")
+            .unwrap();
+        assert_eq!(&seal.bytes[0..4], b"WUPZ");
+        assert_eq!(rem, Rational::new(1, 2).unwrap());
+
+        // Replaying nonce 1 must fail with ReplayDetected.
+        assert_eq!(
+            bridge.consume_once(1, window, t_tap, b"se:BCR2DN6DZKGJ5BI5:0x661bf095f5d21682"),
+            Err(KernelError::ReplayDetected)
+        );
+
+        // Verify 1840/1373 ratio at qt:5a (0x5a = 90/256 = 45/128).
+        let r_1840_1373 = Rational::new(1840, 1373).unwrap();
+        let qt_5a = (Bfp64 {
+            mantissa: 0x5a,
+            exp2: -8,
+        })
+        .to_rational()
+        .unwrap();
+        assert_eq!(r_1840_1373.numerator(), 1840);
+        assert_eq!(r_1840_1373.denominator(), 1373);
+        assert_eq!(qt_5a, Rational::new(45, 128).unwrap());
     }
 }

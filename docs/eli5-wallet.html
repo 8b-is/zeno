@@ -43,9 +43,15 @@
   <p class="sub">For Alexandra · about 20 minutes · two things come out of it: a <b>number</b> and a <b>file</b>.</p>
 
   <div class="box ok">
-    <h2>The goal in one sentence</h2>
-    <p>Google has to be told <b>who we are</b> (the long Issuer ID number) and be given a <b>robot key</b>
-    (a small JSON file) so our server can sign ZENO passes. Nothing else is needed. No card numbers, no bank login.</p>
+    <h2>The goal in one sentence (+ what is already live!)</h2>
+    <p>Google has to be told <b>who we are</b> (the 19-digit <b>Google Wallet Issuer ID</b>) and be given a <b>robot key</b>
+    (a small JSON file for <code>zeno-wallet-issuer-angel</code>) so our server can sign ZENO passes. Nothing else is needed. No card numbers, no bank login.</p>
+    <ul>
+      <li><b>Already registered ✅</b> — Google Cloud Project: <code>Zeno-wallet</code> (Project # <code>812856185326</code>)</li>
+      <li><b>Already registered ✅</b> — Google Pay Merchant ID: <code>BCR2DN6DZKGJ5BI5</code></li>
+      <li><b>Already registered ✅</b> — OAuth 2.0 Client ID: <code>812856185326-b6jhlilv11d8ufcjpbjjrg486uiffno9.apps.googleusercontent.com</code></li>
+      <li><b>Kernel spec &amp; 32B wupz seal ✅</b> — <a href="https://zeno.vaked.dev/issuer-angel">/issuer-angel</a> · <a href="https://zeno.vaked.dev/api/wallet/issuer-angel">/api/wallet/issuer-angel</a></li>
+    </ul>
   </div>
 
   <div class="box warn">
@@ -60,17 +66,17 @@
     <h3><span class="n">0</span>Before you start</h3>
     <ul>
       <li>Chrome on a laptop (phone works but the console is cramped).</li>
-      <li>Signed in as the Google account that owns the Cloud project <code>zeno-wallet-512901</code>.</li>
-      <li>A notes app open for one number.</li>
+      <li>Signed in as the Google account that owns the Cloud project <code>Zeno-wallet</code> (<code>812856185326</code>) and Merchant ID <code>BCR2DN6DZKGJ5BI5</code>.</li>
+      <li>A notes app open for one number (the 19-digit <b>Wallet Issuer ID</b>).</li>
     </ul>
   </div>
 
   <div class="step">
     <h3><span class="n">1</span>Open the Wallet console and accept the terms</h3>
-    <a class="btn" href="https://pay.google.com/business-console" target="_blank" rel="noopener">Open Pay &amp; Wallet Console ↗</a>
+    <a class="btn" href="https://pay.google.com/business/console" target="_blank" rel="noopener">Open Pay &amp; Wallet Console ↗</a>
     <ol>
-      <li>Sign in with that same Google account.</li>
-      <li>First time only: read the terms → click <b>Accept</b> / <b>Get started</b>.</li>
+      <li>Sign in with that same Google account (Merchant ID <code>BCR2DN6DZKGJ5BI5</code> is already active on Google Pay!).</li>
+      <li>Click <b>Google Wallet API</b> in the left sidebar. First time only: read the terms → click <b>Accept</b> / <b>Get started</b>.</li>
       <li>If it asks for a business profile: name <code>ZENO</code>, country <b>Japan</b>, website
           <code>https://zeno.vaked.dev</code>.</li>
     </ol>
@@ -78,18 +84,18 @@
 
   <div class="step">
     <h3><span class="n">2</span>Copy the Issuer ID — this is the number</h3>
-    <p>On the console home (or under <b>Account settings</b>) there is a card labelled <b>Issuer ID</b>.
-    It is 19–20 digits, starts with <code>3388…</code>.</p>
+    <p>Inside <b>Google Wallet API</b> (in the Pay &amp; Wallet Console) there is a card labelled <b>Issuer ID</b>.
+    It is 19–20 digits, starts with <code>3388…</code> (distinct from Merchant ID <code>BCR2DN6DZKGJ5BI5</code>).</p>
     <ol>
       <li>Click the copy icon next to it.</li>
       <li>Paste it into your notes as <b>ZENO issuer id</b>.</li>
     </ol>
-    <p class="tip">If you see no Issuer ID, the terms in step 1 were not accepted yet. Go back, accept, refresh.</p>
+    <p class="tip">If you see no Issuer ID, the Google Wallet API terms in step 1 were not accepted yet. Go back, accept, refresh.</p>
   </div>
 
   <div class="step">
     <h3><span class="n">3</span>Flip the API breaker</h3>
-    <a class="btn alt" href="https://console.cloud.google.com/apis/library/walletobjects.googleapis.com?project=zeno-wallet-512901" target="_blank" rel="noopener">Open Google Wallet API ↗</a>
+    <a class="btn alt" href="https://console.cloud.google.com/apis/library/walletobjects.googleapis.com?project=812856185326" target="_blank" rel="noopener">Open Google Wallet API ↗</a>
     <ol>
       <li>If the button says <b>Enable</b>, click it. Wait ~15 seconds.</li>
       <li>It should now say <b>API enabled</b> / <b>Manage</b>. That is all — nothing to configure.</li>
@@ -97,14 +103,15 @@
   </div>
 
   <div class="step">
-    <h3><span class="n">4</span>Create the robot key — this is the file</h3>
-    <a class="btn" href="https://console.cloud.google.com/iam-admin/serviceaccounts/create?project=zeno-wallet-512901" target="_blank" rel="noopener">Create service account ↗</a>
+    <h3><span class="n">4</span>Create the robot key (<code>zeno-wallet-issuer-angel</code>) — this is the file</h3>
+    <a class="btn" href="https://console.cloud.google.com/iam-admin/serviceaccounts/create?project=812856185326" target="_blank" rel="noopener">Create service account ↗</a>
     <ol>
-      <li><b>Service account name</b>: <code>zeno-wallet-signer</code> → <b>Create and continue</b>.</li>
-      <li>“Grant this service account access” → just <b>Continue</b> (no role needed).</li>
+      <li><b>Service account name</b>: <code>zeno-wallet-issuer-angel</code></li>
+      <li><b>Service account ID</b>: <code>zeno-wallet-issuer-angel</code></li>
+      <li><b>Service account description</b>: <code>ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326. Integrity enforced via SHA-256 trace-chaining.</code> → click <b>Create and continue</b>.</li>
+      <li>“Grant this service account access” → just <b>Continue</b> (no IAM role needed).</li>
       <li>“Grant users access” → <b>Done</b>.</li>
-      <li>In the list, click the new row ending in
-          <code>@zeno-wallet-512901.iam.gserviceaccount.com</code>.</li>
+      <li>In the list, click the new row for <code>zeno-wallet-issuer-angel@…iam.gserviceaccount.com</code>.</li>
       <li>Tab <b>Keys</b> → <b>Add key</b> → <b>Create new key</b> → choose <b>JSON</b> → <b>Create</b>.</li>
       <li>A file downloads. Rename it to <code>google-wallet-sa.json</code>. <b>This file is the key to the vault.</b></li>
     </ol>
@@ -114,11 +121,11 @@
   <div class="step">
     <h3><span class="n">5</span>Introduce the robot to the Wallet console</h3>
     <ol>
-      <li>Back on <a href="https://pay.google.com/business-console" target="_blank" rel="noopener">the console</a> → left menu → <b>Users</b> → <b>Add user</b>.</li>
-      <li>Paste the robot email <code>zeno-wallet-signer@zeno-wallet-512901.iam.gserviceaccount.com</code>,
-          role <b>Admin</b> (or <b>Developer</b>) → <b>Invite</b> / <b>Save</b>.</li>
-      <li>On the same page, add <b>your own Google email</b> under <b>Test accounts</b>.
-          Without this, passes will not install on your phone while testing.</li>
+      <li>Back on <a href="https://pay.google.com/business/console" target="_blank" rel="noopener">the console</a> → left menu → <b>Users</b> → <b>Invite a user</b> / <b>Add user</b>.</li>
+      <li>Paste the robot email <code>zeno-wallet-issuer-angel@&lt;project-id&gt;.iam.gserviceaccount.com</code> (copied from Step 4),
+          role <b>Developer</b> (or <b>Admin</b>) → <b>Invite</b> / <b>Save</b>.</li>
+      <li>Under <b>Google Wallet API</b>, add <b>your own Google email</b> under <b>Test accounts</b>.
+          Without this, passes will not install on your phone while in Demo mode.</li>
     </ol>
     <p class="tip">Skip the robot step and everything looks fine until Google silently rejects our signature.</p>
   </div>
