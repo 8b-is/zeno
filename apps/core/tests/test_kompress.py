@@ -2,13 +2,17 @@ import unittest
 
 from zeno_core.kompress import (
     DEFAULT_WINDOW,
+    GATE_0X62,
     GENESIS_HASH,
     HistoryRewriteError,
     KintsugiPack,
     PackError,
     PackIntegrityError,
+    kompress_super_ultra,
     pack,
+    seal_frame_32b,
     unpack,
+    verify_frame_32b,
 )
 from zeno_core.ledger import AccountType, Posting, ZenoLedger
 
@@ -117,6 +121,51 @@ class TestKintsugiPack(unittest.TestCase):
         first, _ = pack(_ledger_with(3), window_size=4)
         with self.assertRaises(PackError):
             pack(_ledger_with(3), previous=first, window_size=8)
+
+    def test_wupz_32b_frame_sealing_at_0x62_gate(self):
+        raw = bytes((i * 73 + 19) & 0xFF for i in range(3761))
+        packed = bytes((i * 41 + 7) & 0xFF for i in range(3314))
+        frame = seal_frame_32b(raw, packed, gate=GATE_0X62)
+        self.assertEqual(len(frame), 32)
+        self.assertEqual(frame[24], 0x62)
+        self.assertEqual(frame[25], 0x01)
+        self.assertTrue(verify_frame_32b(frame, raw, packed, gate=GATE_0X62))
+
+        # Amplitude spike / lane-trip bit flip is caught immediately
+        spiked = bytearray(frame)
+        spiked[31] ^= 0x01
+        self.assertFalse(verify_frame_32b(bytes(spiked), raw, packed, gate=GATE_0X62))
+
+        # kompress_super_ultra end-to-end envelope
+        env = kompress_super_ultra(raw, gate=GATE_0X62)
+        self.assertEqual(env["gate"], "0x62")
+        self.assertTrue(env["verified"])
+        self.assertEqual(env["signalState"], 1)
+        self.assertEqual(len(env["frameSeal32b"]), 64)
+
+        # Tampered window frameSeal32b in KintsugiPack triggers 0x62 gate trip
+        p, _ = pack(_ledger_with(6), window_size=4)
+        self.assertEqual(len(p.windows[0].frame_seal_32b), 64)
+        bad_seal = p.windows[0].frame_seal_32b[:-2] + (
+            "00" if p.windows[0].frame_seal_32b[-2:] != "00" else "ff"
+        )
+        tampered_win = type(p.windows[0])(
+            index=p.windows[0].index,
+            first_block=p.windows[0].first_block,
+            count=p.windows[0].count,
+            raw_sha256=p.windows[0].raw_sha256,
+            raw_len=p.windows[0].raw_len,
+            data=p.windows[0].data,
+            frame_seal_32b=bad_seal,
+        )
+        tampered_pack = KintsugiPack(
+            window_size=p.window_size,
+            block_count=p.block_count,
+            head_seal=p.head_seal,
+            windows=(tampered_win,) + p.windows[1:],
+        )
+        with self.assertRaises(PackIntegrityError):
+            unpack(tampered_pack)
 
 
 if __name__ == "__main__":

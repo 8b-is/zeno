@@ -30,6 +30,72 @@ FORMAT = "zeno-kintsugi-pack/1"
 MAGIC = b"ZKP1"
 DEFAULT_WINDOW = 16
 GENESIS_HASH = ZenoLedger.GENESIS_HASH
+GATE_0X62 = 0x62
+WUPZ_FRAME_ABI_V1 = 0x01
+
+
+def xor_fold(data: bytes) -> int:
+    """wupz-compatible 64-bit little-endian XOR fold (8-byte LE words + trailing bytes)."""
+    acc = 0
+    full_len = len(data) & ~7
+    for i in range(0, full_len, 8):
+        acc ^= int.from_bytes(data[i : i + 8], "little")
+    for b in data[full_len:]:
+        acc ^= b
+    return acc & 0xFFFFFFFFFFFFFFFF
+
+
+def seal_frame_32b(raw: bytes, packed: bytes, gate: int = GATE_0X62) -> bytes:
+    """Build a 32-byte wupz frame seal hardened at the 0x62 gate against amplitude spikes.
+
+    Wire layout (32 bytes, little-endian):
+      [0..8]   u64 LE  xor_fold(raw)
+      [8..16]  u64 LE  xor_fold(packed)
+      [16..20] u32 LE  raw_len & 0xFFFFFFFF
+      [20..24] u32 LE  packed_len & 0xFFFFFFFF
+      [24]     u8      gate byte (default 0x62)
+      [25]     u8      ABI v1 + ternary verified signal clamp (0x01)
+      [26..32] 6B LE   48-bit prefix seal = xor_fold(frame[0..26]).to_le_bytes()[0..6]
+    """
+    frame = bytearray(32)
+    frame[0:8] = xor_fold(raw).to_bytes(8, "little")
+    frame[8:16] = xor_fold(packed).to_bytes(8, "little")
+    frame[16:20] = (len(raw) & 0xFFFFFFFF).to_bytes(4, "little")
+    frame[20:24] = (len(packed) & 0xFFFFFFFF).to_bytes(4, "little")
+    frame[24] = gate & 0xFF
+    frame[25] = WUPZ_FRAME_ABI_V1
+    prefix_fold = xor_fold(bytes(frame[0:26])).to_bytes(8, "little")
+    frame[26:32] = prefix_fold[0:6]
+    return bytes(frame)
+
+
+def verify_frame_32b(frame: bytes, raw: bytes, packed: bytes, gate: int = GATE_0X62) -> bool:
+    """Constant-shape verification of a 32-byte 0x62-gated wupz frame seal."""
+    if len(frame) != 32 or frame[24] != (gate & 0xFF) or frame[25] != WUPZ_FRAME_ABI_V1:
+        return False
+    expected = seal_frame_32b(raw, packed, gate=gate)
+    diff = 0
+    for a, b in zip(frame, expected):
+        diff |= a ^ b
+    return diff == 0
+
+
+def kompress_super_ultra(raw: bytes, gate: int = GATE_0X62) -> Dict[str, Any]:
+    """Compress and seal a high-density payload through the 0x62-gated 32B wupz pipeline."""
+    packed = zlib.compress(raw, 9)
+    frame = seal_frame_32b(raw, packed, gate=gate)
+    verified = verify_frame_32b(frame, raw, packed, gate=gate)
+    return {
+        "gate": f"0x{gate & 0xFF:02x}",
+        "rawLen": len(raw),
+        "packedLen": len(packed),
+        "ratio": f"{len(raw)}/{len(packed)}",
+        "rawFold": f"0x{xor_fold(raw):016x}",
+        "packedFold": f"0x{xor_fold(packed):016x}",
+        "frameSeal32b": frame.hex(),
+        "verified": verified,
+        "signalState": 1 if verified else -1,
+    }
 
 
 class PackError(ValueError):
@@ -93,9 +159,10 @@ class PackedWindow:
     raw_sha256: str  # content address of the canonical, uncompressed bytes
     raw_len: int
     data: bytes  # zlib-compressed canonical JSON array of the window's blocks
+    frame_seal_32b: str = ""  # 32B 0x62-gated wupz frame seal (hex)
 
     def manifest(self) -> Dict[str, Any]:
-        return {
+        m: Dict[str, Any] = {
             "index": self.index,
             "firstBlock": self.first_block,
             "count": self.count,
@@ -103,6 +170,9 @@ class PackedWindow:
             "rawLen": self.raw_len,
             "packedLen": len(self.data),
         }
+        if self.frame_seal_32b:
+            m["frameSeal32b"] = self.frame_seal_32b
+        return m
 
 
 @dataclass(frozen=True)
@@ -173,6 +243,7 @@ class KintsugiPack:
                         raw_sha256=w["rawSha256"],
                         raw_len=w["rawLen"],
                         data=blob[pos:end],
+                        frame_seal_32b=w.get("frameSeal32b", ""),
                     )
                 )
                 pos = end
@@ -210,6 +281,7 @@ def _pack_window(index: int, blocks: Sequence[Dict[str, Any]]) -> PackedWindow:
         raw_sha256 = hashlib.sha256(raw).hexdigest()
         raw_len = len(raw)
         compressed = zlib.compress(raw, 9)
+        seal_32b = seal_frame_32b(raw, compressed, gate=GATE_0X62).hex()
         return PackedWindow(
             index=index,
             first_block=blocks[0]["blockIndex"],
@@ -217,6 +289,7 @@ def _pack_window(index: int, blocks: Sequence[Dict[str, Any]]) -> PackedWindow:
             raw_sha256=raw_sha256,
             raw_len=raw_len,
             data=compressed,
+            frame_seal_32b=seal_32b,
         )
     finally:
         _zeroize_bytes_buffer(raw)
@@ -291,6 +364,17 @@ def unpack(p: KintsugiPack) -> List[Dict[str, Any]]:
                 _zeroize_bytes_buffer(raw)
                 raw = b""
                 raise PackIntegrityError(f"window {i}: content address mismatch")
+            if w.frame_seal_32b:
+                try:
+                    seal_bytes = bytes.fromhex(w.frame_seal_32b)
+                except ValueError:
+                    _zeroize_bytes_buffer(raw)
+                    raw = b""
+                    raise PackIntegrityError(f"window {i}: malformed 0x62 32B frame seal") from None
+                if not verify_frame_32b(seal_bytes, raw, w.data, gate=GATE_0X62):
+                    _zeroize_bytes_buffer(raw)
+                    raw = b""
+                    raise PackIntegrityError(f"window {i}: 0x62 gate 32B frame seal trip")
             chunk = json.loads(raw.decode("utf-8"))
             _zeroize_bytes_buffer(raw)
             raw = b""
