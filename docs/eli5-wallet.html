@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZENO · Google Wallet setup — click-through (Alexandra)</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  :root{--sumi:#07080b;--card:#0d0f17;--elev:#131724;--gold:#e8b05c;--teal:#62e6c9;--violet:#b48bff;--ink:#edebf2;--dim:#9aa0b4}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sumi);color:var(--ink);font:16px/1.65 ui-sans-serif,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:760px;margin:0 auto;padding:40px 20px 96px}
+  h1{font-size:28px;line-height:1.25;margin:0 0 6px}
+  h1 span{color:var(--gold)}
+  .sub{color:var(--dim);margin:0 0 28px}
+  .box{background:var(--card);border:1px solid #1d2233;border-radius:14px;padding:18px 20px;margin:0 0 16px}
+  .box.warn{border-color:#5a3b2a;background:#170f0c}
+  .box.ok{border-color:#1f4a44}
+  .box h2{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 10px}
+  .step{background:var(--elev);border:1px solid #202740;border-radius:14px;padding:18px 20px;margin:0 0 14px}
+  .step h3{margin:0 0 8px;font-size:18px}
+  .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+     background:var(--gold);color:#1a1206;font-weight:700;font-size:14px;margin-right:8px;vertical-align:2px}
+  p,li{margin:8px 0}
+  ul,ol{padding-left:22px}
+  code{background:#0a0c14;border:1px solid #1d2233;border-radius:6px;padding:1px 6px;font-size:14px;color:var(--teal);word-break:break-all}
+  a.btn{display:inline-block;margin:10px 0 4px;padding:10px 16px;border-radius:10px;background:var(--gold);color:#1a1206;
+        font-weight:700;text-decoration:none}
+  a.btn.alt{background:var(--teal)}
+  a{color:var(--teal)}
+  .tip{border-left:3px solid var(--violet);padding:6px 0 6px 12px;color:var(--dim);margin:12px 0 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #1d2233;vertical-align:top}
+  th{color:var(--gold);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .chk{list-style:none;padding:0}
+  .chk li:before{content:"□ ";color:var(--gold)}
+  footer{color:#6b7185;font-size:13px;margin-top:36px;border-top:1px solid #1d2233;padding-top:16px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Google Wallet setup <span>· click-through</span></h1>
+  <p class="sub">For Alexandra · about 20 minutes · two things come out of it: a <b>number</b> and a <b>file</b>.</p>
+
+  <div class="box ok">
+    <h2>The goal in one sentence</h2>
+    <p>Google has to be told <b>who we are</b> (the long Issuer ID number) and be given a <b>robot key</b>
+    (a small JSON file) so our server can sign ZENO passes. Nothing else is needed. No card numbers, no bank login.</p>
+  </div>
+
+  <div class="box warn">
+    <h2>Two rules, no exceptions</h2>
+    <ul>
+      <li>Never paste the JSON file (or any <code>client_secret</code>) into email, GitHub, this chat, or a doc.</li>
+      <li>If a secret ever lands somewhere public: Console → <b>Service Accounts → Keys → delete</b>, and tell Péter. Thirty seconds, no damage.</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">0</span>Before you start</h3>
+    <ul>
+      <li>Chrome on a laptop (phone works but the console is cramped).</li>
+      <li>Signed in as the Google account that owns the Cloud project <code>zeno-wallet-512901</code>.</li>
+      <li>A notes app open for one number.</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">1</span>Open the Wallet console and accept the terms</h3>
+    <a class="btn" href="https://pay.google.com/business-console" target="_blank" rel="noopener">Open Pay &amp; Wallet Console ↗</a>
+    <ol>
+      <li>Sign in with that same Google account.</li>
+      <li>First time only: read the terms → click <b>Accept</b> / <b>Get started</b>.</li>
+      <li>If it asks for a business profile: name <code>ZENO</code>, country <b>Japan</b>, website
+          <code>https://zeno.vaked.dev</code>.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">2</span>Copy the Issuer ID — this is the number</h3>
+    <p>On the console home (or under <b>Account settings</b>) there is a card labelled <b>Issuer ID</b>.
+    It is 19–20 digits, starts with <code>3388…</code>.</p>
+    <ol>
+      <li>Click the copy icon next to it.</li>
+      <li>Paste it into your notes as <b>ZENO issuer id</b>.</li>
+    </ol>
+    <p class="tip">If you see no Issuer ID, the terms in step 1 were not accepted yet. Go back, accept, refresh.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">3</span>Flip the API breaker</h3>
+    <a class="btn alt" href="https://console.cloud.google.com/apis/library/walletobjects.googleapis.com?project=zeno-wallet-512901" target="_blank" rel="noopener">Open Google Wallet API ↗</a>
+    <ol>
+      <li>If the button says <b>Enable</b>, click it. Wait ~15 seconds.</li>
+      <li>It should now say <b>API enabled</b> / <b>Manage</b>. That is all — nothing to configure.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">4</span>Create the robot key — this is the file</h3>
+    <a class="btn" href="https://console.cloud.google.com/iam-admin/serviceaccounts/create?project=zeno-wallet-512901" target="_blank" rel="noopener">Create service account ↗</a>
+    <ol>
+      <li><b>Service account name</b>: <code>zeno-wallet-signer</code> → <b>Create and continue</b>.</li>
+      <li>“Grant this service account access” → just <b>Continue</b> (no role needed).</li>
+      <li>“Grant users access” → <b>Done</b>.</li>
+      <li>In the list, click the new row ending in
+          <code>@zeno-wallet-512901.iam.gserviceaccount.com</code>.</li>
+      <li>Tab <b>Keys</b> → <b>Add key</b> → <b>Create new key</b> → choose <b>JSON</b> → <b>Create</b>.</li>
+      <li>A file downloads. Rename it to <code>google-wallet-sa.json</code>. <b>This file is the key to the vault.</b></li>
+    </ol>
+    <p class="tip">If the browser blocks the download, allow it once and repeat “Add key”.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">5</span>Introduce the robot to the Wallet console</h3>
+    <ol>
+      <li>Back on <a href="https://pay.google.com/business-console" target="_blank" rel="noopener">the console</a> → left menu → <b>Users</b> → <b>Add user</b>.</li>
+      <li>Paste the robot email <code>zeno-wallet-signer@zeno-wallet-512901.iam.gserviceaccount.com</code>,
+          role <b>Admin</b> (or <b>Developer</b>) → <b>Invite</b> / <b>Save</b>.</li>
+      <li>On the same page, add <b>your own Google email</b> under <b>Test accounts</b>.
+          Without this, passes will not install on your phone while testing.</li>
+    </ol>
+    <p class="tip">Skip the robot step and everything looks fine until Google silently rejects our signature.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">6</span>Hand the two things over — safely</h3>
+    <p>Pick one channel, in this order of preference:</p>
+    <ol>
+      <li><b>1Password</b>: vault <i>VAKED Ops</i> → new item <i>Google Wallet SA</i> → attach the JSON,
+          paste the issuer ID in the notes → share with Péter.</li>
+      <li><b>AirDrop</b> the file to Péter's Mac, then send the number in Signal.</li>
+      <li><b>Signal / in person</b> — file and number, never in the same public place.</li>
+    </ol>
+    <p class="tip">Do not email it. Do not put it in a shared doc. Do not paste it in any chat, including this one.</p>
+  </div>
+
+  <div class="step">
+    <h3><span class="n">7</span>How you know it worked</h3>
+    <p>Péter runs two commands and redeploys. Then this URL stops saying <code>unconfigured</code>
+    and starts returning a pass link:</p>
+    <p><a href="https://zeno.vaked.dev/api/wallet/google-pass" target="_blank" rel="noopener">https://zeno.vaked.dev/api/wallet/google-pass</a></p>
+    <p>Open the returned link on the phone → <b>Add to Google Wallet</b>. That is the finish line.</p>
+  </div>
+
+  <div class="box">
+    <h2>Troubleshooting, exact words → exact fix</h2>
+    <table>
+      <tr><th>What you see</th><th>What it means</th></tr>
+      <tr><td><code>unconfigured</code> still</td><td>One of the two things did not reach the server. Re-check step 6.</td></tr>
+      <tr><td>“Caller is not authorized” on save</td><td>Robot email not added in step 5.</td></tr>
+      <tr><td>Pass saves but will not install</td><td>Your email missing from <b>Test accounts</b> (step 5.3).</td></tr>
+      <tr><td>No <b>Issuer ID</b> anywhere</td><td>Terms not accepted (step 1.2).</td></tr>
+      <tr><td><b>Add key</b> greyed out</td><td>You are not Owner/Editor on the Cloud project. Ask Péter to grant it.</td></tr>
+    </table>
+  </div>
+
+  <div class="box ok">
+    <h2>Done checklist</h2>
+    <ul class="chk">
+      <li>Issuer ID copied (19–20 digits)</li>
+      <li><code>google-wallet-sa.json</code> downloaded and renamed</li>
+      <li>Robot email added as Admin in the Wallet console</li>
+      <li>My email added under Test accounts</li>
+      <li>Both handed to Péter through 1Password / AirDrop / Signal</li>
+    </ul>
+  </div>
+
+  <footer>
+    ZENO 銭 · 禅 · 善 — sovereign neo-bank · <a href="https://zeno.vaked.dev/">zeno.vaked.dev</a><br>
+    No card data, no bank credentials, no payments are involved in this setup.
+  </footer>
+</main>
+</body>
+</html>
