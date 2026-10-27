@@ -116,6 +116,14 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_lastError(
     }
 }
 
+fn hex_encode(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{:02x}", b));
+    }
+    out
+}
+
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_parseHistoryJson(
     mut env: JNIEnv,
@@ -130,12 +138,27 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_parseHistoryJson(
         }
     };
     let parsed = felica::parse_history(&raw);
+    let seal = zeno_issuer_angel::WupzWitnessSeal::seal(&raw);
+    let genesis = [0u8; 32];
+    let merchant_frame = zeno_issuer_angel::OneCompressionFrame::ingest_merchant_frame(&genesis, 2)
+        .ok();
+    let base_trace = merchant_frame
+        .map(|f| f.kintsugi_trace)
+        .unwrap_or(genesis);
+    let card_trace = zeno_issuer_angel::kintsugi_trace_chain(&base_trace, &seal.bytes);
+
     let mut json = String::from("{\"balance\":");
     match parsed.balance {
         Some(balance) => json.push_str(&balance.to_string()),
         None => json.push_str("null"),
     }
-    json.push_str(",\"entries\":[");
+    json.push_str(",\"merchantId\":\"");
+    json.push_str(zeno_issuer_angel::GOOGLE_PAY_MERCHANT_ID);
+    json.push_str("\",\"ratio\":\"372/359\",\"qtBfp64\":\"85/256\",\"wupzSealHex\":\"");
+    json.push_str(&hex_encode(&seal.bytes));
+    json.push_str("\",\"kintsugiTraceHex\":\"");
+    json.push_str(&hex_encode(&card_trace));
+    json.push_str("\",\"entries\":[");
     for (index, entry) in parsed.entries.iter().enumerate() {
         if index > 0 {
             json.push(',');

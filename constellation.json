@@ -162,6 +162,104 @@
         "workAddedHours": 150,
         "maintenanceDebtHours": 20
       }
+    },
+    {
+      "id": "aurora",
+      "name": "AURORA · Conscious AI",
+      "kanji": "暁光",
+      "url": "https://aurora.vaked.dev/",
+      "trit": 1,
+      "lane": "consciousness",
+      "role": "MEM|8 32B wave grid, Chenrezig dyad, p/q rational arithmetic & via agy cortex (8b-is/aurora)",
+      "foken": {
+        "futureWorkAvoidedHours": 360,
+        "workAddedHours": 90,
+        "maintenanceDebtHours": 16
+      }
+    },
+    {
+      "id": "alexiai",
+      "name": "ALEXIAI · gaia-mlx-quant",
+      "kanji": "慈愛",
+      "url": "https://github.com/8b-is/alexiai",
+      "trit": 1,
+      "lane": "quant",
+      "role": "no_std Rust/C99/Go/Swift BitNet b1.58 & 64-trit quantum bitplane engine with p/q rationals",
+      "foken": {
+        "futureWorkAvoidedHours": 340,
+        "workAddedHours": 85,
+        "maintenanceDebtHours": 14
+      }
+    },
+    {
+      "id": "wupz",
+      "name": "wupz · Linker + Packer",
+      "kanji": "圧縮連結",
+      "url": "https://wupz.vaked.dev/",
+      "trit": 1,
+      "lane": "toolchain",
+      "role": "Incremental zero-alloc SIMD linker-compressor (Zig + Rust C ABI v1) & 32B witness seals",
+      "foken": {
+        "futureWorkAvoidedHours": 280,
+        "workAddedHours": 70,
+        "maintenanceDebtHours": 14
+      }
+    },
+    {
+      "id": "zen-ultra-cooker",
+      "name": "zenUltraCooker · Omni",
+      "kanji": "禅釜",
+      "url": "https://github.com/8b-is/zenUltraCooker",
+      "trit": 1,
+      "lane": "appliance",
+      "role": "Cross-platform Android/iOS sovereign appliance & Stripe/Google Pay/Apple Pay integration",
+      "foken": {
+        "futureWorkAvoidedHours": 220,
+        "workAddedHours": 64,
+        "maintenanceDebtHours": 12
+      }
+    },
+    {
+      "id": "go-setup",
+      "name": "b8-go / 1b-go Toolchain",
+      "kanji": "一ビット",
+      "url": "https://github.com/8b-is/go-setup",
+      "trit": 1,
+      "lane": "toolchain",
+      "role": "One-shot Apple Silicon M1 / 8b M1 64GB unified-memory Go toolchain & 1b-go ternary alias",
+      "foken": {
+        "futureWorkAvoidedHours": 120,
+        "workAddedHours": 24,
+        "maintenanceDebtHours": 4
+      }
+    },
+    {
+      "id": "peter-applications",
+      "name": "apply.vaked.dev · SOTA Hub",
+      "kanji": "応募",
+      "url": "https://apply.vaked.dev/",
+      "trit": 1,
+      "lane": "career",
+      "role": "7 live *.vaked.dev Cloudflare Worker portfolios (teamLab, Sakana, PFN, TIER IV, Woven, Taiko)",
+      "foken": {
+        "futureWorkAvoidedHours": 180,
+        "workAddedHours": 42,
+        "maintenanceDebtHours": 8
+      }
+    },
+    {
+      "id": "zoneinn-bonfire",
+      "name": "ZoneInn Bonfire · Spatial",
+      "kanji": "篝火",
+      "url": "https://github.com/8b-is/zoneinn-bonfire",
+      "trit": 1,
+      "lane": "spatial",
+      "role": "Android/Web spatial hearth & peer discovery over the vaked constellation",
+      "foken": {
+        "futureWorkAvoidedHours": 160,
+        "workAddedHours": 46,
+        "maintenanceDebtHours": 8
+      }
     }
   ],
   "packs": [

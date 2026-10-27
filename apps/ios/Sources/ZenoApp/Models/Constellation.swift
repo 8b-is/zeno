@@ -54,6 +54,48 @@ public struct ConstellationDoc: Codable, Sendable {
                 role: "This surface — the Kintsugi ledger that values the rest",
                 netHours: 120
             ),
+            ConstellationProject(
+                id: "aurora", name: "AURORA · Conscious AI", kanji: "暁光",
+                url: "https://aurora.vaked.dev/", trit: 1, lane: "consciousness",
+                role: "MEM|8 32B wave grid, Chenrezig dyad, p/q rationals & via agy cortex",
+                netHours: 246
+            ),
+            ConstellationProject(
+                id: "alexiai", name: "ALEXIAI · gaia-mlx-quant", kanji: "慈愛",
+                url: "https://github.com/8b-is/alexiai", trit: 1, lane: "quant",
+                role: "no_std Rust/C99/Go/Swift BitNet b1.58 & 64-trit quantum bitplane engine",
+                netHours: 234
+            ),
+            ConstellationProject(
+                id: "wupz", name: "wupz · Linker + Packer", kanji: "圧縮連結",
+                url: "https://wupz.vaked.dev/", trit: 1, lane: "toolchain",
+                role: "Incremental zero-alloc SIMD linker-compressor (Zig + Rust) & 32B seals",
+                netHours: 189
+            ),
+            ConstellationProject(
+                id: "zen-ultra-cooker", name: "zenUltraCooker · Omni", kanji: "禅釜",
+                url: "https://github.com/8b-is/zenUltraCooker", trit: 1, lane: "appliance",
+                role: "Cross-platform Android/iOS sovereign appliance & Stripe/GPay/Apple Pay",
+                netHours: 138
+            ),
+            ConstellationProject(
+                id: "go-setup", name: "b8-go / 1b-go Toolchain", kanji: "一ビット",
+                url: "https://github.com/8b-is/go-setup", trit: 1, lane: "toolchain",
+                role: "Apple Silicon M1 / 8b M1 64GB unified-memory Go toolchain & 1b-go alias",
+                netHours: 90
+            ),
+            ConstellationProject(
+                id: "peter-applications", name: "apply.vaked.dev · SOTA Hub", kanji: "応募",
+                url: "https://apply.vaked.dev/", trit: 1, lane: "career",
+                role: "7 live *.vaked.dev Worker portfolios (teamLab, Sakana, PFN, TIER IV, Woven, Taiko)",
+                netHours: 126
+            ),
+            ConstellationProject(
+                id: "zoneinn-bonfire", name: "ZoneInn Bonfire · Spatial", kanji: "篝火",
+                url: "https://github.com/8b-is/zoneinn-bonfire", trit: 1, lane: "spatial",
+                role: "Android/Web spatial hearth & peer discovery over the vaked constellation",
+                netHours: 102
+            ),
         ],
         packs: [
             ConstellationPack(
@@ -67,7 +109,7 @@ public struct ConstellationDoc: Codable, Sendable {
                 sha256Sealed: "8fb9cc110652cf07f75afb2609ea82f834a3a106f53a8de7596b24309549f7f0"
             )
         ],
-        totals: Totals(projects: 11, netHours: 1205, sealedBytes: 5448)
+        totals: Totals(projects: 18, netHours: 2330, sealedBytes: 5448)
     )
 }
 

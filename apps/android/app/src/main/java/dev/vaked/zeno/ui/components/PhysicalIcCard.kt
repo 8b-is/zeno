@@ -215,6 +215,22 @@ fun PhysicalIcCard(
                         fontSize = 10.sp
                     )
                 }
+                if (read.wupzSealHex.isNotEmpty()) {
+                    Text(
+                        "WUPZ 32B Seal: ${read.wupzSealHex.take(24)}… · Merchant ${read.merchantId} (${read.ratio})",
+                        color = ColorTeal,
+                        fontSize = 9.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
+                if (read.kintsugiTraceHex.isNotEmpty()) {
+                    Text(
+                        "Kintsugi SHA-256: ${read.kintsugiTraceHex.take(24)}…",
+                        color = ColorGold,
+                        fontSize = 9.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
                 Text(
                     "読取は READ_WO_ENCRYPTION のみ（書込なし）。表示は端末内だけで、保存・送信はしません。",
                     color = Color(0xFF6D6A80),

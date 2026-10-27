@@ -368,7 +368,7 @@ node --test test-scheduled-sweep.mjs
 
 ## 10. Constellation & KOMRESS-ULTRA ZKP1 Wiring (RFC-007)
 
-ZENO does not merely link to the constellation — it **values** it. Eleven real
+ZENO does not merely link to the constellation — it **values** it. Eighteen real
 8b-is surfaces are registered in [`constellation.json`](constellation.json) and
 scored through the same Foken net-utility gate that mints contribution:
 
@@ -376,11 +376,11 @@ $$\text{net} = \text{futureWorkAvoidedHours} - (\text{workAddedHours} + 1.5 \tim
 
 | Trit | Meaning | Registered |
 |------|---------|-----------|
-| `+1` | Verified binding · net-positive · merited-mint eligible | 7 |
+| `+1` | Verified binding · net-positive · merited-mint eligible | 14 |
 | `0` | Witnessed · maintained · held in the Sanctuary | 4 |
 | `-1` | Closed scalar / rent-seeking · refused by the gate | 0 |
 
-**Aggregate net utility: `+1,205.0 h`** across the constellation.
+**Aggregate net utility: `+2,330.0 h`** across the constellation.
 
 ### 10.1 Registered projects
 
@@ -393,6 +393,13 @@ $$\text{net} = \text{futureWorkAvoidedHours} - (\text{workAddedHours} + 1.5 \tim
 | 行間 between-the-lines | editorial | `+1` | +81.0 h | [8b-is.github.io/between-the-lines](https://8b-is.github.io/between-the-lines/) |
 | 八刀 8b-is Family Research | foundation | `+1` | +302.5 h | [8b.is](https://8b.is) |
 | 銭 · 禅 · 善 ZENO | bank | `+1` | +120.0 h | [zeno.vaked.dev](https://zeno.vaked.dev/) |
+| 暁光 AURORA · Conscious AI | consciousness | `+1` | +246.0 h | [aurora.vaked.dev](https://aurora.vaked.dev/) |
+| 慈愛 ALEXIAI · gaia-mlx-quant | quant | `+1` | +234.0 h | [github.com/8b-is/alexiai](https://github.com/8b-is/alexiai) |
+| 圧縮連結 wupz · Linker + Packer | toolchain | `+1` | +189.0 h | [wupz.vaked.dev](https://wupz.vaked.dev/) |
+| 禅釜 zenUltraCooker · Omni | appliance | `+1` | +138.0 h | [github.com/8b-is/zenUltraCooker](https://github.com/8b-is/zenUltraCooker) |
+| 一ビット b8-go / 1b-go Toolchain | toolchain | `+1` | +90.0 h | [github.com/8b-is/go-setup](https://github.com/8b-is/go-setup) |
+| 応募 apply.vaked.dev · SOTA Hub | career | `+1` | +126.0 h | [apply.vaked.dev](https://apply.vaked.dev/) |
+| 篝火 ZoneInn Bonfire · Spatial | spatial | `+1` | +102.0 h | [github.com/8b-is/zoneinn-bonfire](https://github.com/8b-is/zoneinn-bonfire) |
 | ぷー Poo · Micro-journal | publishing | `0` | +8.0 h | [pocoo.vaked.dev](https://pocoo.vaked.dev/) |
 | 公案 koan.vaked.dev | hub | `0` | +9.0 h | [koan.vaked.dev](https://koan.vaked.dev/) |
 | 美術 art.vaked.dev | gallery | `0` | +7.0 h | [art.vaked.dev](https://art.vaked.dev/) |

@@ -28,6 +28,10 @@ data class IcReadResult(
     val entries: List<IcEntry> = emptyList(),
     val error: String? = null,
     val partial: Boolean = false,
+    val merchantId: String = "BCR2DN6DZKGJ5BI5",
+    val ratio: String = "372/359",
+    val wupzSealHex: String = "",
+    val kintsugiTraceHex: String = "",
 )
 
 object PhysicalIcReader {
@@ -102,6 +106,10 @@ object PhysicalIcReader {
                 balanceJPY = if (obj.isNull("balance")) null else obj.getInt("balance"),
                 entries = entries,
                 partial = partial,
+                merchantId = obj.optString("merchantId", "BCR2DN6DZKGJ5BI5"),
+                ratio = obj.optString("ratio", "372/359"),
+                wupzSealHex = obj.optString("wupzSealHex", ""),
+                kintsugiTraceHex = obj.optString("kintsugiTraceHex", ""),
             )
         } catch (e: Exception) {
             IcReadResult(

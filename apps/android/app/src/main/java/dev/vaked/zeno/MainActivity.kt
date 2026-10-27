@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                     var pasmoBalance by remember { mutableIntStateOf(4820) }
                     var suicaBalance by remember { mutableIntStateOf(6450) }
                     var accumulatedCashback by remember { mutableDoubleStateOf(14280.0) }
-                    var icReading by remember { mutableStateOf(false) }
+                    var icReading by remember { mutableStateOf(true) }
                     var icResult by remember { mutableStateOf<IcReadResult?>(null) }
                     val nfcAdapter = remember { NfcAdapter.getDefaultAdapter(this@MainActivity) }
 
@@ -114,7 +114,14 @@ class MainActivity : ComponentActivity() {
                                 )
                                 activity.runOnUiThread {
                                     icResult = read
-                                    icReading = false
+                                    if (read.error == null) {
+                                        ZenoAudioEngine.playFeliCa()
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            vibrator.vibrate(VibrationEffect.createOneShot(45, VibrationEffect.DEFAULT_AMPLITUDE))
+                                        }
+                                    } else {
+                                        ZenoAudioEngine.playFeliCaError()
+                                    }
                                 }
                             },
                             NfcAdapter.FLAG_READER_NFC_F or
@@ -122,7 +129,12 @@ class MainActivity : ComponentActivity() {
                                 NfcAdapter.FLAG_READER_NFC_B or
                                 NfcAdapter.FLAG_READER_NFC_V or
                                 NfcAdapter.FLAG_READER_NFC_BARCODE,
-                            null,
+                            android.os.Bundle().apply {
+                                // Multi-frame FeliCa reads (poll + 20 blocks) exceed the
+                                // default presence-check window and die with TagLost.
+                                // Hold the field open long enough for the whole exchange.
+                                putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 5000)
+                            },
                         )
                     }
                     DisposableEffect(Unit) {

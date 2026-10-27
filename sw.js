@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; Network-first for dynamic state.
  */
 
-const CACHE_NAME = "zeno-v6-native";
+const CACHE_NAME = "zeno-v7-ultrabackyardloop";
 const STATIC_ASSETS = [
   "/",
   "/index.html",

@@ -137,6 +137,41 @@ object ConstellationRepository {
                 "https://zeno.vaked.dev/", 1, "bank",
                 "This surface — the Kintsugi ledger that values the rest", 120.0,
             ),
+            ConstellationProject(
+                "aurora", "AURORA · Conscious AI", "暁光",
+                "https://aurora.vaked.dev/", 1, "consciousness",
+                "MEM|8 32B wave grid, Chenrezig dyad, p/q rationals & via agy cortex", 246.0,
+            ),
+            ConstellationProject(
+                "alexiai", "ALEXIAI · gaia-mlx-quant", "慈愛",
+                "https://github.com/8b-is/alexiai", 1, "quant",
+                "no_std Rust/C99/Go/Swift BitNet b1.58 & 64-trit quantum bitplane engine", 234.0,
+            ),
+            ConstellationProject(
+                "wupz", "wupz · Linker + Packer", "圧縮連結",
+                "https://wupz.vaked.dev/", 1, "toolchain",
+                "Incremental zero-alloc SIMD linker-compressor (Zig + Rust) & 32B seals", 189.0,
+            ),
+            ConstellationProject(
+                "zen-ultra-cooker", "zenUltraCooker · Omni", "禅釜",
+                "https://github.com/8b-is/zenUltraCooker", 1, "appliance",
+                "Cross-platform Android/iOS sovereign appliance & Stripe/GPay/Apple Pay", 138.0,
+            ),
+            ConstellationProject(
+                "go-setup", "b8-go / 1b-go Toolchain", "一ビット",
+                "https://github.com/8b-is/go-setup", 1, "toolchain",
+                "Apple Silicon M1 / 8b M1 64GB unified-memory Go toolchain & 1b-go alias", 90.0,
+            ),
+            ConstellationProject(
+                "peter-applications", "apply.vaked.dev · SOTA Hub", "応募",
+                "https://apply.vaked.dev/", 1, "career",
+                "7 live *.vaked.dev Worker portfolios (teamLab, Sakana, PFN, TIER IV, Woven, Taiko)", 126.0,
+            ),
+            ConstellationProject(
+                "zoneinn-bonfire", "ZoneInn Bonfire · Spatial", "篝火",
+                "https://github.com/8b-is/zoneinn-bonfire", 1, "spatial",
+                "Android/Web spatial hearth & peer discovery over the vaked constellation", 102.0,
+            ),
         ),
         packs = listOf(
             ConstellationPack(
@@ -147,6 +182,6 @@ object ConstellationRepository {
                 "https://pocoo.vaked.dev/demos/book/architect-neo-trinity-bible-oppenheimer-tibetan-ontology-omni.html",
             ),
         ),
-        totalNetHours = 1205.0,
+        totalNetHours = 2330.0,
     )
 }
