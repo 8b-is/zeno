@@ -246,6 +246,12 @@ history service `0x090f`; no writes, IDm truncated, nothing leaves the device.
 Full constraints, wire protocol and the commercial path:
 [spec/TRANSIT_CARD_PROVISIONING.md](spec/TRANSIT_CARD_PROVISIONING.md).
 
+Google Wallet pass provisioning (`/api/wallet/google-pass`, mode `unconfigured`
+until credentials exist) needs two secrets: `GOOGLE_WALLET_ISSUER_ID` and
+`GOOGLE_WALLET_SA_JSON` (wrangler secrets, never committed). Click-through
+setup guide: <https://zeno.vaked.dev/eli5-wallet> (noindex) — also mirrored in
+`spec/GOOGLE_WALLET_ANDROID_LAYER.md`.
+
 ### 4.2 Native core: Rust brain, Zig witness, Kotlin hands
 
 The physical-IC protocol lives in **Rust** (`apps/rust/zeno-native`, cdylib →
