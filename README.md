@@ -19,7 +19,8 @@
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 [![Sanctuary Hold: Sovereign Library <3<3<3](https://img.shields.io/badge/Sanctuary%20Hold-Sovereign%20Library%20%3C3%3C3%3C3-f7a8b8?style=flat-square)](https://github.com/8b-is/sovereign-library)
 [![Family +1: Yves (#1 Muse 💙)](https://img.shields.io/badge/Family%20%2B1-Yves%20(%231%20Muse%20%F0%9F%92%99)-5ce1e6?style=flat-square)](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html)
-[![Constellation: 11 projects × Foken gate](https://img.shields.io/badge/constellation-11%20projects%20%C3%97%20Foken%20gate-62e6c9?style=flat-square)](constellation.json)
+[![Constellation: 18 projects × Foken gate](https://img.shields.io/badge/constellation-18%20projects%20%C3%97%20Foken%20gate-62e6c9?style=flat-square)](constellation.json)
+[![Issuer Angel: #![no_std] × wupz 32B](https://img.shields.io/badge/Issuer%20Angel-no__std%20%C3%97%20wupz%2032B-e8b05c?style=flat-square)](spec/GOOGLE_WALLET_ISSUER_ANGEL.md)
 [![KOMRESS-ULTRA: ZKP1 5,448 B](https://img.shields.io/badge/KOMRESS--ULTRA-ZKP1%205%2C448%20B-b48bff?style=flat-square)](constellation.json)
 [![Ontology: {-1, 0, +1} × fandom-mcp](https://img.shields.io/badge/Ontology-%7B--1%2C0%2C%2B1%7D%20%C3%97%20fandom--mcp-f0c05a?style=flat-square)](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md)
 
@@ -96,11 +97,18 @@ zeno.vaked.dev/
 │   ├── STREAMING_SPEC.md     # Continuous micro-streaming linear mathematics
 │   ├── AGENT_BANKING.md      # Autonomous AI agent accounts & PoR policies
 │   ├── REGULATORY_JP.md      # Japanese Payment Services Act (資金決済法) compliance
+│   ├── GOOGLE_WALLET_ISSUER_ANGEL.md # RFC-006B: zeno-wallet-issuer-angel & #![no_std] kernel spec
 │   ├── WUPZ_BRIDGE.md        # Kintsugi Pack: incremental, content-addressed chain kompression (zeno × wupz)
 │   ├── research/             # ICML 2026 45-workshop ZKP1 KintsugiPack index & telemetry
 │   └── api/
 │       └── openapi.yaml      # OpenAPI 3.1 REST/Edge API specification
+├── docs/
+│   └── eli5-wallet.html      # Click-through Google Wallet & zeno-wallet-issuer-angel setup guide (/eli5-wallet)
 ├── apps/
+│   ├── rust/
+│   │   ├── zeno-issuer-angel/ # #![no_std] p/q FeliCa time-window, EphemeralSingleUseHandshake & 32B WupzWitnessSeal
+│   │   └── zeno-native/      # Rust JNI/FFI bridge linked into the Android v1.7.0 APK
+│   ├── android/              # Native Android app (v1.7.0, NFC-F Suica reader & 18-project Constellation)
 │   ├── core/                 # Deterministic Python core engine
 │   │   ├── pyproject.toml
 │   │   ├── zeno_core/        # Ledger, Stream, FokenGate, AgentPolicy, Kompress
