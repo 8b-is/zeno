@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>ZENO 銭・禅・善</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>is.8b.zeno.app</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>ZenoApp</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.2.0</string>
+    <key>CFBundleVersion</key>
+    <string>432</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>NFCReaderUsageDescription</key>
+    <string>ZENO reads FeliCa (JIS X 6319-4 Suica/PASMO) and ISO7816 transit cards locally on-device with zero cloud tracking.</string>
+    <key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
+    <array>
+        <string>0003</string>
+        <string>8008</string>
+        <string>FE00</string>
+    </array>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>
