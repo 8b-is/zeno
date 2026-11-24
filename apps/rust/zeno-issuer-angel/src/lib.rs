@@ -42,6 +42,177 @@ pub enum KernelError {
     InvalidWindow,
     ExpiredTransitWindow,
     ReplayDetected,
+    InsufficientReserve,
+    InsufficientBalance,
+    InvalidAmount,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StableAsset {
+    Usdc,
+    Usdt,
+}
+
+/// `#![no_std]` zero-float `USDC + USDT` 1:1 reserve state (`1 USD = 1_000_000 µUSD`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StableReserveState {
+    pub usdc_micro: u64,
+    pub usdt_micro: u64,
+    pub liabilities_micro: u64,
+}
+
+impl StableReserveState {
+    pub const fn new(usdc_micro: u64, usdt_micro: u64, liabilities_micro: u64) -> Self {
+        Self {
+            usdc_micro,
+            usdt_micro,
+            liabilities_micro,
+        }
+    }
+
+    pub fn total_reserves_micro(self) -> Result<u64, KernelError> {
+        self.usdc_micro
+            .checked_add(self.usdt_micro)
+            .ok_or(KernelError::Overflow)
+    }
+
+    pub fn coverage_ratio(self) -> Result<Rational, KernelError> {
+        let total = self.total_reserves_micro()?;
+        if self.liabilities_micro == 0 {
+            return if total == 0 {
+                Ok(Rational::ONE)
+            } else {
+                Rational::new(
+                    i64::try_from(total).map_err(|_| KernelError::Overflow)?,
+                    1,
+                )
+            };
+        }
+        let (mut a, mut b) = (total, self.liabilities_micro);
+        while b != 0 {
+            (a, b) = (b, a % b);
+        }
+        let red_total = i64::try_from(total / a).map_err(|_| KernelError::Overflow)?;
+        Rational::new(red_total, self.liabilities_micro / a)
+    }
+
+    /// Sovereign Ontology trit: `+1` (over-backed), `0` (exact 1:1), `-1` (under-backed).
+    pub fn verify_full_backing(self) -> Result<i8, KernelError> {
+        let total = self.total_reserves_micro()?;
+        Ok(match total.cmp(&self.liabilities_micro) {
+            Ordering::Greater => 1,
+            Ordering::Equal => 0,
+            Ordering::Less => -1,
+        })
+    }
+
+    pub fn mint_backed(&mut self, asset: StableAsset, amount_micro: u64) -> Result<(), KernelError> {
+        if amount_micro == 0 {
+            return Err(KernelError::InvalidAmount);
+        }
+        let next_liab = self
+            .liabilities_micro
+            .checked_add(amount_micro)
+            .ok_or(KernelError::Overflow)?;
+        match asset {
+            StableAsset::Usdc => {
+                self.usdc_micro = self
+                    .usdc_micro
+                    .checked_add(amount_micro)
+                    .ok_or(KernelError::Overflow)?;
+            }
+            StableAsset::Usdt => {
+                self.usdt_micro = self
+                    .usdt_micro
+                    .checked_add(amount_micro)
+                    .ok_or(KernelError::Overflow)?;
+            }
+        }
+        self.liabilities_micro = next_liab;
+        Ok(())
+    }
+
+    pub fn redeem_backed(
+        &mut self,
+        asset: StableAsset,
+        amount_micro: u64,
+    ) -> Result<(), KernelError> {
+        if amount_micro == 0 {
+            return Err(KernelError::InvalidAmount);
+        }
+        if self.liabilities_micro < amount_micro {
+            return Err(KernelError::InsufficientBalance);
+        }
+        match asset {
+            StableAsset::Usdc => {
+                if self.usdc_micro < amount_micro {
+                    return Err(KernelError::InsufficientReserve);
+                }
+                self.usdc_micro -= amount_micro;
+            }
+            StableAsset::Usdt => {
+                if self.usdt_micro < amount_micro {
+                    return Err(KernelError::InsufficientReserve);
+                }
+                self.usdt_micro -= amount_micro;
+            }
+        }
+        self.liabilities_micro -= amount_micro;
+        Ok(())
+    }
+
+    pub fn atomic_swap(
+        &mut self,
+        from: StableAsset,
+        to: StableAsset,
+        amount_micro: u64,
+    ) -> Result<(), KernelError> {
+        if amount_micro == 0 || from == to {
+            return Err(KernelError::InvalidAmount);
+        }
+        match (from, to) {
+            (StableAsset::Usdc, StableAsset::Usdt) => {
+                if self.usdc_micro < amount_micro {
+                    return Err(KernelError::InsufficientReserve);
+                }
+                let next_usdt = self
+                    .usdt_micro
+                    .checked_add(amount_micro)
+                    .ok_or(KernelError::Overflow)?;
+                self.usdc_micro -= amount_micro;
+                self.usdt_micro = next_usdt;
+            }
+            (StableAsset::Usdt, StableAsset::Usdc) => {
+                if self.usdt_micro < amount_micro {
+                    return Err(KernelError::InsufficientReserve);
+                }
+                let next_usdc = self
+                    .usdc_micro
+                    .checked_add(amount_micro)
+                    .ok_or(KernelError::Overflow)?;
+                self.usdt_micro -= amount_micro;
+                self.usdc_micro = next_usdc;
+            }
+            _ => return Err(KernelError::InvalidAmount),
+        }
+        Ok(())
+    }
+
+    /// Seal `[gate=0x62 | usdc_micro | usdt_micro | liabilities_micro]` with Kintsugi SHA-256 + 32B WUPZ seal.
+    pub fn seal_proof_of_reserve(
+        &self,
+        prev_trace: &[u8; 32],
+    ) -> Result<([u8; 32], WupzWitnessSeal), KernelError> {
+        let _ = self.total_reserves_micro()?;
+        let mut frame = [0u8; 25];
+        frame[0] = KOMPRESS_GATE_0X62;
+        frame[1..9].copy_from_slice(&self.usdc_micro.to_be_bytes());
+        frame[9..17].copy_from_slice(&self.usdt_micro.to_be_bytes());
+        frame[17..25].copy_from_slice(&self.liabilities_micro.to_be_bytes());
+        let seal = WupzWitnessSeal::seal(&frame);
+        let trace = kintsugi_trace_chain(prev_trace, &seal.bytes);
+        Ok((trace, seal))
+    }
 }
 
 /// Canonical `#![no_std]` checked `p/q` rational number (zero-float).
@@ -571,13 +742,14 @@ impl OneCompressionFrame {
         // [20..22]: ratio.q (359 u16 BE)
         // [22..24]: lanes (u16 BE)
         // [24..32]: fold (0x2a69c3fd6cdea62e u64 BE)
+        let lanes_u16 = u16::try_from(concurrency_lanes).map_err(|_| KernelError::Overflow)?;
         let mut wire = [0u8; 32];
         wire[0..16].copy_from_slice(GOOGLE_PAY_MERCHANT_ID.as_bytes());
         wire[16] = KOMPRESS_GATE_0X62;
         wire[17] = KOMPRESS_QT_55;
         wire[18..20].copy_from_slice(&(KOMPRESS_RATIO_372_359.p as u16).to_be_bytes());
         wire[20..22].copy_from_slice(&(KOMPRESS_RATIO_372_359.q as u16).to_be_bytes());
-        wire[22..24].copy_from_slice(&(concurrency_lanes as u16).to_be_bytes());
+        wire[22..24].copy_from_slice(&lanes_u16.to_be_bytes());
         wire[24..32].copy_from_slice(&KOMPRESS_FOLD_SEED.to_be_bytes());
 
         let wupz_seal = WupzWitnessSeal::seal(&wire);
@@ -752,5 +924,46 @@ mod tests {
         assert_eq!(r_1840_1373.numerator(), 1840);
         assert_eq!(r_1840_1373.denominator(), 1373);
         assert_eq!(qt_5a, Rational::new(45, 128).unwrap());
+    }
+
+    #[test]
+    fn us_stable_reserve_state_zero_float_pq_and_wupz_0x62_seal() {
+        let mut state = StableReserveState::new(3_000_000, 2_000_000, 5_000_000);
+        assert_eq!(state.verify_full_backing().unwrap(), 0);
+        assert_eq!(state.coverage_ratio().unwrap(), Rational::ONE);
+
+        state.mint_backed(StableAsset::Usdc, 5_000_000).unwrap();
+        assert_eq!(state.usdc_micro, 8_000_000);
+        assert_eq!(state.liabilities_micro, 10_000_000);
+        assert_eq!(state.verify_full_backing().unwrap(), 0);
+
+        state
+            .atomic_swap(StableAsset::Usdc, StableAsset::Usdt, 1_500_000)
+            .unwrap();
+        assert_eq!(state.usdc_micro, 6_500_000);
+        assert_eq!(state.usdt_micro, 3_500_000);
+        assert_eq!(state.coverage_ratio().unwrap(), Rational::ONE);
+
+        state.redeem_backed(StableAsset::Usdt, 1_000_000).unwrap();
+        assert_eq!(state.usdt_micro, 2_500_000);
+        assert_eq!(state.liabilities_micro, 9_000_000);
+
+        assert_eq!(
+            state.redeem_backed(StableAsset::Usdt, 5_000_000),
+            Err(KernelError::InsufficientReserve)
+        );
+
+        let over = StableReserveState::new(6_000_000, 4_000_000, 8_000_000);
+        assert_eq!(over.verify_full_backing().unwrap(), 1);
+        assert_eq!(over.coverage_ratio().unwrap(), Rational::new(5, 4).unwrap());
+
+        let under = StableReserveState::new(2_000_000, 1_000_000, 4_000_000);
+        assert_eq!(under.verify_full_backing().unwrap(), -1);
+        assert_eq!(under.coverage_ratio().unwrap(), Rational::new(3, 4).unwrap());
+
+        let genesis = [0u8; 32];
+        let (trace, seal) = state.seal_proof_of_reserve(&genesis).unwrap();
+        assert_eq!(&seal.bytes[0..4], b"WUPZ");
+        assert_ne!(trace, genesis);
     }
 }

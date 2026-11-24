@@ -240,12 +240,17 @@
     }
 
     deposit(amountJpy) {
-      if (amountJpy <= 0) throw new Error("Deposit must be positive");
+      if (typeof amountJpy !== "number" || !Number.isFinite(amountJpy) || amountJpy <= 0) {
+        throw new RangeError("Deposit must be a positive finite number");
+      }
       this.balanceMicro += BigInt(Math.round(amountJpy * 1000000));
       return this.getBalanceFloat();
     }
 
     spend(amountJpy) {
+      if (typeof amountJpy !== "number" || !Number.isFinite(amountJpy) || amountJpy <= 0) {
+        throw new RangeError("Spend must be a positive finite number");
+      }
       const spendMicro = BigInt(Math.round(amountJpy * 1000000));
       if (spendMicro > this.balanceMicro) {
         throw new Error("Insufficient funds in sovereign vault");
@@ -271,18 +276,27 @@
         }
       }
 
-      if (!/^0x[0-9a-fA-F]{40}$/.test(invoice.contributor)) {
+      if (typeof invoice.contributor !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(invoice.contributor)) {
         return { invoiceId: invId, verdict: "FAIL", reason: "Invalid Ethereum/Polygon contributor address" };
       }
 
-      if (!invoice.artifact.provenanceHash || !invoice.artifact.provenanceHash.startsWith("sha256://")) {
+      if (typeof invoice.artifact.provenanceHash !== "string" || !/^sha256:\/\/[0-9a-zA-Z_-]{8,}$/.test(invoice.artifact.provenanceHash)) {
         return { invoiceId: invId, verdict: "FAIL", reason: "Artifact provenanceHash must use sha256://" };
       }
 
       const val = invoice.valuation;
-      const avoided = Number(val.futureWorkAvoidedHours) || 0;
-      const added = Number(val.workAddedHours) || 0;
-      const debt = Number(val.maintenanceDebtHours) || 0;
+      const avoided = Number(val.futureWorkAvoidedHours);
+      const added = Number(val.workAddedHours);
+      const debt = Number(val.maintenanceDebtHours);
+      const claimedNet = Number(val.netUtilityHours);
+      if (
+        !Number.isFinite(avoided) || avoided < 0 || avoided > 1_000_000 ||
+        !Number.isFinite(added) || added < 0 || added > 1_000_000 ||
+        !Number.isFinite(debt) || debt < 0 || debt > 1_000_000 ||
+        !Number.isFinite(claimedNet)
+      ) {
+        return { invoiceId: invId, verdict: "FAIL", reason: "Valuation hour fields must be finite non-negative numbers" };
+      }
       const netCalculated = avoided - (added + 1.5 * debt);
 
       if (netCalculated <= 0) {
@@ -294,7 +308,6 @@
         };
       }
 
-      const claimedNet = Number(val.netUtilityHours);
       if (Math.abs(netCalculated - claimedNet) > 0.01) {
         return {
           invoiceId: invId,
@@ -539,12 +552,590 @@
   KintsugiLedger.otpSweptTotal = 0;
   KintsugiLedger.scheduledRegistry = new Map();
 
+  // --- 5. ZENO US USDC + USDT 1:1 RESERVE & FX ENGINE (ZERO-FLOAT BIGINT) ---
+
+  const MICRO_USD = 1000000n;
+  const US_STABLES = Object.freeze(["USDC", "USDT"]);
+  const FORBIDDEN_ACCOUNT_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+  const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const SOLANA_MAINNET = Object.freeze({
+    NETWORK: "solana-mainnet-beta",
+    USDC_MINT: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    USDT_MINT: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    TOKEN_PROGRAM: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    VAKED_POLYGON_ERC20: "0x2Ae7DA713A2c8527AF70825C0F79632AF2e2ae4A",
+  });
+
+  const FX_RATES_PQ = Object.freeze({
+    USD: Object.freeze({ num: 1n, den: 1n, symbol: "$", decimals: 2 }),
+    JPY: Object.freeze({ num: 15250n, den: 100n, symbol: "¥", decimals: 0 }),
+    EUR: Object.freeze({ num: 92n, den: 100n, symbol: "€", decimals: 2 }),
+    GBP: Object.freeze({ num: 79n, den: 100n, symbol: "£", decimals: 2 }),
+    HUF: Object.freeze({ num: 36850n, den: 100n, symbol: "Ft ", decimals: 0 }),
+  });
+
+  function _gcdBigInt(a, b) {
+    let x = a < 0n ? -a : a;
+    let y = b < 0n ? -b : b;
+    while (y !== 0n) {
+      const t = y;
+      y = x % y;
+      x = t;
+    }
+    return x === 0n ? 1n : x;
+  }
+
+  function _fnv1a64Hex(str, seed = 0xcbf29ce484222325n) {
+    let h = seed;
+    const prime = 0x100000001b3n;
+    const mask = 0xffffffffffffffffn;
+    for (let i = 0; i < str.length; i++) {
+      h ^= BigInt(str.charCodeAt(i));
+      h = (h * prime) & mask;
+    }
+    return h.toString(16).padStart(16, "0");
+  }
+
+  function _toBigIntMicro(value, label = "amountMicro") {
+    if (typeof value === "bigint") {
+      if (value <= 0n) throw new RangeError(`${label} must be > 0n`);
+      return value;
+    }
+    if (typeof value === "number" && Number.isSafeInteger(value) && value > 0) {
+      return BigInt(value);
+    }
+    if (typeof value === "string" && /^\d+$/.test(value)) {
+      const parsed = BigInt(value);
+      if (parsed > 0n) return parsed;
+    }
+    throw new RangeError(`${label} must be a positive integer micro-USD value`);
+  }
+
+  class StablecoinReserveEngine {
+    constructor(seedState = null) {
+      if (seedState && typeof seedState === "object" && !Array.isArray(seedState)) {
+        const usdc = BigInt(seedState.reserves?.USDC ?? -1n);
+        const usdt = BigInt(seedState.reserves?.USDT ?? -1n);
+        if (usdc < 0n || usdt < 0n) {
+          throw new RangeError("Seeded stablecoin reserves cannot be negative or missing");
+        }
+        this.reserves = { USDC: usdc, USDT: usdt };
+        this.accounts = Object.create(null);
+        for (const [tag, bal] of Object.entries(seedState.accounts || {})) {
+          if (FORBIDDEN_ACCOUNT_KEYS.has(tag)) {
+            throw new Error("Forbidden prototype key in seedState");
+          }
+          const cleanTag = this._normalizeTag(tag);
+          if (Object.hasOwn(this.accounts, cleanTag)) {
+            throw new Error(`Duplicate canonical tag in seedState: ${cleanTag}`);
+          }
+          const parsedBal = BigInt(bal);
+          if (parsedBal < 0n) {
+            throw new RangeError(`Account balance for ${cleanTag} cannot be negative`);
+          }
+          this.accounts[cleanTag] = parsedBal;
+        }
+        if (!Array.isArray(seedState.receipts) || seedState.receipts.length === 0) {
+          throw new Error("seedState receipts must be a non-empty array");
+        }
+        this.receipts = seedState.receipts.map((r) => {
+          if (!r || typeof r !== "object" || Array.isArray(r) || typeof r.seal !== "string" || typeof r.memo !== "string") {
+            throw new Error("Malformed receipt in seedState");
+          }
+          BigInt(r.amountMicro);
+          return r;
+        });
+        this.chainHead = typeof seedState.chainHead === "string" && /^0x62[0-9a-f]{16}$/.test(seedState.chainHead)
+          ? seedState.chainHead
+          : (() => { throw new Error("Invalid chainHead in seedState"); })();
+        if (!Number.isSafeInteger(seedState.seq) || seedState.seq < 1) {
+          throw new RangeError("Invalid seq in seedState");
+        }
+        this.seq = seedState.seq;
+        const audit = this.verifyDoubleEntryAudit();
+        if (!audit.valid) {
+          throw new Error(`Tampered seedState rejected: ${audit.reason || "unbalanced"}`);
+        }
+      } else {
+        // Default US seed: $52,040.50 exact 1:1 backed by USDC ($31,240.50) + USDT ($20,800.00)
+        this.reserves = {
+          USDC: 31240500000n,
+          USDT: 20800000000n,
+        };
+        this.accounts = Object.assign(Object.create(null), {
+          "$you": 12840500000n,
+          "$alexandra": 5000000000n,
+          "$chris": 5000000000n,
+          "$yves": 4200000000n,
+          "$8bis": 25000000000n,
+        });
+        this.seq = 1;
+        const genesisSeal = _fnv1a64Hex("0x62|GENESIS|USDC:31240500000|USDT:20800000000");
+        this.chainHead = `0x62${genesisSeal}`;
+        this.receipts = [
+          {
+            seq: 1,
+            kind: "GENESIS_RESERVE_ATTESTATION",
+            asset: "USDC+USDT",
+            amountMicro: "52040500000",
+            memo: "1:1 Segregated USDC ($31,240.50) + USDT ($20,800.00) Reserve",
+            seal: this.chainHead,
+            gate: "0x62",
+            timestamp: new Date().toISOString(),
+            postings: [
+              { account: "asset:stable:usdc_reserve", amount: "31240500000" },
+              { account: "asset:stable:usdt_reserve", amount: "20800000000" },
+              { account: "liability:us:all_holders", amount: "-52040500000" },
+            ],
+          },
+        ];
+      }
+    }
+
+    _sealReceipt(kind, asset, amountMicro, postings, memo) {
+      let sum = 0n;
+      for (const p of postings) {
+        sum += BigInt(p.amount);
+      }
+      if (sum !== 0n) {
+        throw new Error(`Double-entry invariant violated: sum = ${sum.toString()}`);
+      }
+      this.seq += 1;
+      const payload = `${this.chainHead}|${this.seq}|${kind}|${asset}|${amountMicro.toString()}|${memo}`;
+      const seal = `0x62${_fnv1a64Hex(payload)}`;
+      this.chainHead = seal;
+      const receipt = {
+        seq: this.seq,
+        kind,
+        asset,
+        amountMicro: amountMicro.toString(),
+        memo,
+        seal,
+        gate: "0x62",
+        timestamp: new Date().toISOString(),
+        postings: postings.map((p) => ({ account: p.account, amount: BigInt(p.amount).toString() })),
+      };
+      this.receipts.unshift(receipt);
+      if (this.receipts.length > 50) this.receipts.length = 50;
+      return receipt;
+    }
+
+    _normalizeTag(tag) {
+      const clean = String(tag || "").trim().toLowerCase();
+      if (FORBIDDEN_ACCOUNT_KEYS.has(clean) || !/^\$[a-z0-9_]{2,20}$/.test(clean)) {
+        throw new Error("Invalid $zenotag: must match ^\\$[a-z0-9_]{2,20}$");
+      }
+      return clean;
+    }
+
+    _normalizeAsset(asset) {
+      const upper = String(asset || "").trim().toUpperCase();
+      if (!US_STABLES.includes(upper)) {
+        throw new Error(`Unsupported stablecoin asset: ${asset}`);
+      }
+      return upper;
+    }
+
+    depositReserve(tag, asset, amountMicroInput, rail = "Base", memo = "") {
+      const cleanTag = this._normalizeTag(tag);
+      const stable = this._normalizeAsset(asset);
+      const amount = _toBigIntMicro(amountMicroInput);
+
+      const postings = [
+        { account: `asset:stable:${stable.toLowerCase()}_reserve`, amount },
+        { account: `usd:${cleanTag}`, amount: -amount },
+      ];
+      this.reserves[stable] += amount;
+      this.accounts[cleanTag] = (this.accounts[cleanTag] ?? 0n) + amount;
+      const receipt = this._sealReceipt(
+        "MINT_1_TO_1",
+        stable,
+        amount,
+        postings,
+        memo || `Deposit ${StablecoinReserveEngine.formatUsd(amount)} ${stable} via ${rail} -> ${cleanTag}`,
+      );
+      return { receipt, parity: this.verifyReserveParity() };
+    }
+
+    redeemReserve(tag, asset, amountMicroInput, destination = "0xSelfCustody") {
+      const cleanTag = this._normalizeTag(tag);
+      const stable = this._normalizeAsset(asset);
+      const amount = _toBigIntMicro(amountMicroInput);
+
+      const userBal = this.accounts[cleanTag] ?? 0n;
+      if (userBal < amount) {
+        throw new Error(`Insufficient USD balance for ${cleanTag}`);
+      }
+      if (this.reserves[stable] < amount) {
+        throw new Error(`Insufficient ${stable} reserve liquidity; swap USDC<->USDT first`);
+      }
+
+      const postings = [
+        { account: `usd:${cleanTag}`, amount },
+        { account: `asset:stable:${stable.toLowerCase()}_reserve`, amount: -amount },
+      ];
+      this.accounts[cleanTag] = userBal - amount;
+      this.reserves[stable] -= amount;
+      const receipt = this._sealReceipt(
+        "REDEEM_1_TO_1",
+        stable,
+        amount,
+        postings,
+        `Redeem ${StablecoinReserveEngine.formatUsd(amount)} -> ${stable} (${destination})`,
+      );
+      return { receipt, parity: this.verifyReserveParity() };
+    }
+
+    swapStablecoin(fromAsset, toAsset, amountMicroInput) {
+      const src = this._normalizeAsset(fromAsset);
+      const dst = this._normalizeAsset(toAsset);
+      const amount = _toBigIntMicro(amountMicroInput);
+      if (src === dst) {
+        throw new Error("Source and destination stablecoin must differ");
+      }
+      if (this.reserves[src] < amount) {
+        throw new Error(`Insufficient ${src} reserve for atomic 1:1 peg swap`);
+      }
+
+      const postings = [
+        { account: `asset:stable:${dst.toLowerCase()}_reserve`, amount },
+        { account: `asset:stable:${src.toLowerCase()}_reserve`, amount: -amount },
+      ];
+      this.reserves[src] -= amount;
+      this.reserves[dst] += amount;
+      const receipt = this._sealReceipt(
+        "ATOMIC_PEG_SWAP_1_TO_1",
+        `${src}->${dst}`,
+        amount,
+        postings,
+        `Atomic 1:1 peg bridge ${StablecoinReserveEngine.formatUsd(amount)} ${src} -> ${dst} (0 bps)`,
+      );
+      return { receipt, parity: this.verifyReserveParity() };
+    }
+
+    p2pSend(fromTag, toTag, amountMicroInput, assetLabel = "USD (USDC+USDT)", memo = "") {
+      const sender = this._normalizeTag(fromTag);
+      const recipient = this._normalizeTag(toTag);
+      const amount = _toBigIntMicro(amountMicroInput);
+      if (sender === recipient) {
+        throw new Error("Sender and recipient $zenotag must differ");
+      }
+      const senderBal = this.accounts[sender] ?? 0n;
+      if (senderBal < amount) {
+        throw new Error(`Insufficient balance in ${sender}`);
+      }
+
+      const postings = [
+        { account: `usd:${sender}`, amount },
+        { account: `usd:${recipient}`, amount: -amount },
+      ];
+      this.accounts[sender] = senderBal - amount;
+      this.accounts[recipient] = (this.accounts[recipient] ?? 0n) + amount;
+      const receipt = this._sealReceipt(
+        "P2P_ZENOTAG",
+        assetLabel,
+        amount,
+        postings,
+        memo ? `${sender} -> ${recipient}: ${memo}` : `${sender} -> ${recipient} instant $zenotag pay`,
+      );
+      return { receipt, parity: this.verifyReserveParity() };
+    }
+
+    verifyReserveParity() {
+      const usdcMicro = this.reserves.USDC;
+      const usdtMicro = this.reserves.USDT;
+      const totalReservesMicro = usdcMicro + usdtMicro;
+      let totalLiabilitiesMicro = 0n;
+      for (const bal of Object.values(this.accounts)) {
+        totalLiabilitiesMicro += bal;
+      }
+
+      let ratioNum = 1n;
+      let ratioDen = 1n;
+      if (totalLiabilitiesMicro === 0n) {
+        ratioNum = totalReservesMicro === 0n ? 1n : totalReservesMicro;
+        ratioDen = 1n;
+      } else {
+        const g = _gcdBigInt(totalReservesMicro, totalLiabilitiesMicro);
+        ratioNum = totalReservesMicro / g;
+        ratioDen = totalLiabilitiesMicro / g;
+      }
+
+      let trit = 0;
+      if (totalReservesMicro > totalLiabilitiesMicro) trit = 1;
+      else if (totalReservesMicro < totalLiabilitiesMicro) trit = -1;
+
+      return {
+        usdcMicro,
+        usdtMicro,
+        totalReservesMicro,
+        totalLiabilitiesMicro,
+        ratioNum,
+        ratioDen,
+        ratioPQ: `${ratioNum.toString()}/${ratioDen.toString()}`,
+        trit,
+        balanced: totalReservesMicro >= totalLiabilitiesMicro,
+      };
+    }
+
+    verifyDoubleEntryAudit() {
+      if (this.receipts.length === 0 || this.receipts[0]?.seal !== this.chainHead) {
+        return { valid: false, reason: "Chain head seal mismatch" };
+      }
+      for (const receipt of this.receipts) {
+        if (!Array.isArray(receipt.postings) || receipt.postings.length < 2) {
+          return { valid: false, reason: `Receipt #${receipt.seq} missing postings` };
+        }
+        let sum = 0n;
+        for (const posting of receipt.postings) {
+          sum += BigInt(posting.amount);
+        }
+        if (sum !== 0n) {
+          return { valid: false, reason: `Receipt #${receipt.seq} unbalanced: ${sum.toString()}` };
+        }
+      }
+      const parity = this.verifyReserveParity();
+      return {
+        valid: parity.balanced,
+        reason: parity.balanced ? "OK" : "Reserve ratio below 1/1",
+        receiptsChecked: this.receipts.length,
+        ratioPQ: parity.ratioPQ,
+        trit: parity.trit,
+      };
+    }
+
+    static evaluateFokenGatePQ(invoice) {
+      const invId = String(invoice?.invoiceId || "unknown");
+      if (!invoice || typeof invoice !== "object" || Array.isArray(invoice)
+        || !invoice.work || !invoice.artifact || !invoice.valuation || !invoice.ipAssignment || !invoice.netUtility) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "Missing required Foken invoice sections" };
+      }
+      if (typeof invoice.contributor !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(invoice.contributor)) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "Invalid contributor address" };
+      }
+      if (typeof invoice.artifact.provenanceHash !== "string" || !/^sha256:\/\/[0-9a-fA-F]{32,64}$/.test(invoice.artifact.provenanceHash)) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "Provenance hash must use sha256://<hex>" };
+      }
+      const fokens = invoice.valuation.selfAssessedFokens;
+      if (typeof fokens !== "number" || !Number.isSafeInteger(fokens) || fokens <= 0 || fokens > 250000) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "selfAssessedFokens must be in 1..250000" };
+      }
+      const ip = invoice.ipAssignment;
+      if (typeof ip.statement !== "string" || !ip.statement.includes("IRREVOCABLE ASSIGNMENT")
+        || typeof ip.signature !== "string" || !/^0x[0-9a-fA-F]{8,}$/.test(ip.signature)) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "Missing or unsigned IRREVOCABLE ASSIGNMENT" };
+      }
+      const nu = invoice.netUtility;
+      const avoided = Number(nu.futureWorkAvoidedHours);
+      const added = Number(nu.workAddedHours);
+      const debt = Number(nu.maintenanceDebtHours);
+      if (!Number.isSafeInteger(avoided) || avoided < 0 || avoided > 1_000_000
+        || !Number.isSafeInteger(added) || added < 0 || added > 1_000_000
+        || !Number.isSafeInteger(debt) || debt < 0 || debt > 1_000_000) {
+        return { invoiceId: invId, verdict: "FAIL", trit: -1, reason: "netUtility hours must be bounded non-negative safe integers" };
+      }
+
+      // Exact half-hour integer arithmetic: net = avoided - (added + 3/2 * debt)
+      const halfNum = 2n * BigInt(avoided) - (2n * BigInt(added) + 3n * BigInt(debt));
+      const g = _gcdBigInt(halfNum, 2n);
+      const netNum = halfNum / g;
+      const netDen = 2n / g;
+      const netUtilityPQ = `${netNum.toString()}/${netDen.toString()}`;
+
+      if (halfNum <= 0n) {
+        return {
+          invoiceId: invId,
+          verdict: "FAIL",
+          trit: -1,
+          netUtilityPQ,
+          fokensAwarded: 0,
+          usdMicroAwarded: 0n,
+          reason: `Net utility non-positive (${netUtilityPQ}h)`,
+        };
+      }
+
+      // Proportional ceiling: <= 100 FOKEN per net-utility hour
+      if (BigInt(fokens) * 2n > halfNum * 100n) {
+        return {
+          invoiceId: invId,
+          verdict: "FAIL",
+          trit: -1,
+          netUtilityPQ,
+          fokensAwarded: 0,
+          usdMicroAwarded: 0n,
+          reason: `Claimed ${fokens} FKN exceeds 100 FKN/hr ceiling for ${netUtilityPQ}h`,
+        };
+      }
+
+      const usdMicroAwarded = BigInt(fokens) * MICRO_USD;
+      return {
+        invoiceId: invId,
+        verdict: "PASS",
+        trit: 1,
+        netUtilityPQ,
+        fokensAwarded: fokens,
+        usdMicroAwarded,
+        reason: `FOKEN gate passed (${netUtilityPQ}h net utility -> ${fokens} FKN = ${StablecoinReserveEngine.formatUsd(usdMicroAwarded)})`,
+      };
+    }
+
+    mintFromFoken(tag, asset, invoice) {
+      const gate = StablecoinReserveEngine.evaluateFokenGatePQ(invoice);
+      if (gate.verdict !== "PASS") {
+        throw new Error(gate.reason);
+      }
+      const res = this.depositReserve(
+        tag,
+        asset,
+        gate.usdMicroAwarded,
+        "Foken Gate",
+        `FOKEN_MINT:${gate.fokensAwarded} FKN (${gate.netUtilityPQ}h net) backed 1:1 by ${asset} -> ${tag}`,
+      );
+      return { ...res, gate };
+    }
+
+    toJSON() {
+      const accounts = {};
+      for (const [k, v] of Object.entries(this.accounts)) {
+        accounts[k] = v.toString();
+      }
+      return {
+        reserves: {
+          USDC: this.reserves.USDC.toString(),
+          USDT: this.reserves.USDT.toString(),
+        },
+        accounts,
+        receipts: this.receipts,
+        chainHead: this.chainHead,
+        seq: this.seq,
+      };
+    }
+
+    static convertFx(amountMicroUsdInput, targetCurrency = "JPY") {
+      const amount = _toBigIntMicro(amountMicroUsdInput);
+      const code = String(targetCurrency || "USD").trim().toUpperCase();
+      if (!Object.hasOwn(FX_RATES_PQ, code)) {
+        throw new Error(`Unsupported FX currency: ${targetCurrency}`);
+      }
+      const rate = FX_RATES_PQ[code];
+      const g = _gcdBigInt(rate.num, rate.den);
+      const rateNum = rate.num / g;
+      const rateDen = rate.den / g;
+      const amountMicroOut = (amount * rateNum) / rateDen;
+      return {
+        targetCurrency: code,
+        amountMicroIn: amount,
+        amountMicroOut,
+        rateNum,
+        rateDen,
+        ratePQ: `${rateNum.toString()}/${rateDen.toString()}`,
+        feeBps: 0,
+        formattedOut: StablecoinReserveEngine.formatCurrency(amountMicroOut, code),
+      };
+    }
+
+    static formatUsd(microInput) {
+      return StablecoinReserveEngine.formatCurrency(microInput, "USD");
+    }
+
+    static formatCurrency(microInput, currency = "USD") {
+      const val = BigInt(microInput);
+      const neg = val < 0n;
+      const abs = neg ? -val : val;
+      const meta = Object.hasOwn(FX_RATES_PQ, currency) ? FX_RATES_PQ[currency] : FX_RATES_PQ.USD;
+      const whole = abs / MICRO_USD;
+      const fracMicro = abs % MICRO_USD;
+      const wholeStr = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      if (meta.decimals === 0) {
+        return `${neg ? "-" : ""}${meta.symbol}${wholeStr}`;
+      }
+      const cents = (fracMicro / 10000n).toString().padStart(2, "0");
+      return `${neg ? "-" : ""}${meta.symbol}${wholeStr}.${cents}`;
+    }
+
+    static decodeSolanaPubkey(address) {
+      const clean = String(address || "").trim();
+      if (clean.length < 32 || clean.length > 44) {
+        throw new Error("Invalid Solana Base58 address length");
+      }
+      let num = 0n;
+      let leadingZeros = 0;
+      let countLeading = true;
+      for (const ch of clean) {
+        const idx = BASE58_ALPHABET.indexOf(ch);
+        if (idx < 0) {
+          throw new Error(`Invalid Base58 character in Solana address: ${ch}`);
+        }
+        if (countLeading && ch === "1") leadingZeros++;
+        else countLeading = false;
+        num = num * 58n + BigInt(idx);
+      }
+      const body = [];
+      while (num > 0n) {
+        body.push(Number(num & 0xffn));
+        num >>= 8n;
+      }
+      body.reverse();
+      if (leadingZeros + body.length !== 32) {
+        throw new Error("Solana address must decode to exactly 32 bytes");
+      }
+      const out = new Uint8Array(32);
+      out.set(body, leadingZeros);
+      if (out.every((b) => b === 0)) {
+        throw new Error("All-zero Solana system address cannot receive payouts");
+      }
+      return out;
+    }
+
+    static formatMicroExactDecimal(microInput) {
+      const val = _toBigIntMicro(microInput, "amountMicro");
+      const whole = val / MICRO_USD;
+      const frac = val % MICRO_USD;
+      if (frac === 0n) return whole.toString();
+      const fracTrimmed = frac.toString().padStart(6, "0").replace(/0+$/, "");
+      return `${whole.toString()}.${fracTrimmed}`;
+    }
+
+    static buildSolanaPayUsdcIntent({ recipient, amountMicro, label = "ZENO Family Trust", memo = "" }) {
+      const cleanRecipient = String(recipient || "").trim();
+      StablecoinReserveEngine.decodeSolanaPubkey(cleanRecipient);
+      const exactMicro = _toBigIntMicro(amountMicro, "amountMicro");
+      const amountDecimal = StablecoinReserveEngine.formatMicroExactDecimal(exactMicro);
+      const cleanLabel = String(label || "ZENO Family Trust").trim().slice(0, 64);
+      const cleanMemo = String(memo || "").trim().slice(0, 128);
+      const params = [
+        `amount=${encodeURIComponent(amountDecimal)}`,
+        `spl-token=${encodeURIComponent(SOLANA_MAINNET.USDC_MINT)}`,
+        `label=${encodeURIComponent(cleanLabel)}`,
+      ];
+      if (cleanMemo) {
+        params.push(`memo=${encodeURIComponent(cleanMemo)}`);
+      }
+      const solanaPayUri = `solana:${cleanRecipient}?${params.join("&")}`;
+      const cliCommand = `spl-token transfer ${SOLANA_MAINNET.USDC_MINT} ${amountDecimal} ${cleanRecipient} --fund-recipient --allow-unfunded-recipient`;
+      return {
+        status: "UNSIGNED_AWAITING_SOLANA_SIGNER",
+        network: SOLANA_MAINNET.NETWORK,
+        mint: SOLANA_MAINNET.USDC_MINT,
+        tokenProgram: SOLANA_MAINNET.TOKEN_PROGRAM,
+        recipient: cleanRecipient,
+        amountMicro: exactMicro.toString(),
+        amountDecimal,
+        solanaPayUri,
+        cliCommand,
+      };
+    }
+  }
+
   return {
-    version: "1.2.0",
+    version: "1.4.0",
     QWave: new QWaveDSP(),
     QWaveDSP,
     ContinuousStreamEngine,
     FokenGateValidator,
-    KintsugiLedger
+    KintsugiLedger,
+    StablecoinReserveEngine,
+    SOLANA_MAINNET,
+    MICRO_USD,
   };
 });

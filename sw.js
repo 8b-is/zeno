@@ -1,12 +1,16 @@
 /**
  * ZENO Service Worker — 和の通信 (Harmonious Offline Cache)
- * Stale-while-revalidate for static shell; Network-first for dynamic state.
+ * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v7-ultrabackyardloop";
+const CACHE_NAME = "zeno-v11-us-foken-solana-hardened";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
+  "/us",
+  "/us.css",
+  "/us.js",
+  "/zeno-engine.js",
   "/style.css",
   "/app.js",
   "/sound.js",
@@ -47,18 +51,30 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET and cross-origin external API requests
-  if (event.request.method !== "GET" || url.origin !== self.location.origin) {
+  // Never intercept non-GET, cross-origin, or API endpoints (avoid caching sensitive JSON/JWTs)
+  if (
+    event.request.method !== "GET" ||
+    url.origin !== self.location.origin ||
+    url.pathname.startsWith("/api/")
+  ) {
     return;
   }
 
-  // Network-first for HTML, Stale-while-revalidate for assets
+  const shouldCache = (response) => {
+    if (!response || !response.ok || response.type !== "basic") return false;
+    const cc = (response.headers.get("cache-control") || "").toLowerCase();
+    return !cc.includes("no-store");
+  };
+
+  // Network-first for HTML, Stale-while-revalidate for static assets
   if (event.request.headers.get("accept")?.includes("text/html")) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          if (shouldCache(response)) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
           return response;
         })
         .catch(() => caches.match(event.request).then((res) => res || caches.match("/")))
@@ -69,7 +85,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (shouldCache(networkResponse)) {
           const cloned = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
         }

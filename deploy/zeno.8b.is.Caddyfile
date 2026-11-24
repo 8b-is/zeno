@@ -1,0 +1,26 @@
+# Caddy configuration for zeno.8b.is (i1-dns edge)
+# Reverse-proxies zeno.8b.is to the Cloudflare edge worker at zeno.vaked.dev,
+# strips untrusted client forwarding headers, and enforces hardened browser headers.
+zeno.8b.is {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		X-Robots-Tag "noai, noimageai"
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+	}
+
+	reverse_proxy https://zeno.vaked.dev {
+		header_up Host zeno.vaked.dev
+		header_up -Forwarded
+		header_up -X-Real-IP
+		header_up -CF-Connecting-IP
+		header_up -True-Client-IP
+		header_up X-Forwarded-For {http.request.remote.host}
+	}
+}

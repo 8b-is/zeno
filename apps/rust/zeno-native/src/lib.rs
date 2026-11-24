@@ -1,11 +1,13 @@
 //! JNI surface for the ZENO native core. Kotlin moves bytes and pixels;
 //! every protocol decision lives in Rust (`felica`).
 
-use jni::objects::{JByteArray, JClass, JString};
+use jni::objects::{JByteArray, JClass};
 use jni::sys::{jbyte, jbyteArray, jint, jstring};
 use jni::JNIEnv;
 
 mod felica;
+
+const MAX_JNI_BYTES: usize = 16_384;
 
 thread_local! {
     static LAST_ERROR: std::cell::RefCell<String> = std::cell::RefCell::new(String::new());
@@ -16,10 +18,14 @@ fn set_error(message: String) {
 }
 
 fn read_bytes(env: &mut JNIEnv, array: &JByteArray) -> Result<Vec<u8>, String> {
-    let len = env
-        .get_array_length(array)
-        .map_err(|e| e.to_string())?
-        .max(0) as usize;
+    let raw_len = env.get_array_length(array).map_err(|e| e.to_string())?;
+    if raw_len < 0 {
+        return Err("negative byte array length".into());
+    }
+    let len = raw_len as usize;
+    if len > MAX_JNI_BYTES {
+        return Err(format!("byte array exceeds max {} bytes", MAX_JNI_BYTES));
+    }
     let mut buf = vec![0i8; len];
     env.get_byte_array_region(array, 0, &mut buf)
         .map_err(|e| e.to_string())?;
@@ -27,7 +33,10 @@ fn read_bytes(env: &mut JNIEnv, array: &JByteArray) -> Result<Vec<u8>, String> {
 }
 
 fn write_bytes(env: &mut JNIEnv, data: &[u8]) -> jbyteArray {
-    let out = match env.new_byte_array(data.len() as i32) {
+    let Ok(len_i32) = i32::try_from(data.len()) else {
+        return std::ptr::null_mut();
+    };
+    let out = match env.new_byte_array(len_i32) {
         Ok(array) => array,
         Err(_) => return std::ptr::null_mut(),
     };
@@ -77,7 +86,19 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_buildReadFrame(
             return std::ptr::null_mut();
         }
     };
-    let frame = felica::build_read_frame(&idm, block as u8, count as u8);
+    let Ok(block_u8) = u8::try_from(block) else {
+        set_error("block index out of u8 range".into());
+        return std::ptr::null_mut();
+    };
+    let Ok(count_u8) = u8::try_from(count) else {
+        set_error("block count out of u8 range".into());
+        return std::ptr::null_mut();
+    };
+    if idm.len() != 8 || usize::from(count_u8) > felica::MAX_BLOCKS_PER_READ || block_u8.checked_add(count_u8).is_none() {
+        set_error("invalid FeliCa read frame bounds".into());
+        return std::ptr::null_mut();
+    }
+    let frame = felica::build_read_frame(&idm, block_u8, count_u8);
     write_bytes(&mut env, &frame)
 }
 
@@ -95,7 +116,15 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_extractBlocks(
             return std::ptr::null_mut();
         }
     };
-    match felica::extract_blocks(&resp, count as usize) {
+    let Ok(count_usize) = usize::try_from(count) else {
+        set_error("negative block count".into());
+        return std::ptr::null_mut();
+    };
+    if count_usize > felica::MAX_BLOCKS_PER_READ {
+        set_error("block count exceeds MAX_BLOCKS_PER_READ".into());
+        return std::ptr::null_mut();
+    }
+    match felica::extract_blocks(&resp, count_usize) {
         Ok(blocks) => write_bytes(&mut env, &blocks),
         Err(message) => {
             set_error(message);
@@ -106,7 +135,7 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_extractBlocks(
 
 #[unsafe(no_mangle)]
 pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_lastError(
-    mut env: JNIEnv,
+    env: JNIEnv,
     _class: JClass,
 ) -> jstring {
     let message = LAST_ERROR.with(|slot| slot.borrow().clone());

@@ -18,8 +18,14 @@ node_modules/
 .build/
 build/
 .gradle/
-# Local signing keys & certs
+# Local signing keys, certs & generated wallet passes
 apps/wallet/certs/
+apps/wallet/pass_*.json
+*.pkpass
+*.p12
+*.pfx
+*.jks
+*.keystore
 *.pem
 *.key
 *.wav
@@ -29,8 +35,13 @@ local.properties
 .idea/
 *.iml
 
+# Smart Tree local memory & Python build metadata
+.st/
+*.egg-info/
+
 # Wrangler local secrets (never commit real values)
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
 target/
+dist/

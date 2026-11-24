@@ -39,8 +39,9 @@ pub fn build_poll_frame() -> Vec<u8> {
 
 pub fn build_read_frame(idm: &[u8], block: u8, count: u8) -> Vec<u8> {
     let body_len = 4 + 2 * count as usize;
-    let mut cmd = Vec::with_capacity(2 + idm.len() + body_len);
-    cmd.push((2 + idm.len() + body_len) as u8);
+    let total_len = 2 + idm.len() + body_len;
+    let mut cmd = Vec::with_capacity(total_len);
+    cmd.push(u8::try_from(total_len).unwrap_or(u8::MAX));
     cmd.push(CMD_READ_WO_ENCRYPTION);
     cmd.extend_from_slice(idm);
     cmd.push(0x01);
@@ -49,7 +50,7 @@ pub fn build_read_frame(idm: &[u8], block: u8, count: u8) -> Vec<u8> {
     cmd.push(count);
     for i in 0..count {
         cmd.push(0x80);
-        cmd.push(block + i);
+        cmd.push(block.saturating_add(i));
     }
     cmd
 }
@@ -58,6 +59,9 @@ pub fn build_read_frame(idm: &[u8], block: u8, count: u8) -> Vec<u8> {
 /// varies by stack (Samsung answers with 13 bytes, spec prose says 12), so the
 /// offset is derived: `resp.len() - count * 16`, sanity-bounded.
 pub fn extract_blocks(resp: &[u8], count: usize) -> Result<Vec<u8>, String> {
+    if count > MAX_BLOCKS_PER_READ {
+        return Err(format!("count {} exceeds max {}", count, MAX_BLOCKS_PER_READ));
+    }
     if resp.len() < 12 {
         return Err(format!("short frame len {}", resp.len()));
     }
@@ -67,11 +71,20 @@ pub fn extract_blocks(resp: &[u8], count: usize) -> Result<Vec<u8>, String> {
     if resp[10] != 0 || resp[11] != 0 {
         return Err(format!("sf 0x{:02x}/0x{:02x}", resp[10], resp[11]));
     }
-    let offset = resp.len().wrapping_sub(count * BLOCK_SIZE);
+    let payload_len = count
+        .checked_mul(BLOCK_SIZE)
+        .ok_or_else(|| "block size overflow".to_string())?;
+    let offset = resp
+        .len()
+        .checked_sub(payload_len)
+        .ok_or_else(|| format!("short frame len {} for {} blocks", resp.len(), count))?;
     if !(10..=16).contains(&offset) {
         return Err(format!("unexpected frame len {} for {} blocks", resp.len(), count));
     }
-    Ok(resp[offset..offset + count * BLOCK_SIZE].to_vec())
+    let end = offset
+        .checked_add(payload_len)
+        .ok_or_else(|| "payload bounds overflow".to_string())?;
+    Ok(resp[offset..end].to_vec())
 }
 
 fn be(block: &[u8], offset: usize, len: usize) -> u32 {

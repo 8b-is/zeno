@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZENO US — USDC+USDT Backed Privacy Neo-Bank (Open Client · Private Core)</title>
+  <meta name="description" content="US-first privacy-friendly neo-bank backed 1:1 by USDC and USDT. Inspired by Robinhood, CashApp, and Revolut with MIT open-source client and Rust private Kintsugi core.">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#06090e">
+  <link rel="stylesheet" href="us.css">
+</head>
+<body>
+  <header class="us-header">
+    <div class="us-brand">
+      <div class="us-logo" aria-hidden="true">Z$</div>
+      <div>
+        <div class="us-brand-title">
+          <span>ZENO US</span>
+          <span class="us-flag-pill">🇺🇸 USA FIRST · USDC+USDT+FOKEN</span>
+        </div>
+        <div class="us-brand-sub">MIT Open Client · Rust Private Core · 0 External Requests</div>
+      </div>
+    </div>
+
+    <div class="us-header-actions">
+      <button id="btn-por-header" class="pill-btn por-ok" type="button">● PoR <span id="hdr-por-ratio">1/1</span> VERIFIED</button>
+      <button id="btn-us-sound" class="pill-btn" type="button">🔔 Sound On</button>
+      <a href="/rfc-008" target="_blank" rel="noopener noreferrer" class="pill-btn gold-pill">RFC-008</a>
+      <a href="/" class="pill-btn">← Constellation</a>
+    </div>
+  </header>
+
+  <div class="us-shell">
+    <!-- Desktop Persistent Rail -->
+    <aside class="us-rail" aria-label="ZENO US navigation">
+      <button class="nav-item active" data-view="home" type="button">📈 Home · Portfolio</button>
+      <button class="nav-item" data-view="pay" type="button">💸 Pay · $zenotag</button>
+      <button class="nav-item" data-view="swap" type="button">⇄ Swap · USDC⇄USDT</button>
+      <button class="nav-item" data-view="vaults" type="button">💳 Vaults · Cards</button>
+      <button class="nav-item" data-view="privacy" type="button">🛡 Privacy · Proof</button>
+
+      <div class="rail-meta">
+        <div><strong>Backing:</strong> USDC + USDT (1:1)</div>
+        <div><strong>Active Tag:</strong> <span id="rail-tag" class="text-emerald">$you</span></div>
+        <div><strong>Chain Head:</strong> <span id="rail-seal" class="text-gold">0x62…</span></div>
+        <div><strong>Telemetry:</strong> 0 cookies · 0 beacons</div>
+        <div><a href="/licensing-boundary" target="_blank" rel="noopener noreferrer">MIT Client vs Private Core →</a></div>
+      </div>
+    </aside>
+
+    <!-- Main Stage -->
+    <main>
+      <div id="us-toast" class="toast-banner" role="status" aria-live="polite"></div>
+
+      <!-- 1. HOME / PORTFOLIO (ROBINHOOD DNA) -->
+      <section id="view-home" class="view-pane active" aria-label="Portfolio Home">
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-sub">TOTAL SOVEREIGN USD BALANCE (<span id="home-active-tag">$you</span>)</div>
+              <div class="portfolio-balance" id="home-balance">$12,840.50</div>
+              <div class="portfolio-delta">
+                <span id="chart-readout">▲ +$412.80 (+3.32%) · 1:1 USDC+USDT Backed</span>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button id="btn-open-deposit" class="btn-primary" type="button">+ Deposit USDC/USDT</button>
+              <button id="btn-open-withdraw" class="btn-secondary" type="button">↑ Withdraw</button>
+            </div>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="rh-chart" aria-label="Interactive portfolio curve"></canvas>
+          </div>
+
+          <div class="tf-row">
+            <div class="tf-pills" role="group" aria-label="Chart timeframe">
+              <button class="tf-btn active" data-tf="1D" type="button">1D</button>
+              <button class="tf-btn" data-tf="1W" type="button">1W</button>
+              <button class="tf-btn" data-tf="1M" type="button">1M</button>
+              <button class="tf-btn" data-tf="3M" type="button">3M</button>
+              <button class="tf-btn" data-tf="1Y" type="button">1Y</button>
+              <button class="tf-btn" data-tf="ALL" type="button">ALL</button>
+            </div>
+            <span class="tag-badge emerald">SIMULATED LOCAL PoR · ZERO DEBT MINTING</span>
+          </div>
+        </div>
+
+        <!-- Dual-Stablecoin Reserve Parity -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">USDC + USDT Segregated Reserve Parity</div>
+              <div class="panel-sub">Integer micro-USD ledger · exact p/q coverage ratio</div>
+            </div>
+            <span class="tag-badge emerald" id="por-trit-badge">Coverage 1/1 · trit 0</span>
+          </div>
+
+          <div class="reserve-bar-track" aria-label="USDC vs USDT reserve split">
+            <div class="reserve-bar-usdc bar-usdc-init" id="bar-usdc"></div>
+            <div class="reserve-bar-usdt bar-usdt-init" id="bar-usdt"></div>
+          </div>
+
+          <div class="reserve-stats">
+            <div class="stat-box">
+              <div class="stat-label">USDC Vault (Base/Sol/Eth)</div>
+              <div class="stat-val text-teal" id="stat-usdc">$31,240.50</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">USDT Vault (Eth/Sol/Tron)</div>
+              <div class="stat-val text-emerald" id="stat-usdt">$20,800.00</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Total Reserves</div>
+              <div class="stat-val" id="stat-total-reserves">$52,040.50</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Total User Liabilities</div>
+              <div class="stat-val text-gold" id="stat-total-liabilities">$52,040.50</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markets Watchlist & Kintsugi Activity -->
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Markets &amp; Treasury Yield</div>
+                <div class="panel-sub">0-commission Robinhood-style watchlist</div>
+              </div>
+              <span class="tag-badge">US-FIRST</span>
+            </div>
+            <div class="market-list" id="market-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Kintsugi Sealed Activity</div>
+                <div class="panel-sub">Double-entry zero-sum receipts (0x62)</div>
+              </div>
+              <span class="tag-badge gold" id="activity-count">1 block</span>
+            </div>
+            <div class="activity-list" id="activity-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. PAY $ZENOTAG (CASHAPP DNA) -->
+      <section id="view-pay" class="view-pane" aria-label="CashApp Instant Pay">
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Instant $zenotag Pay</div>
+              <div class="panel-sub">Zero-fee P2P double-entry settlement · USDC+USDT backed</div>
+            </div>
+            <span class="tag-badge emerald">Available: <span id="pay-available">$12,840.50</span></span>
+          </div>
+
+          <div class="cash-display">
+            <div class="cash-amount tabular" id="cash-amount-display">$0</div>
+            <div class="quick-chips">
+              <button class="chip-btn" data-quick="10" type="button">$10</button>
+              <button class="chip-btn" data-quick="25" type="button">$25</button>
+              <button class="chip-btn" data-quick="50" type="button">$50</button>
+              <button class="chip-btn" data-quick="100" type="button">$100</button>
+              <button class="chip-btn" data-quick="250" type="button">$250</button>
+            </div>
+          </div>
+
+          <div class="keypad-grid" role="group" aria-label="Numeric amount keypad">
+            <button class="key-btn" data-key="1" type="button">1</button>
+            <button class="key-btn" data-key="2" type="button">2</button>
+            <button class="key-btn" data-key="3" type="button">3</button>
+            <button class="key-btn" data-key="4" type="button">4</button>
+            <button class="key-btn" data-key="5" type="button">5</button>
+            <button class="key-btn" data-key="6" type="button">6</button>
+            <button class="key-btn" data-key="7" type="button">7</button>
+            <button class="key-btn" data-key="8" type="button">8</button>
+            <button class="key-btn" data-key="9" type="button">9</button>
+            <button class="key-btn" data-key="." type="button">.</button>
+            <button class="key-btn" data-key="0" type="button">0</button>
+            <button class="key-btn" data-key="BACK" type="button" aria-label="Backspace">⌫</button>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="pay-to-tag">Recipient $zenotag</label>
+              <input id="pay-to-tag" class="input" type="text" value="$alexandra" placeholder="$zenotag">
+            </div>
+            <div class="field">
+              <label for="pay-rail">Settlement Rail</label>
+              <select id="pay-rail" class="select">
+                <option value="ZENO Instant 0-Fee">ZENO Instant 0-Fee (Internal Kintsugi)</option>
+                <option value="USDC · Base">USDC · Base Rail</option>
+                <option value="USDT · Solana">USDT · Solana Rail</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pay-memo">Private Memo (Local)</label>
+              <input id="pay-memo" class="input" type="text" placeholder="Dinner, hardware, rent...">
+            </div>
+          </div>
+
+          <div class="quick-chips chips-left">
+            <button class="chip-btn contact-pill" data-tag="$alexandra" type="button">$alexandra</button>
+            <button class="chip-btn contact-pill" data-tag="$chris" type="button">$chris</button>
+            <button class="chip-btn contact-pill" data-tag="$yves" type="button">$yves</button>
+            <button class="chip-btn contact-pill" data-tag="$8bis" type="button">$8bis</button>
+            <button class="chip-btn contact-pill" data-tag="$alice" type="button">$alice</button>
+          </div>
+
+          <div class="btn-row btn-row-tight">
+            <button id="btn-pay-send" class="btn-primary flex-1" type="button">⚡ Pay Instantly</button>
+            <button id="btn-pay-qr" class="btn-secondary flex-1" type="button">▣ Request QR</button>
+          </div>
+        </div>
+
+        <!-- Solana SPL-USDC Payout & ZENO Family Trust 3-Tier Backing -->
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Solana Mainnet SPL-USDC Payout &amp; ZENO Family Trust</div>
+              <div class="panel-sub">Mint EPjFWdd5…wyTDt1v (6 decimals) · Unsigned intent builder · Strict 3-tier backing isolation</div>
+            </div>
+            <span class="tag-badge gold" id="sol-status-badge">UNSIGNED · READY FOR SOLANA SIGNER</span>
+          </div>
+
+          <div class="tier-grid">
+            <div class="stat-box">
+              <div class="stat-label">Tier 1 · Liquid On-Chain Reserves</div>
+              <div class="stat-val text-teal">USDC + USDT (1/1)</div>
+              <div class="panel-sub mt-xs">Sole liquid backing for USD balances &amp; Solana payouts</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Tier 2 · FOKEN Constellation</div>
+              <div class="stat-val text-emerald">2,406h · 19 Projects</div>
+              <div class="panel-sub mt-xs">Off-chain contribution weight (0/1 USD debt minting)</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Tier 3 · VAKED Polygon PoS</div>
+              <div class="stat-val text-gold">0x2Ae7…ae4A (0/1)</div>
+              <div class="panel-sub mt-xs">21M PoW utility / Library attestation (non-financial per whitepaper)</div>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="sol-recipient">Recipient Solana Address (Coinbase / SPL Wallet)</label>
+              <input id="sol-recipient" class="input mono" type="text" value="HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS" spellcheck="false" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="sol-amount">USDC Amount (Solana SPL)</label>
+              <input id="sol-amount" class="input mono" type="text" value="200.00" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="sol-memo">Payout Reference Memo</label>
+              <input id="sol-memo" class="input" type="text" value="ZENO Family Trust Test #1">
+            </div>
+          </div>
+
+          <div class="solana-grid">
+            <div class="text-center">
+              <div id="sol-qr-container" class="qr-canvas-frame" aria-label="Solana Pay SPL-USDC QR Code"></div>
+              <div class="panel-sub mt-xs">Scan with Coinbase Wallet, Phantom, or Solflare</div>
+            </div>
+            <div>
+              <div class="stat-label">Solana Pay SPL-USDC Transfer URI</div>
+              <div id="sol-uri-out" class="cli-code-box">solana:HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS</div>
+              <div class="stat-label mt-md">Exact Solana CLI Command (Mainnet-Beta)</div>
+              <div id="sol-cli-out" class="cli-code-box">spl-token transfer EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 200 HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS --fund-recipient --allow-unfunded-recipient</div>
+              <div class="btn-row mt-md">
+                <button id="btn-sol-refresh" class="btn-primary" type="button">▣ Refresh Solana Pay Intent</button>
+                <a id="btn-sol-open" class="btn-secondary" href="solana:HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS">↗ Open Solana Wallet</a>
+                <button id="btn-sol-copy-uri" class="pill-btn" type="button">🔗 Copy URI</button>
+                <button id="btn-sol-copy-cli" class="pill-btn" type="button">📋 Copy CLI</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="solana-notice">
+            <strong>Live Settlement Notice:</strong> Off-chain FOKEN hours and Polygon VAKED proof-of-presence tokens do not mint unbacked on-chain USDC. Signing &amp; broadcasting the 200 USDC transfer to <span class="mono">HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS</span> requires a funded Solana SPL-USDC wallet or treasury signer.
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. SWAP & FX + FOKEN (ROBINHOOD × REVOLUT × FOKEN) -->
+      <section id="view-swap" class="view-pane" aria-label="Stablecoin Swap, Zero-Markup FX and FOKEN Gate">
+        <div class="grid-2">
+          <div class="panel kintsugi">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">1:1 USDC ⇄ USDT Peg Bridge</div>
+                <div class="panel-sub">Atomic reserve rebalance · 0 bps spread · zero float drift</div>
+              </div>
+              <span class="tag-badge emerald">RATE 1/1</span>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="swap-direction">Direction</label>
+                <select id="swap-direction" class="select">
+                  <option value="USDC_TO_USDT">USDC → USDT (1:1 Atomic)</option>
+                  <option value="USDT_TO_USDC">USDT → USDC (1:1 Atomic)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="swap-amount">Amount (USD)</label>
+                <input id="swap-amount" class="input" type="number" min="1" step="0.01" value="500.00">
+              </div>
+            </div>
+
+            <div class="stat-box mt-md">
+              <div class="stat-label">Reserve Availability</div>
+              <div class="panel-sub mt-xs" id="swap-availability">USDC: $31,240.50 · USDT: $20,800.00</div>
+            </div>
+
+            <div class="btn-row mt-lg">
+              <button id="btn-exec-swap" class="btn-primary w-full" type="button">⇄ Execute Atomic 1:1 Swap</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Revolut Zero-Markup FX</div>
+                <div class="panel-sub">Exact rational p/q interbank conversion</div>
+              </div>
+              <span class="tag-badge gold">0% MARKUP</span>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="fx-amount-usd">USD Input</label>
+                <input id="fx-amount-usd" class="input" type="number" min="1" step="0.01" value="250.00">
+              </div>
+              <div class="field">
+                <label for="fx-target-currency">Target Pocket</label>
+                <select id="fx-target-currency" class="select">
+                  <option value="JPY">JPY (Japanese Yen)</option>
+                  <option value="EUR">EUR (Euro)</option>
+                  <option value="GBP">GBP (British Pound)</option>
+                  <option value="HUF">HUF (Hungarian Forint)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="stat-box mt-md">
+              <div class="stat-label">Exact p/q Quote</div>
+              <div class="stat-val text-teal" id="fx-quote-out">¥38,125</div>
+              <div class="panel-sub" id="fx-quote-pq">Rate p/q = 305/2 · Fee: 0 bps</div>
+            </div>
+
+            <div class="btn-row mt-lg">
+              <button id="btn-fx-pocket" class="btn-secondary w-full" type="button">Convert into Multi-Currency Pocket</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOKEN Proof-of-Contribution Gate (1:1 USDC+USDT Backed Settlement) -->
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">FOKEN Proof-of-Contribution Gate (貢献鋳造)</div>
+              <div class="panel-sub">Exact p/q net = avoided − (added + 3/2 · debt) · settles 1:1 into USDC/USDT backed USD</div>
+            </div>
+            <span class="tag-badge gold" id="foken-verdict-badge">READY · 107/1h NET</span>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="foken-avoided">Future Work Avoided (hrs)</label>
+              <input id="foken-avoided" class="input" type="number" min="0" step="1" value="120">
+            </div>
+            <div class="field">
+              <label for="foken-added">Work Added (hrs)</label>
+              <input id="foken-added" class="input" type="number" min="0" step="1" value="10">
+            </div>
+            <div class="field">
+              <label for="foken-debt">Maintenance Debt (hrs)</label>
+              <input id="foken-debt" class="input" type="number" min="0" step="1" value="2">
+            </div>
+            <div class="field">
+              <label for="foken-amount">FOKEN Claimed (1 FKN = $1)</label>
+              <input id="foken-amount" class="input" type="number" min="1" step="1" value="400">
+            </div>
+            <div class="field">
+              <label for="foken-asset">1:1 Backing Reserve</label>
+              <select id="foken-asset" class="select">
+                <option value="USDC">USDC Segregated Reserve</option>
+                <option value="USDT">USDT Segregated Reserve</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="stat-box mt-md">
+            <div class="stat-label">FOKEN Exact p/q Valuation</div>
+            <div class="panel-sub mt-xs" id="foken-live-readout">
+              Net Utility p/q = 107/1 hrs · 400 FKN = $400.00 backed 1:1 by USDC
+            </div>
+          </div>
+
+          <div class="btn-row mt-lg">
+            <button id="btn-foken-mint" class="btn-primary w-full" type="button">⚡ Evaluate FOKEN Gate &amp; Settle 1:1 Backed USD</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. VAULTS & CARDS (REVOLUT DNA) -->
+      <section id="view-vaults" class="view-pane" aria-label="Vaults and Titanium Cards">
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">ZENO US Obsidian Titanium Card</div>
+              <div class="panel-sub">Tap card to flip · Freeze anytime · Disposable single-use virtual PAN</div>
+            </div>
+            <span class="tag-badge emerald" id="card-status-badge">ACTIVE</span>
+          </div>
+
+          <div class="card-stage">
+            <div class="titanium-card" id="titanium-card" role="button" tabindex="0" aria-label="Flip ZENO US Titanium Card">
+              <div class="card-face front">
+                <div class="card-top-row">
+                  <span class="card-brand-title">ZENO US · TITANIUM</span>
+                  <span class="tag-badge emerald">USDC+USDT</span>
+                </div>
+                <div>
+                  <div class="mono card-pan" id="card-pan-display">4815 •••• •••• 0420</div>
+                  <div class="panel-sub mt-xs" id="card-type-label">PRIMARY SOVEREIGN DEBIT · $you</div>
+                </div>
+                <div class="card-meta-row">
+                  <span>EXP <strong id="card-exp">08/29</strong></span>
+                  <span>CAP <strong id="card-cap-text">$2,500/day</strong></span>
+                  <span>ZERO FX</span>
+                </div>
+              </div>
+
+              <div class="card-face back">
+                <div class="card-magstrip"></div>
+                <div class="card-back-row">
+                  <span>LOCAL KEY SEAL: <strong class="text-teal" id="card-back-fp">P-256</strong></span>
+                  <span>CVC: <strong class="text-gold" id="card-cvc">862</strong></span>
+                </div>
+                <div class="panel-sub">
+                  Client-side MIT open-source surface · Rust private Kintsugi core · Zero hidden fees.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row btn-row-center">
+            <button id="btn-card-flip" class="btn-secondary" type="button">🔄 Flip Card</button>
+            <button id="btn-card-freeze" class="btn-secondary" type="button">❄ Freeze Card</button>
+            <button id="btn-card-disposable" class="btn-primary" type="button">🎭 Generate Disposable Card</button>
+          </div>
+
+          <div class="field cap-field">
+            <label for="card-cap-slider">Daily Spend Cap: <span id="card-cap-label" class="text-emerald">$2,500</span></label>
+            <input id="card-cap-slider" type="range" min="100" max="10000" step="100" value="2500">
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Multi-Currency Sovereign Pockets</div>
+              <div class="panel-sub">Instant Revolut-style sub-vaults backed by ZENO US</div>
+            </div>
+            <div class="btn-row">
+              <a href="/#wallet" class="pill-btn">Apple / Google Wallet Passes</a>
+            </div>
+          </div>
+          <div class="pockets-grid" id="pockets-grid"></div>
+        </div>
+      </section>
+
+      <!-- 5. PRIVACY & PROOF (OPEN-CORE DNA) -->
+      <section id="view-privacy" class="view-pane" aria-label="Privacy and Proof of Reserves">
+        <div class="grid-2">
+          <div class="panel kintsugi">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Local-First WebCrypto Vault</div>
+                <div class="panel-sub">Non-extractable ECDSA P-256 private key stays inside your browser</div>
+              </div>
+              <span class="tag-badge emerald" id="vault-key-status">READY</span>
+            </div>
+
+            <div class="stat-box mb-md">
+              <div class="stat-label">Public Key SHA-256 Fingerprint</div>
+              <div class="mono mono-break-teal" id="vault-fingerprint">Generating local WebCrypto keypair…</div>
+            </div>
+
+            <div class="stat-box mb-md">
+              <div class="stat-label">Latest Local Signature Attestation</div>
+              <div class="mono mono-break-gold" id="vault-sig-out">Tap Sign Attestation to sign locally without network transmission.</div>
+            </div>
+
+            <div class="btn-row">
+              <button id="btn-rotate-key" class="btn-secondary" type="button">🔑 Rotate Local Keypair</button>
+              <button id="btn-sign-attestation" class="btn-primary" type="button">✍ Sign Local Attestation</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Zero-Telemetry Self-Audit</div>
+                <div class="panel-sub">Live browser inspection + Open-Core boundary</div>
+              </div>
+              <span class="tag-badge emerald">MIT CLIENT</span>
+            </div>
+
+            <div class="reserve-stats">
+              <div class="stat-box">
+                <div class="stat-label">Cookies</div>
+                <div class="stat-val text-emerald" id="audit-cookies">0</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">3rd-Party Requests</div>
+                <div class="stat-val text-emerald">0</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Client License</div>
+                <div class="stat-val text-teal">MIT</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Core Boundary</div>
+                <div class="stat-val text-gold">PRIVATE RUST</div>
+              </div>
+            </div>
+
+            <div class="btn-row mt-lg">
+              <button id="btn-export-proof" class="btn-primary" type="button">⬇ Export JSON PoR</button>
+              <button id="btn-reset-local" class="btn-secondary" type="button">↺ Reset Local Ledger</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">US Launch Transparency &amp; Open-Core Links</div>
+              <div class="panel-sub">Informational engineering sandbox — zero real funds transmitted here</div>
+            </div>
+            <span class="tag-badge gold">0x62 · KINTSUGI</span>
+          </div>
+          <p class="transparency-copy">
+            ZENO US executes deterministic <code class="mono">BigInt</code> double-entry and <code class="mono">p/q</code> Proof-of-Reserve math in this MIT safe isomorphic JS client while keeping custodial settlement, FinCEN/BSA compliance, and <code class="mono">#![no_std]</code> zero-float Rust HSM sealing inside the private Rust core (<code class="mono">apps/rust/zeno-us-core</code> &amp; <code class="mono">apps/rust/zeno-issuer-angel</code> — zero Python). Currently operating in simulated local Proof-of-Reserve mode pending live US Sponsor Bank FBO &amp; custody activation.
+          </p>
+          <div class="btn-row">
+            <a href="/rfc-008" target="_blank" rel="noopener noreferrer" class="pill-btn">📄 Spec: RFC-008</a>
+            <a href="/solana-pipeline" target="_blank" rel="noopener noreferrer" class="pill-btn">📜 Solana+VAKED+FOKEN Pipeline</a>
+            <a href="/licensing-boundary" target="_blank" rel="noopener noreferrer" class="pill-btn">⚖ Licensing Boundary</a>
+            <a href="/api/us/reserve-proof" target="_blank" rel="noopener noreferrer" class="pill-btn">🔍 /api/us/reserve-proof</a>
+            <a href="/api/us/architecture" target="_blank" rel="noopener noreferrer" class="pill-btn">🧱 /api/us/architecture</a>
+            <a href="/api/us/foken" target="_blank" rel="noopener noreferrer" class="pill-btn">⚡ /api/us/foken</a>
+            <a href="/api/us/solana-payout-spec" target="_blank" rel="noopener noreferrer" class="pill-btn">◎ /api/us/solana-payout-spec</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mobile Thumb-Zone Bottom Bar -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <button class="bottom-nav-btn active" data-view="home" type="button">
+      <span class="bottom-nav-icon">📈</span><span>Home</span>
+    </button>
+    <button class="bottom-nav-btn" data-view="pay" type="button">
+      <span class="bottom-nav-icon">💸</span><span>Pay $</span>
+    </button>
+    <button class="bottom-nav-btn" data-view="swap" type="button">
+      <span class="bottom-nav-icon">⇄</span><span>Swap</span>
+    </button>
+    <button class="bottom-nav-btn" data-view="vaults" type="button">
+      <span class="bottom-nav-icon">💳</span><span>Cards</span>
+    </button>
+    <button class="bottom-nav-btn" data-view="privacy" type="button">
+      <span class="bottom-nav-icon">🛡</span><span>Proof</span>
+    </button>
+  </nav>
+
+  <!-- Deposit / Withdraw / QR Modal -->
+  <div id="us-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="us-modal-title">
+    <div class="modal-card">
+      <div class="panel-head">
+        <div class="panel-title" id="us-modal-title">Deposit USDC / USDT</div>
+        <button id="btn-close-us-modal" class="pill-btn" type="button">✕</button>
+      </div>
+      <div id="us-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Lovetta Lane Constellation Footer -->
+  <footer class="us-footer" role="contentinfo">
+    <div class="footer-kicker">the constellation · lovetta lane</div>
+    <div class="mt-sm">ZENO US · USDC+USDT+FOKEN · MIT Safe Client · Private Rust Core · 8b-is Family Research &lt;3</div>
+    <div class="us-footer-links">
+      <a href="https://koan.vaked.dev/">✧ koan.vaked.dev</a>
+      <a href="https://zeno.vaked.dev/">zeno.vaked.dev</a>
+      <a href="https://art.vaked.dev/">art.vaked.dev</a>
+      <a href="https://pocoo.vaked.dev/">pocoo.vaked.dev</a>
+      <a href="https://8b.is" target="_blank" rel="noopener noreferrer">8b.is</a>
+    </div>
+  </footer>
+
+  <script src="qrcode.js"></script>
+  <script src="zeno-engine.js"></script>
+  <script src="sound.js"></script>
+  <script src="us.js"></script>
+</body>
+</html>
