@@ -90,6 +90,10 @@ const complianceAuditMd = readFileSync(join(root, "spec", "COMPLIANCE_AUDIT_SOC2
 const rustWasmSpecMd = readFileSync(join(root, "spec", "RUST_ASM_WASM_ARCHITECTURE.md"), "utf8");
 const licensingBoundaryMd = readFileSync(join(root, "LICENSING_BOUNDARY.md"), "utf8");
 const zenoClientWasmBase64 = readFileSync(join(root, "zeno-client.wasm")).toString("base64");
+const usRustIndexHtml = readFileSync(join(root, "us-rust", "index.html"), "utf8");
+const usRustBootJs = readFileSync(join(root, "us-rust", "boot.js"), "utf8");
+const usRustLeptosJs = readFileSync(join(root, "us-rust", "zeno_leptos.js"), "utf8");
+const usRustLeptosWasmBase64 = readFileSync(join(root, "us-rust", "zeno_leptos_bg.wasm")).toString("base64");
 const usHtml = readFileSync(join(root, "us.html"), "utf8");
 const usCss = readFileSync(join(root, "us.css"), "utf8");
 const usJs = readFileSync(join(root, "us.js"), "utf8");
@@ -102,6 +106,10 @@ const INDEX_HTML = ${JSON.stringify(indexHtml)};
 const US_HTML = ${JSON.stringify(usHtml)};
 const US_CSS = ${JSON.stringify(usCss)};
 const US_JS = ${JSON.stringify(usJs)};
+const US_RUST_INDEX_HTML = ${JSON.stringify(usRustIndexHtml)};
+const US_RUST_BOOT_JS = ${JSON.stringify(usRustBootJs)};
+const US_RUST_LEPTOS_JS = ${JSON.stringify(usRustLeptosJs)};
+const US_RUST_LEPTOS_WASM_BASE64 = ${JSON.stringify(usRustLeptosWasmBase64)};
 const ELI5_WALLET_HTML = ${JSON.stringify(eli5WalletHtml)};
 const STYLE_CSS = ${JSON.stringify(styleCss)};
 const APP_JS = ${JSON.stringify(appJs)};
@@ -137,7 +145,7 @@ const RUST_WASM_SPEC_MD = ${JSON.stringify(rustWasmSpecMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -324,6 +332,54 @@ export default {
     if (p === "/zeno-client.wasm") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       const bin = atob(ZENO_CLIENT_WASM_BASE64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new Response(bytes, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/wasm",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/us-rust" || p === "/us-rust/index.html") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(US_RUST_INDEX_HTML, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-security-policy": US_CSP_HEADER,
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "public, max-age=300, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/us-rust/boot.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(US_RUST_BOOT_JS, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/javascript; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/us-rust/zeno_leptos.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(US_RUST_LEPTOS_JS, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/javascript; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/us-rust/zeno_leptos_bg.wasm") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      const bin = atob(US_RUST_LEPTOS_WASM_BASE64);
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
       return new Response(bytes, {
@@ -742,7 +798,10 @@ export default {
         clientRuntime: "rust-wasm-no-std+safe-isomorphic-js",
         wasmClientActive: true,
         wasmClientPath: "/zeno-client.wasm",
+        leptosUiPath: "/us-rust",
         asmKernelCrate: "apps/rust/zeno-asm",
+        workersRsCrate: "apps/rust/zeno-edge-worker",
+        rustEdgeWorkerUrl: "https://zeno-us-rust-worker.cabotage.workers.dev",
         zeroTelemetry: true,
         openSourceClientRoutes: [
           "/us",
@@ -750,6 +809,10 @@ export default {
           "/us.js",
           "/zeno-engine.js",
           "/zeno-client.wasm",
+          "/us-rust",
+          "/us-rust/boot.js",
+          "/us-rust/zeno_leptos.js",
+          "/us-rust/zeno_leptos_bg.wasm",
           "/sound.js",
           "/qrcode.js",
           "/rfc-008",
@@ -765,14 +828,14 @@ export default {
           "/compliance-audit",
           "/rust-wasm-spec",
         ],
-        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm"],
+        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm", "apps/rust/zeno-edge-worker"],
       });
     }
 
     if (p === "/api/us/compliance") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
-        version: "1.12.0",
+        version: "1.13.0",
         formalCertification: false,
         note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
         frameworks: {

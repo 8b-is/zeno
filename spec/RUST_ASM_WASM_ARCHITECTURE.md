@@ -1,19 +1,21 @@
-# ZENO Rust + Inline Assembly + Client-Side WebAssembly Architecture (`v1.12.0`)
+# ZENO Rust + Inline Assembly + Client-Side WebAssembly Architecture (`v1.13.0`)
 
-> **Status**: Active · **Surface**: ZENO (`zeno.vaked.dev`, `zeno.8b.is`) · **License Split**: `zeno-client.wasm` (MIT Public Client) vs `apps/rust/zeno-asm` & `apps/rust/zeno-us-core` (Private Core)
+> **Status**: Active · **Surface**: ZENO (`zeno.vaked.dev`, `zeno.8b.is`) · **License Split**: `zeno-client.wasm` & `/us-rust` (MIT Public Client) vs `apps/rust/zeno-asm`, `apps/rust/zeno-us-core` & `apps/rust/zeno-edge-worker` (Private Core)
 
 ---
 
 ## 1. End-to-End Rust + Assembly Philosophy
 
-ZENO enforces deterministic, **zero-float** (`p/q` rationals and integer micro-USD, `1 USD = 1_000_000 µUSD`) computation from bare-metal CPU registers up to the browser DOM:
+ZENO enforces deterministic, **zero-float** (`p/q` rationals and integer micro-USD, `1 USD = 1_000_000 µUSD`) computation from bare-metal CPU registers up to the browser DOM and Cloudflare Edge isolates:
 
 | Layer | Crate / Artifact | Compilation Target | Safety Boundary | Role |
 |---|---|---|---|---|
 | **Hardware ASM Kernels** | `apps/rust/zeno-asm` | `aarch64-apple-darwin`, `aarch64-linux-android`, `x86_64`, portable fallback | Isolated `core::arch::asm!` verified by 1,000-vector differential fuzzing | NEON `cnt`/`addv`/`umov` popcount, `eor` 4-way XOR-fold, `rbit`/`clz` Stein GCD, branchless constant-time 32B digest compare |
-| **Private Sovereign Core** | `apps/rust/zeno-us-core` | Native server / Android JNI | `#![no_std]` · **`#![forbid(unsafe_code)]`** | Double-entry zero-sum Kintsugi ledger, BSA/FinCEN/OFAC, GDPR Art. 17/20, Sanpo Yoshi subscriptions |
+| **Private Sovereign Core** | `apps/rust/zeno-us-core` | Native server / Android JNI / Edge WASM | `#![no_std]` · **`#![forbid(unsafe_code)]`** | Double-entry zero-sum Kintsugi ledger, BSA/FinCEN/OFAC, GDPR Art. 17/20, Sanpo Yoshi subscriptions |
 | **Issuer Angel & Native JNI** | `apps/rust/zeno-issuer-angel`, `apps/rust/zeno-native` | ARM64 Android `.so` + host | `#![no_std]` core + bounded 16 KiB JNI | Google/Apple Wallet `p/q` transit & SHA-256/WUPZ sealing |
-| **Client-Side Rust WASM** | `apps/rust/zeno-wasm-client` -> `zeno-client.wasm` | `wasm32-unknown-unknown` (`6,987 B`) | `#![no_std]` (on `wasm32`), zero heap allocator, bounded 1 KiB scratch | Runs live inside `/us` browsers & Node test parity |
+| **Client-Side Micro-Kernel** | `apps/rust/zeno-wasm-client` -> `zeno-client.wasm` | `wasm32-unknown-unknown` (`6,987 B`) | `#![no_std]` (on `wasm32`), zero heap allocator, bounded 1 KiB scratch | Runs live inside `/us` browsers & Node test parity |
+| **Full Reactive Rust Client UI** | `apps/rust/zeno-leptos-ui` -> `/us-rust` | `wasm32-unknown-unknown` (`159,666 B` raw / `63,749 B` gzipped) | Zero floats, zero inline styles/scripts, strict CSP `'wasm-unsafe-eval'` | Reactive Leptos 0.8 CSR terminal at `https://zeno.vaked.dev/us-rust` |
+| **Cloudflare Workers Rust Edge** | `apps/rust/zeno-edge-worker` (`workers-rs 0.9`) | `wasm32-unknown-unknown` (`101.40 KiB` gzipped, `5 ms` startup) | Direct `zeno-us-core` execution inside V8 isolates (`405`/`413`/security headers) | Live at `https://zeno-us-rust-worker.cabotage.workers.dev` |
 
 **Key architectural rule**: `zeno-us-core` MUST retain `#![forbid(unsafe_code)]`. All hardware inline assembly (`core::arch::asm!`) lives strictly inside `apps/rust/zeno-asm/`.
 

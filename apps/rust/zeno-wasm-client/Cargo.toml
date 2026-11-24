@@ -5,6 +5,10 @@ edition = "2024"
 description = "Tiny zero-dependency #![no_std] client-side Rust WebAssembly core for ZENO US (MIT safe math & Solana validation)"
 license = "MIT OR Apache-2.0"
 
+[features]
+default = ["standalone-wasm"]
+standalone-wasm = []
+
 [lib]
 name = "zeno_wasm_client"
 crate-type = ["cdylib", "rlib"]

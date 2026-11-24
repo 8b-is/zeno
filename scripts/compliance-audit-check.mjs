@@ -141,6 +141,19 @@ const checks = [
       && readFileSync(join(root, "zeno-client.wasm")).subarray(0, 4).toString("latin1") === "\0asm"
       && rustNonTest.includes("#![forbid(unsafe_code)]"),
   },
+  {
+    id: "RUST-LEPTOS-AND-WORKERS-RS",
+    standard: "SOC2-PI1.4 / Zero-Float Client & Edge",
+    desc: "Leptos 0.8 /us-rust WASM UI and workers-rs Edge Worker present with zero floats, zero inline script/style, and zero purple",
+    ok: existsSync(join(root, "apps", "rust", "zeno-leptos-ui", "src", "lib.rs"))
+      && existsSync(join(root, "apps", "rust", "zeno-edge-worker", "src", "lib.rs"))
+      && existsSync(join(root, "us-rust", "zeno_leptos_bg.wasm"))
+      && readFileSync(join(root, "us-rust", "zeno_leptos_bg.wasm")).subarray(0, 4).toString("latin1") === "\0asm"
+      && !/\sstyle="/i.test(read("us-rust/index.html"))
+      && !/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(read("us-rust/index.html"))
+      && !/\bf32\b|\bf64\b/.test(read("apps/rust/zeno-leptos-ui/src/lib.rs").split("#[cfg(test)]")[0])
+      && !/#b48bff|\bpurple\b|\bviolet\b/i.test(read("apps/rust/zeno-leptos-ui/src/lib.rs")),
+  },
 ];
 
 const passed = checks.filter((c) => c.ok).length;

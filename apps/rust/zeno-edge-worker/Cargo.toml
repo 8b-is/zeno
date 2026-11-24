@@ -1,0 +1,23 @@
+[package]
+name = "zeno-edge-worker"
+version = "0.1.0"
+edition = "2024"
+description = "Cloudflare Workers Rust (workers-rs 0.9) edge API backed directly by #![no_std] zeno-us-core"
+license = "LicenseRef-Proprietary"
+
+[lib]
+name = "zeno_edge_worker"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+worker = "0.9"
+zeno-issuer-angel = { path = "../zeno-issuer-angel" }
+zeno-us-core = { path = "../zeno-us-core" }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

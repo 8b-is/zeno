@@ -204,6 +204,22 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(await fetchWorker("/zeno-client.wasm", { method: "POST" }).then((r) => r.status), 405);
   assert.equal(await fetchWorker("/rust-wasm-spec", { method: "POST" }).then((r) => r.status), 405);
 
+  // Full Leptos 0.8 Rust WASM UI (/us-rust)
+  const usRustRes = await fetchWorker("/us-rust");
+  assert.equal(usRustRes.status, 200);
+  const usRustCsp = usRustRes.headers.get("content-security-policy") || "";
+  assert.match(usRustCsp, /script-src 'self' 'wasm-unsafe-eval'/);
+  assert.ok(!usRustCsp.includes("'unsafe-eval'"));
+  assert.equal(await fetchWorker("/us-rust/boot.js").then((r) => r.status), 200);
+  assert.equal(await fetchWorker("/us-rust/zeno_leptos.js").then((r) => r.status), 200);
+  const leptosWasmRes = await fetchWorker("/us-rust/zeno_leptos_bg.wasm");
+  assert.equal(leptosWasmRes.status, 200);
+  assert.equal(leptosWasmRes.headers.get("content-type"), "application/wasm");
+  const leptosBytes = new Uint8Array(await leptosWasmRes.arrayBuffer());
+  assert.deepEqual(Array.from(leptosBytes.subarray(0, 4)), [0x00, 0x61, 0x73, 0x6d]);
+  assert.equal(await fetchWorker("/us-rust", { method: "POST" }).then((r) => r.status), 405);
+  assert.equal(await fetchWorker("/us-rust/zeno_leptos_bg.wasm", { method: "POST" }).then((r) => r.status), 405);
+
   const compRes = await fetchWorker("/api/us/compliance");
   assert.equal(compRes.status, 200);
   const compDoc = await compRes.json();
@@ -362,13 +378,21 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(arch.clientRuntime, "rust-wasm-no-std+safe-isomorphic-js");
   assert.equal(arch.wasmClientActive, true);
   assert.equal(arch.wasmClientPath, "/zeno-client.wasm");
+  assert.equal(arch.leptosUiPath, "/us-rust");
   assert.equal(arch.asmKernelCrate, "apps/rust/zeno-asm");
+  assert.equal(arch.workersRsCrate, "apps/rust/zeno-edge-worker");
+  assert.equal(arch.rustEdgeWorkerUrl, "https://zeno-us-rust-worker.cabotage.workers.dev");
   assert.equal(arch.clientLicense, "MIT");
   assert.equal(arch.coreLicense, "PROPRIETARY_PRIVATE");
   assert.equal(arch.zeroTelemetry, true);
   assert.equal(arch.fokenGate, true);
   assert.deepEqual(arch.domains, ["zeno.vaked.dev", "zeno.8b.is"]);
-  assert.deepEqual(arch.privateCoreModules, ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm"]);
+  assert.deepEqual(arch.privateCoreModules, [
+    "apps/rust/zeno-us-core",
+    "apps/rust/zeno-issuer-angel",
+    "apps/rust/zeno-asm",
+    "apps/rust/zeno-edge-worker",
+  ]);
 
   const fokenInfoRes = await fetchWorker("/api/us/foken");
   assert.equal(fokenInfoRes.status, 200);
@@ -437,6 +461,7 @@ test("Public MIT client exporter dry-run excludes all private-core paths", () =>
   assert.match(out, /us\.html/);
   assert.match(out, /zeno-engine\.js/);
   assert.match(out, /zeno-client\.wasm/);
+  assert.match(out, /us-rust\/zeno_leptos_bg\.wasm/);
   assert.match(out, /RUST_ASM_WASM_ARCHITECTURE\.md/);
   assert.ok(!out.includes("apps/core"), "exporter leaked apps/core");
   assert.ok(!out.includes("apps/rust"), "exporter leaked apps/rust");

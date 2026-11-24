@@ -1,0 +1,6 @@
+name = "zeno-us-rust-worker"
+main = "build/worker/shim.mjs"
+compatibility_date = "2026-10-01"
+
+[build]
+command = "env -u RUSTFLAGS worker-build --release"

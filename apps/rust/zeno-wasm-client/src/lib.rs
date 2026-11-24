@@ -1,4 +1,4 @@
-#![cfg_attr(all(target_arch = "wasm32", not(test)), no_std)]
+#![cfg_attr(all(target_arch = "wasm32", not(test), feature = "standalone-wasm"), no_std)]
 //! Zero-dependency `#![no_std]` Client-Side Rust WebAssembly Micro-Kernel (`zeno-client.wasm`).
 //!
 //! - Zero JS glue (`wasm-bindgen` not required), zero heap allocator, zero `f32`/`f64` floats.
@@ -20,7 +20,7 @@ unsafe impl Sync for ScratchBuf {}
 
 static SCRATCH: ScratchBuf = ScratchBuf(UnsafeCell::new([0u8; SCRATCH_CAP]));
 
-#[cfg(all(target_arch = "wasm32", not(test)))]
+#[cfg(all(target_arch = "wasm32", not(test), feature = "standalone-wasm"))]
 #[panic_handler]
 fn wasm_panic(_info: &core::panic::PanicInfo<'_>) -> ! {
     core::arch::wasm32::unreachable()
