@@ -1,0 +1,22 @@
+name: ZenoApp
+options:
+  bundleIdPrefix: is.8b.zeno
+  deploymentTarget:
+    iOS: "17.0"
+    macOS: "14.0"
+targets:
+  ZenoApp:
+    type: application
+    platform: [iOS, macOS]
+    sources:
+      - path: Sources/ZenoApp
+    info:
+      path: Info.plist
+    entitlements:
+      path: ZenoApp.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: is.8b.zeno.app
+        MARKETING_VERSION: "1.2.0"
+        CURRENT_PROJECT_VERSION: "432"
+        SWIFT_VERSION: "5.9"
