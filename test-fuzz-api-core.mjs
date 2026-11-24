@@ -137,12 +137,15 @@ test("Fuzz Edge Worker API routes against malformed JSON, prototype pollution, i
     "/api/us/reserve-proof",
     "/api/us/architecture",
     "/api/us/solana-payout-spec",
+    "/api/us/networks",
+    "/api/us/pricing",
     "/api/wallet/google-pass",
     "/api/wallet/issuer-angel",
     "/api/constellation",
     "/api/kompress",
     "/rfc-008",
     "/solana-pipeline",
+    "/monetization-spec",
   ];
   for (const ep of readOnlyEndpoints) {
     for (const method of ["PUT", "DELETE", "PATCH"]) {

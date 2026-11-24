@@ -152,6 +152,32 @@ test("StablecoinReserveEngine is prototype-safe, pure BigInt, tamper-resistant, 
     solIntent.cliCommand,
     "spl-token transfer EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 200 HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS --fund-recipient --allow-unfunded-recipient",
   );
+
+  // Top 7 USDC+USDT network address validation & Tron USDC refusal
+  const evmAddr = "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940";
+  const tronAddr = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+  assert.equal(Object.keys(ZenoEngine.STABLECOIN_NETWORKS).length, 7);
+  for (const net of ["base", "ethereum", "arbitrum", "polygon", "optimism"]) {
+    assert.equal(StablecoinReserveEngine.validateNetworkAddress(net, "USDC", evmAddr).network.id, net);
+    assert.equal(StablecoinReserveEngine.validateNetworkAddress(net, "USDT", evmAddr).network.id, net);
+  }
+  assert.equal(StablecoinReserveEngine.validateNetworkAddress("solana", "USDC", coinbaseSolana).asset, "USDC");
+  assert.equal(StablecoinReserveEngine.validateNetworkAddress("tron", "USDT", tronAddr).contract, tronAddr);
+  assert.throws(() => StablecoinReserveEngine.validateNetworkAddress("tron", "USDC", tronAddr), /not supported/);
+
+  // Subscriptions & automated trading usage monetization (Sanpo Yoshi 50/30/20 split)
+  const sub = engine.subscribePlan("$you", "ultra_quant");
+  assert.equal(sub.feeMicro, 49000000n);
+  assert.equal(sub.split.familyTrustMicro, 14700000n);
+  assert.equal(sub.split.fokenCommonsMicro, 9800000n);
+  assert.equal(sub.split.operatingMicro, 24500000n);
+
+  const usage = engine.billMeteredUsage("$you", "AUTO_TRADE_TICK", 5n, 2000n * MICRO_USD);
+  assert.equal(usage.feeMicro, 2050000n); // 5 * $0.01 + 10 bps * $2,000 = $2.05
+  const rev = engine.getRevenueSummary();
+  assert.equal(rev.totalRevenueMicro, 51050000n);
+  assert.equal(engine.verifyDoubleEntryAudit().valid, true);
+  assert.equal(engine.verifyReserveParity().ratioPQ, "1/1");
 });
 
 test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only architecture", async () => {
@@ -164,10 +190,24 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(usRes.headers.get("x-frame-options"), "DENY");
   assert.equal(usRes.headers.get("cross-origin-opener-policy"), "same-origin");
 
-  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/licensing-boundary"]) {
+  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/monetization-spec", "/licensing-boundary"]) {
     const res = await fetchWorker(path);
     assert.equal(res.status, 200, `${path} did not return 200`);
   }
+
+  const netsRes = await fetchWorker("/api/us/networks");
+  assert.equal(netsRes.status, 200);
+  const netsDoc = await netsRes.json();
+  assert.equal(netsDoc.count, 7);
+  assert.equal(netsDoc.networks.length, 7);
+  assert.equal(await fetchWorker("/api/us/networks", { method: "POST" }).then((r) => r.status), 405);
+
+  const pricingRes = await fetchWorker("/api/us/pricing");
+  assert.equal(pricingRes.status, 200);
+  const pricing = await pricingRes.json();
+  assert.equal(pricing.plans.length, 4);
+  assert.equal(pricing.sanpoYoshiRevenueSplitPQ.familyTrustUsdc, "3/10");
+  assert.equal(await fetchWorker("/api/us/pricing", { method: "POST" }).then((r) => r.status), 405);
 
   const solSpecRes = await fetchWorker("/api/us/solana-payout-spec");
   assert.equal(solSpecRes.status, 200);

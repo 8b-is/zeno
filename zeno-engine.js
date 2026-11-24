@@ -566,6 +566,121 @@
     VAKED_POLYGON_ERC20: "0x2Ae7DA713A2c8527AF70825C0F79632AF2e2ae4A",
   });
 
+  const STABLECOIN_NETWORKS = Object.freeze({
+    solana: Object.freeze({
+      id: "solana",
+      name: "Solana Mainnet",
+      chainId: "mainnet-beta",
+      addressKind: "solana",
+      usdcContract: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      usdtContract: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      avgFinality: "~0.4s",
+      typicalFee: "~$0.001",
+    }),
+    base: Object.freeze({
+      id: "base",
+      name: "Base L2",
+      chainId: 8453,
+      addressKind: "evm",
+      usdcContract: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      usdtContract: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      avgFinality: "~2s",
+      typicalFee: "<$0.01",
+    }),
+    ethereum: Object.freeze({
+      id: "ethereum",
+      name: "Ethereum L1",
+      chainId: 1,
+      addressKind: "evm",
+      usdcContract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      usdtContract: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      avgFinality: "~12s",
+      typicalFee: "$0.50-$3",
+    }),
+    arbitrum: Object.freeze({
+      id: "arbitrum",
+      name: "Arbitrum One",
+      chainId: 42161,
+      addressKind: "evm",
+      usdcContract: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      usdtContract: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+      avgFinality: "~1s",
+      typicalFee: "<$0.02",
+    }),
+    polygon: Object.freeze({
+      id: "polygon",
+      name: "Polygon PoS",
+      chainId: 137,
+      addressKind: "evm",
+      usdcContract: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      usdtContract: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+      avgFinality: "~2s",
+      typicalFee: "<$0.01",
+    }),
+    optimism: Object.freeze({
+      id: "optimism",
+      name: "OP Mainnet",
+      chainId: 10,
+      addressKind: "evm",
+      usdcContract: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+      usdtContract: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+      avgFinality: "~2s",
+      typicalFee: "<$0.01",
+    }),
+    tron: Object.freeze({
+      id: "tron",
+      name: "Tron TRC-20 (USDT)",
+      chainId: "tron-mainnet",
+      addressKind: "tron",
+      usdcContract: null,
+      usdtContract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      avgFinality: "~3s",
+      typicalFee: "$0.30-$1",
+    }),
+  });
+
+  const SUBSCRIPTION_PLANS = Object.freeze({
+    free: Object.freeze({
+      id: "free",
+      name: "Free",
+      monthlyFeeMicro: 0n,
+      autoTradeBps: 50n,
+      bridgeBps: 25n,
+      includedApiCalls: 500,
+    }),
+    plus: Object.freeze({
+      id: "plus",
+      name: "ZENO Plus",
+      monthlyFeeMicro: 9990000n,
+      autoTradeBps: 25n,
+      bridgeBps: 15n,
+      includedApiCalls: 10000,
+    }),
+    ultra_quant: Object.freeze({
+      id: "ultra_quant",
+      name: "ZENO Ultra Quant",
+      monthlyFeeMicro: 49000000n,
+      autoTradeBps: 10n,
+      bridgeBps: 5n,
+      includedApiCalls: 100000,
+    }),
+    institutional: Object.freeze({
+      id: "institutional",
+      name: "Institutional",
+      monthlyFeeMicro: 199000000n,
+      autoTradeBps: 5n,
+      bridgeBps: 2n,
+      includedApiCalls: 1000000,
+    }),
+  });
+
+  const USAGE_RATES_MICRO = Object.freeze({
+    API_CALL_OVERAGE: 500n,
+    AUTO_TRADE_TICK: 10000n,
+    CROSS_CHAIN_BRIDGE_MIN: 50000n,
+    DISPOSABLE_CARD_MINT: 250000n,
+  });
+
   const FX_RATES_PQ = Object.freeze({
     USD: Object.freeze({ num: 1n, den: 1n, symbol: "$", decimals: 2 }),
     JPY: Object.freeze({ num: 15250n, den: 100n, symbol: "¥", decimals: 0 }),
@@ -652,6 +767,14 @@
           throw new RangeError("Invalid seq in seedState");
         }
         this.seq = seedState.seq;
+        this.plans = Object.create(null);
+        if (seedState.plans && typeof seedState.plans === "object" && !Array.isArray(seedState.plans)) {
+          for (const [tag, planId] of Object.entries(seedState.plans)) {
+            if (!FORBIDDEN_ACCOUNT_KEYS.has(tag) && Object.hasOwn(SUBSCRIPTION_PLANS, planId)) {
+              this.plans[this._normalizeTag(tag)] = planId;
+            }
+          }
+        }
         const audit = this.verifyDoubleEntryAudit();
         if (!audit.valid) {
           throw new Error(`Tampered seedState rejected: ${audit.reason || "unbalanced"}`);
@@ -670,6 +793,7 @@
           "$8bis": 25000000000n,
         });
         this.seq = 1;
+        this.plans = Object.create(null);
         const genesisSeal = _fnv1a64Hex("0x62|GENESIS|USDC:31240500000|USDT:20800000000");
         this.chainHead = `0x62${genesisSeal}`;
         this.receipts = [
@@ -999,15 +1123,166 @@
       for (const [k, v] of Object.entries(this.accounts)) {
         accounts[k] = v.toString();
       }
+      const plans = {};
+      for (const [k, v] of Object.entries(this.plans || {})) {
+        plans[k] = v;
+      }
       return {
         reserves: {
           USDC: this.reserves.USDC.toString(),
           USDT: this.reserves.USDT.toString(),
         },
         accounts,
+        plans,
         receipts: this.receipts,
         chainHead: this.chainHead,
         seq: this.seq,
+      };
+    }
+
+    static validateNetworkAddress(networkId, asset, address) {
+      const netKey = String(networkId || "").trim().toLowerCase();
+      if (!Object.hasOwn(STABLECOIN_NETWORKS, netKey)) {
+        throw new Error(`Unsupported network: ${networkId}`);
+      }
+      const net = STABLECOIN_NETWORKS[netKey];
+      const upperAsset = String(asset || "").trim().toUpperCase();
+      if (upperAsset !== "USDC" && upperAsset !== "USDT") {
+        throw new Error(`Unsupported stablecoin asset: ${asset}`);
+      }
+      const contract = upperAsset === "USDC" ? net.usdcContract : net.usdtContract;
+      if (!contract) {
+        throw new Error(`${upperAsset} is not supported on ${net.name}`);
+      }
+      const cleanAddr = String(address || "").trim();
+      if (net.addressKind === "solana") {
+        StablecoinReserveEngine.decodeSolanaPubkey(cleanAddr);
+      } else if (net.addressKind === "evm") {
+        if (!/^0x[0-9a-fA-F]{40}$/.test(cleanAddr) || /^0x0{40}$/i.test(cleanAddr)) {
+          throw new Error(`Invalid EVM address for ${net.name}`);
+        }
+      } else if (net.addressKind === "tron") {
+        if (cleanAddr.length !== 34 || !cleanAddr.startsWith("T")) {
+          throw new Error(`Invalid TRON address for ${net.name}`);
+        }
+        for (const ch of cleanAddr) {
+          if (BASE58_ALPHABET.indexOf(ch) < 0) {
+            throw new Error(`Invalid Base58 char in TRON address`);
+          }
+        }
+      }
+      return { network: net, asset: upperAsset, contract, address: cleanAddr };
+    }
+
+    static splitSanpoYoshiRevenue(totalMicroInput) {
+      const total = BigInt(totalMicroInput);
+      if (total < 0n) throw new RangeError("Revenue fee cannot be negative");
+      const familyTrustMicro = (total * 3n) / 10n;
+      const fokenCommonsMicro = (total * 2n) / 10n;
+      const operatingMicro = total - familyTrustMicro - fokenCommonsMicro;
+      return { totalMicro: total, operatingMicro, familyTrustMicro, fokenCommonsMicro };
+    }
+
+    _applyRevenueCharge(cleanTag, kind, feeMicro, memo, planId = null) {
+      const userBal = this.accounts[cleanTag] ?? 0n;
+      if (userBal < feeMicro) {
+        throw new Error(`Insufficient USD balance in ${cleanTag} for fee ${StablecoinReserveEngine.formatUsd(feeMicro)}`);
+      }
+      const split = StablecoinReserveEngine.splitSanpoYoshiRevenue(feeMicro);
+      const postings = [{ account: `usd:${cleanTag}`, amount: feeMicro }];
+      if (split.operatingMicro > 0n) {
+        postings.push({ account: "usd:$rev_operating", amount: -split.operatingMicro });
+      }
+      if (split.familyTrustMicro > 0n) {
+        postings.push({ account: "usd:$rev_family_trust", amount: -split.familyTrustMicro });
+      }
+      if (split.fokenCommonsMicro > 0n) {
+        postings.push({ account: "usd:$rev_foken_commons", amount: -split.fokenCommonsMicro });
+      }
+      this.accounts[cleanTag] = userBal - feeMicro;
+      this.accounts["$rev_operating"] = (this.accounts["$rev_operating"] ?? 0n) + split.operatingMicro;
+      this.accounts["$rev_family_trust"] = (this.accounts["$rev_family_trust"] ?? 0n) + split.familyTrustMicro;
+      this.accounts["$rev_foken_commons"] = (this.accounts["$rev_foken_commons"] ?? 0n) + split.fokenCommonsMicro;
+      if (planId) {
+        this.plans[cleanTag] = planId;
+      }
+      const receipt = this._sealReceipt(kind, "USD", feeMicro, postings, memo);
+      return { receipt, split, parity: this.verifyReserveParity() };
+    }
+
+    getPlan(tag) {
+      const cleanTag = this._normalizeTag(tag);
+      const planId = (this.plans && Object.hasOwn(this.plans, cleanTag)) ? this.plans[cleanTag] : "free";
+      return SUBSCRIPTION_PLANS[planId] || SUBSCRIPTION_PLANS.free;
+    }
+
+    subscribePlan(tag, planId) {
+      const cleanTag = this._normalizeTag(tag);
+      if (!Object.hasOwn(SUBSCRIPTION_PLANS, planId)) {
+        throw new Error(`Unknown subscription plan: ${planId}`);
+      }
+      const plan = SUBSCRIPTION_PLANS[planId];
+      if (plan.monthlyFeeMicro === 0n) {
+        this.plans[cleanTag] = plan.id;
+        return {
+          plan,
+          feeMicro: 0n,
+          split: StablecoinReserveEngine.splitSanpoYoshiRevenue(0n),
+          parity: this.verifyReserveParity(),
+        };
+      }
+      const res = this._applyRevenueCharge(
+        cleanTag,
+        "SUBSCRIPTION_BILLING",
+        plan.monthlyFeeMicro,
+        `Subscription ${plan.name} (${StablecoinReserveEngine.formatUsd(plan.monthlyFeeMicro)}/mo) · 50/30/20 Sanpo Yoshi`,
+        plan.id,
+      );
+      return { plan, feeMicro: plan.monthlyFeeMicro, ...res };
+    }
+
+    billMeteredUsage(tag, kind, unitsInput, notionalMicroInput = 0n) {
+      const cleanTag = this._normalizeTag(tag);
+      const units = BigInt(unitsInput);
+      if (units <= 0n) throw new RangeError("Usage units must be > 0");
+      const notionalMicro = BigInt(notionalMicroInput);
+      if (notionalMicro < 0n) throw new RangeError("Notional amount cannot be negative");
+      const plan = this.getPlan(cleanTag);
+      const cleanKind = String(kind || "").trim().toUpperCase();
+
+      let feeMicro = 0n;
+      if (cleanKind === "API_CALL_OVERAGE") {
+        feeMicro = units * USAGE_RATES_MICRO.API_CALL_OVERAGE;
+      } else if (cleanKind === "AUTO_TRADE_TICK") {
+        feeMicro = units * USAGE_RATES_MICRO.AUTO_TRADE_TICK + (notionalMicro * plan.autoTradeBps) / 10000n;
+      } else if (cleanKind === "CROSS_CHAIN_BRIDGE") {
+        const bpsFee = (notionalMicro * plan.bridgeBps) / 10000n;
+        const minFee = units * USAGE_RATES_MICRO.CROSS_CHAIN_BRIDGE_MIN;
+        feeMicro = bpsFee > minFee ? bpsFee : minFee;
+      } else if (cleanKind === "DISPOSABLE_CARD_MINT") {
+        feeMicro = units * USAGE_RATES_MICRO.DISPOSABLE_CARD_MINT;
+      } else {
+        throw new Error(`Unsupported metered usage kind: ${kind}`);
+      }
+      if (feeMicro <= 0n) throw new RangeError("Computed metered fee must be > 0");
+      const res = this._applyRevenueCharge(
+        cleanTag,
+        "METERED_USAGE_FEE",
+        feeMicro,
+        `Metered ${cleanKind} (${units.toString()} units · ${plan.id}) -> ${StablecoinReserveEngine.formatUsd(feeMicro)}`,
+      );
+      return { plan, kind: cleanKind, feeMicro, ...res };
+    }
+
+    getRevenueSummary() {
+      const operatingMicro = this.accounts["$rev_operating"] ?? 0n;
+      const familyTrustMicro = this.accounts["$rev_family_trust"] ?? 0n;
+      const fokenCommonsMicro = this.accounts["$rev_foken_commons"] ?? 0n;
+      return {
+        operatingMicro,
+        familyTrustMicro,
+        fokenCommonsMicro,
+        totalRevenueMicro: operatingMicro + familyTrustMicro + fokenCommonsMicro,
       };
     }
 
@@ -1128,7 +1403,7 @@
   }
 
   return {
-    version: "1.4.0",
+    version: "1.5.0",
     QWave: new QWaveDSP(),
     QWaveDSP,
     ContinuousStreamEngine,
@@ -1136,6 +1411,9 @@
     KintsugiLedger,
     StablecoinReserveEngine,
     SOLANA_MAINNET,
+    STABLECOIN_NETWORKS,
+    SUBSCRIPTION_PLANS,
+    USAGE_RATES_MICRO,
     MICRO_USD,
   };
 });

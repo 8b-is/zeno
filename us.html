@@ -38,6 +38,7 @@
       <button class="nav-item active" data-view="home" type="button">📈 Home · Portfolio</button>
       <button class="nav-item" data-view="pay" type="button">💸 Pay · $zenotag</button>
       <button class="nav-item" data-view="swap" type="button">⇄ Swap · USDC⇄USDT</button>
+      <button class="nav-item" data-view="pro" type="button">⚡ Pro · Trade &amp; 7 Chains</button>
       <button class="nav-item" data-view="vaults" type="button">💳 Vaults · Cards</button>
       <button class="nav-item" data-view="privacy" type="button">🛡 Privacy · Proof</button>
 
@@ -560,12 +561,94 @@
           <div class="btn-row">
             <a href="/rfc-008" target="_blank" rel="noopener noreferrer" class="pill-btn">📄 Spec: RFC-008</a>
             <a href="/solana-pipeline" target="_blank" rel="noopener noreferrer" class="pill-btn">📜 Solana+VAKED+FOKEN Pipeline</a>
+            <a href="/monetization-spec" target="_blank" rel="noopener noreferrer" class="pill-btn">💰 Monetization Spec</a>
             <a href="/licensing-boundary" target="_blank" rel="noopener noreferrer" class="pill-btn">⚖ Licensing Boundary</a>
             <a href="/api/us/reserve-proof" target="_blank" rel="noopener noreferrer" class="pill-btn">🔍 /api/us/reserve-proof</a>
             <a href="/api/us/architecture" target="_blank" rel="noopener noreferrer" class="pill-btn">🧱 /api/us/architecture</a>
             <a href="/api/us/foken" target="_blank" rel="noopener noreferrer" class="pill-btn">⚡ /api/us/foken</a>
             <a href="/api/us/solana-payout-spec" target="_blank" rel="noopener noreferrer" class="pill-btn">◎ /api/us/solana-payout-spec</a>
+            <a href="/api/us/networks" target="_blank" rel="noopener noreferrer" class="pill-btn">🌐 /api/us/networks</a>
+            <a href="/api/us/pricing" target="_blank" rel="noopener noreferrer" class="pill-btn">💳 /api/us/pricing</a>
           </div>
+        </div>
+      </section>
+
+      <!-- 6. PRO · AUTOMATED TRADING MONETIZATION & 7 USDC+USDT NETWORKS -->
+      <section id="view-pro" class="view-pane" aria-label="Pro Subscriptions, Automated Trading Metering and 7 Networks">
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">ZENO Pro · Automated Trading Subscriptions</div>
+              <div class="panel-sub">Deterministic micro-USD billing · Sanpo Yoshi 50% Operating / 30% Family Trust / 20% FOKEN Commons</div>
+            </div>
+            <span class="tag-badge emerald" id="pro-active-plan-badge">ACTIVE: FREE (50 BPS)</span>
+          </div>
+
+          <div class="plan-grid" id="pro-plans-grid"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Automated Trading &amp; Usage Metering Console</div>
+              <div class="panel-sub">Meter strategy ticks, peg-arbitrage, cross-chain bridges &amp; API overage with zero-sum Kintsugi receipts</div>
+            </div>
+            <span class="tag-badge gold" id="pro-total-revenue">REV: $0.00</span>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="pro-usage-kind">Metered Usage Stream</label>
+              <select id="pro-usage-kind" class="select">
+                <option value="AUTO_TRADE_TICK">Automated Trading Bot (Ticks + Plan BPS)</option>
+                <option value="CROSS_CHAIN_BRIDGE">Cross-Chain USDC/USDT Bridge (Plan BPS)</option>
+                <option value="API_CALL_OVERAGE">Quant API Overage ($0.0005 / call)</option>
+                <option value="DISPOSABLE_CARD_MINT">Disposable Virtual Card ($0.25 / card)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pro-usage-units">Units / Strategy Ticks</label>
+              <input id="pro-usage-units" class="input mono" type="number" min="1" step="1" value="5">
+            </div>
+            <div class="field">
+              <label for="pro-usage-notional">Trade / Bridge Notional (USD)</label>
+              <input id="pro-usage-notional" class="input mono" type="text" value="2000.00">
+            </div>
+          </div>
+
+          <div class="reserve-stats mt-md">
+            <div class="stat-box">
+              <div class="stat-label">Estimated Fee</div>
+              <div class="stat-val text-gold" id="pro-fee-preview">$10.05</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Operating (50%)</div>
+              <div class="stat-val text-teal" id="rev-operating">$0.00</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Family Trust USDC (30%)</div>
+              <div class="stat-val text-emerald" id="rev-family">$0.00</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">FOKEN Commons (20%)</div>
+              <div class="stat-val" id="rev-foken">$0.00</div>
+            </div>
+          </div>
+
+          <div class="btn-row mt-lg">
+            <button id="btn-bill-usage" class="btn-primary w-full" type="button">⚡ Execute Strategy Tick &amp; Bill Usage</button>
+          </div>
+        </div>
+
+        <div class="panel kintsugi">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Top 7 USDC + USDT Production Networks</div>
+              <div class="panel-sub">Canonical mainnet token contracts across Solana, Base, Ethereum, Arbitrum, Polygon, Optimism &amp; Tron</div>
+            </div>
+            <span class="tag-badge emerald">7 NETWORKS WIRED</span>
+          </div>
+          <div class="net-grid" id="pro-networks-grid"></div>
         </div>
       </section>
     </main>
@@ -581,6 +664,9 @@
     </button>
     <button class="bottom-nav-btn" data-view="swap" type="button">
       <span class="bottom-nav-icon">⇄</span><span>Swap</span>
+    </button>
+    <button class="bottom-nav-btn" data-view="pro" type="button">
+      <span class="bottom-nav-icon">⚡</span><span>Pro</span>
     </button>
     <button class="bottom-nav-btn" data-view="vaults" type="button">
       <span class="bottom-nav-icon">💳</span><span>Cards</span>

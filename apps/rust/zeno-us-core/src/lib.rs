@@ -145,8 +145,211 @@ pub enum UsCoreError {
     FokenGateRejected(&'static str),
     InvalidSolanaAddress,
     InsufficientLiquidUsdcReserve,
+    UnsupportedNetworkAsset,
+    InvalidNetworkAddress,
+    ZeroUsageUnits,
     InternalInvariant,
     Overflow,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StableNetwork {
+    Solana,
+    Base,
+    Ethereum,
+    Arbitrum,
+    Polygon,
+    Optimism,
+    Tron,
+}
+
+impl StableNetwork {
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::Solana => "solana",
+            Self::Base => "base",
+            Self::Ethereum => "ethereum",
+            Self::Arbitrum => "arbitrum",
+            Self::Polygon => "polygon",
+            Self::Optimism => "optimism",
+            Self::Tron => "tron",
+        }
+    }
+
+    pub const fn chain_id(self) -> Option<u64> {
+        match self {
+            Self::Solana | Self::Tron => None,
+            Self::Base => Some(8453),
+            Self::Ethereum => Some(1),
+            Self::Arbitrum => Some(42161),
+            Self::Polygon => Some(137),
+            Self::Optimism => Some(10),
+        }
+    }
+
+    pub const fn contract_address(self, asset: StableAsset) -> Option<&'static str> {
+        match (self, asset) {
+            (Self::Solana, StableAsset::Usdc) => Some(SOLANA_USDC_MINT),
+            (Self::Solana, StableAsset::Usdt) => Some(SOLANA_USDT_MINT),
+            (Self::Base, StableAsset::Usdc) => Some("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
+            (Self::Base, StableAsset::Usdt) => Some("0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"),
+            (Self::Ethereum, StableAsset::Usdc) => Some("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+            (Self::Ethereum, StableAsset::Usdt) => Some("0xdAC17F958D2ee523a2206206994597C13D831ec7"),
+            (Self::Arbitrum, StableAsset::Usdc) => Some("0xaf88d065e77c8cC2239327C5EDb3A432268e5831"),
+            (Self::Arbitrum, StableAsset::Usdt) => Some("0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"),
+            (Self::Polygon, StableAsset::Usdc) => Some("0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"),
+            (Self::Polygon, StableAsset::Usdt) => Some("0xc2132D05D31c914a87C6611C10748AEb04B58e8F"),
+            (Self::Optimism, StableAsset::Usdc) => Some("0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"),
+            (Self::Optimism, StableAsset::Usdt) => Some("0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"),
+            (Self::Tron, StableAsset::Usdc) => None, // Native TRON USDC deprecated
+            (Self::Tron, StableAsset::Usdt) => Some("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"),
+        }
+    }
+}
+
+/// Validate a recipient/deposit address on any of the top 7 USDC+USDT settlement networks.
+pub fn validate_network_address(
+    network: StableNetwork,
+    asset: StableAsset,
+    address: &str,
+) -> Result<&'static str, UsCoreError> {
+    let contract = network
+        .contract_address(asset)
+        .ok_or(UsCoreError::UnsupportedNetworkAsset)?;
+    match network {
+        StableNetwork::Solana => {
+            let _ = decode_solana_pubkey(address)?;
+        }
+        StableNetwork::Base
+        | StableNetwork::Ethereum
+        | StableNetwork::Arbitrum
+        | StableNetwork::Polygon
+        | StableNetwork::Optimism => {
+            let b = address.as_bytes();
+            if b.len() != 42 || &b[0..2] != b"0x" || !b[2..].iter().all(|c| c.is_ascii_hexdigit()) {
+                return Err(UsCoreError::InvalidNetworkAddress);
+            }
+            if b[2..].iter().all(|&c| c == b'0') {
+                return Err(UsCoreError::InvalidNetworkAddress);
+            }
+        }
+        StableNetwork::Tron => {
+            let b = address.as_bytes();
+            if b.len() != 34
+                || b[0] != b'T'
+                || !b.iter().all(|c| BASE58_ALPHABET.contains(c))
+            {
+                return Err(UsCoreError::InvalidNetworkAddress);
+            }
+        }
+    }
+    Ok(contract)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SubscriptionPlan {
+    Free,
+    Plus,
+    UltraQuant,
+    Institutional,
+}
+
+impl SubscriptionPlan {
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::Free => "free",
+            Self::Plus => "plus",
+            Self::UltraQuant => "ultra_quant",
+            Self::Institutional => "institutional",
+        }
+    }
+
+    pub const fn monthly_fee_micro(self) -> u64 {
+        match self {
+            Self::Free => 0,
+            Self::Plus => 9_990_000,         // $9.99/mo
+            Self::UltraQuant => 49_000_000,  // $49.00/mo
+            Self::Institutional => 199_000_000, // $199.00/mo
+        }
+    }
+
+    pub const fn auto_trade_fee_bps(self) -> u64 {
+        match self {
+            Self::Free => 50,
+            Self::Plus => 25,
+            Self::UltraQuant => 10,
+            Self::Institutional => 5,
+        }
+    }
+
+    pub const fn bridge_fee_bps(self) -> u64 {
+        match self {
+            Self::Free => 25,
+            Self::Plus => 15,
+            Self::UltraQuant => 5,
+            Self::Institutional => 2,
+        }
+    }
+
+    pub const fn included_api_calls(self) -> u64 {
+        match self {
+            Self::Free => 500,
+            Self::Plus => 10_000,
+            Self::UltraQuant => 100_000,
+            Self::Institutional => 1_000_000,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UsageMeterKind {
+    ApiCallOverage,
+    AutoTradeTick,
+    CrossChainBridge,
+    DisposableCardMint,
+}
+
+impl UsageMeterKind {
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::ApiCallOverage => "API_CALL_OVERAGE",
+            Self::AutoTradeTick => "AUTO_TRADE_TICK",
+            Self::CrossChainBridge => "CROSS_CHAIN_BRIDGE",
+            Self::DisposableCardMint => "DISPOSABLE_CARD_MINT",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RevenueSplitMicro {
+    pub total_micro: u64,
+    pub operating_micro: u64,
+    pub family_trust_micro: u64,
+    pub foken_commons_micro: u64,
+}
+
+impl RevenueSplitMicro {
+    /// Exact integer Sanpo Yoshi 50/30/20 split with zero rounding loss.
+    pub fn split_sanpo_yoshi(total_micro: u64) -> Result<Self, UsCoreError> {
+        let total = u128::from(total_micro);
+        let family_trust = u64::try_from((total * 3) / 10).map_err(|_| UsCoreError::Overflow)?;
+        let foken_commons = u64::try_from((total * 2) / 10).map_err(|_| UsCoreError::Overflow)?;
+        let operating = total_micro - family_trust - foken_commons;
+        Ok(Self {
+            total_micro,
+            operating_micro: operating,
+            family_trust_micro: family_trust,
+            foken_commons_micro: foken_commons,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MonetizationReceipt {
+    pub plan: SubscriptionPlan,
+    pub fee_micro: u64,
+    pub split: RevenueSplitMicro,
+    pub wupz_seal: WupzWitnessSeal,
 }
 
 const BASE58_ALPHABET: &[u8; 58] = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -480,6 +683,10 @@ impl ReserveProofSnapshot {
 pub struct UsNeoBankCore {
     reserves: StableReserveState,
     accounts: BTreeMap<String, UsPrivacyAccount>,
+    account_plans: BTreeMap<String, SubscriptionPlan>,
+    revenue_operating_micro: u64,
+    revenue_family_trust_micro: u64,
+    revenue_foken_commons_micro: u64,
     seen_deposits: BTreeSet<(String, String)>,
     seen_invoices: BTreeSet<String>,
     txs: Vec<KintsugiTx>,
@@ -497,6 +704,10 @@ impl UsNeoBankCore {
         Self {
             reserves: StableReserveState::new(0, 0, 0),
             accounts: BTreeMap::new(),
+            account_plans: BTreeMap::new(),
+            revenue_operating_micro: 0,
+            revenue_family_trust_micro: 0,
+            revenue_foken_commons_micro: 0,
             seen_deposits: BTreeSet::new(),
             seen_invoices: BTreeSet::new(),
             txs: Vec::new(),
@@ -1039,6 +1250,196 @@ impl UsNeoBankCore {
         })
     }
 
+    fn apply_revenue_charge(
+        &mut self,
+        cashtag: &str,
+        kind: &'static str,
+        fee_micro: u64,
+        memo: String,
+        now_unix_sec: u64,
+        plan_update: Option<SubscriptionPlan>,
+    ) -> Result<(RevenueSplitMicro, WupzWitnessSeal), UsCoreError> {
+        let split = RevenueSplitMicro::split_sanpo_yoshi(fee_micro)?;
+        let acct = self
+            .accounts
+            .get(cashtag)
+            .ok_or(UsCoreError::AccountNotFound)?;
+        let (next_day, next_vol) =
+            Self::check_and_next_daily_volume(acct, fee_micro, now_unix_sec)?;
+        if acct.balance_micro < fee_micro {
+            return Err(UsCoreError::InsufficientBalance);
+        }
+        let next_bal = acct.balance_micro - fee_micro;
+        let next_op = self
+            .revenue_operating_micro
+            .checked_add(split.operating_micro)
+            .ok_or(UsCoreError::Overflow)?;
+        let next_ft = self
+            .revenue_family_trust_micro
+            .checked_add(split.family_trust_micro)
+            .ok_or(UsCoreError::Overflow)?;
+        let next_fc = self
+            .revenue_foken_commons_micro
+            .checked_add(split.foken_commons_micro)
+            .ok_or(UsCoreError::Overflow)?;
+
+        let mut postings = vec![DoubleEntryPosting {
+            account: format!("usd:{}", cashtag),
+            amount_micro: i128::from(fee_micro),
+        }];
+        if split.operating_micro > 0 {
+            postings.push(DoubleEntryPosting {
+                account: "revenue:operating".to_string(),
+                amount_micro: -i128::from(split.operating_micro),
+            });
+        }
+        if split.family_trust_micro > 0 {
+            postings.push(DoubleEntryPosting {
+                account: "revenue:family_trust".to_string(),
+                amount_micro: -i128::from(split.family_trust_micro),
+            });
+        }
+        if split.foken_commons_micro > 0 {
+            postings.push(DoubleEntryPosting {
+                account: "revenue:foken_commons".to_string(),
+                amount_micro: -i128::from(split.foken_commons_micro),
+            });
+        }
+
+        let tx = self.prepare_tx(kind, postings, memo)?;
+        let seal = tx.seal;
+
+        let acct_mut = self
+            .accounts
+            .get_mut(cashtag)
+            .ok_or(UsCoreError::InternalInvariant)?;
+        acct_mut.balance_micro = next_bal;
+        acct_mut.daily_day_epoch = next_day;
+        acct_mut.daily_volume_micro = next_vol;
+        self.revenue_operating_micro = next_op;
+        self.revenue_family_trust_micro = next_ft;
+        self.revenue_foken_commons_micro = next_fc;
+        if let Some(p) = plan_update {
+            self.account_plans.insert(cashtag.to_string(), p);
+        }
+        self.chain_head = tx.chain_trace;
+        self.txs.push(tx);
+        Ok((split, seal))
+    }
+
+    pub fn plan_for(&self, cashtag: &str) -> SubscriptionPlan {
+        self.account_plans
+            .get(cashtag)
+            .copied()
+            .unwrap_or(SubscriptionPlan::Free)
+    }
+
+    pub fn revenue_totals_micro(&self) -> (u64, u64, u64) {
+        (
+            self.revenue_operating_micro,
+            self.revenue_family_trust_micro,
+            self.revenue_foken_commons_micro,
+        )
+    }
+
+    /// Subscribe `$cashtag` to a ZENO tier and settle any monthly fee via zero-sum Sanpo Yoshi split.
+    pub fn subscribe_plan(
+        &mut self,
+        cashtag: &str,
+        plan: SubscriptionPlan,
+        now_unix_sec: u64,
+    ) -> Result<MonetizationReceipt, UsCoreError> {
+        if !self.accounts.contains_key(cashtag) {
+            return Err(UsCoreError::AccountNotFound);
+        }
+        let fee_micro = plan.monthly_fee_micro();
+        if fee_micro == 0 {
+            self.account_plans.insert(cashtag.to_string(), plan);
+            let split = RevenueSplitMicro::split_sanpo_yoshi(0)?;
+            let seal = WupzWitnessSeal::seal(b"ZENO:SUB:FREE:0x62");
+            return Ok(MonetizationReceipt {
+                plan,
+                fee_micro: 0,
+                split,
+                wupz_seal: seal,
+            });
+        }
+        let memo = format!("SUBSCRIPTION:{}:{}", plan.code(), cashtag);
+        let (split, wupz_seal) = self.apply_revenue_charge(
+            cashtag,
+            "SUBSCRIPTION_BILLING",
+            fee_micro,
+            memo,
+            now_unix_sec,
+            Some(plan),
+        )?;
+        Ok(MonetizationReceipt {
+            plan,
+            fee_micro,
+            split,
+            wupz_seal,
+        })
+    }
+
+    /// Bill automated trading ticks, cross-chain bridge bps, API overage, or disposable cards
+    /// using integer micro-USD arithmetic and strict Sanpo Yoshi 50/30/20 allocation.
+    pub fn bill_metered_usage(
+        &mut self,
+        cashtag: &str,
+        kind: UsageMeterKind,
+        units: u64,
+        notional_micro: u64,
+        now_unix_sec: u64,
+    ) -> Result<MonetizationReceipt, UsCoreError> {
+        if units == 0 {
+            return Err(UsCoreError::ZeroUsageUnits);
+        }
+        if !self.accounts.contains_key(cashtag) {
+            return Err(UsCoreError::AccountNotFound);
+        }
+        let plan = self.plan_for(cashtag);
+        let base_fee: u64 = match kind {
+            UsageMeterKind::ApiCallOverage => units.checked_mul(500).ok_or(UsCoreError::Overflow)?,
+            UsageMeterKind::AutoTradeTick => {
+                let tick_fee = units.checked_mul(10_000).ok_or(UsCoreError::Overflow)?;
+                let bps_fee = u64::try_from(
+                    u128::from(notional_micro) * u128::from(plan.auto_trade_fee_bps()) / 10_000,
+                )
+                .map_err(|_| UsCoreError::Overflow)?;
+                tick_fee.checked_add(bps_fee).ok_or(UsCoreError::Overflow)?
+            }
+            UsageMeterKind::CrossChainBridge => {
+                let bps_fee = u64::try_from(
+                    u128::from(notional_micro) * u128::from(plan.bridge_fee_bps()) / 10_000,
+                )
+                .map_err(|_| UsCoreError::Overflow)?;
+                let min_fee = units.checked_mul(50_000).ok_or(UsCoreError::Overflow)?;
+                if bps_fee > min_fee { bps_fee } else { min_fee }
+            }
+            UsageMeterKind::DisposableCardMint => {
+                units.checked_mul(250_000).ok_or(UsCoreError::Overflow)?
+            }
+        };
+        if base_fee == 0 {
+            return Err(UsCoreError::InvalidAmount);
+        }
+        let memo = format!("USAGE:{}:{}:units={}", kind.code(), plan.code(), units);
+        let (split, wupz_seal) = self.apply_revenue_charge(
+            cashtag,
+            "METERED_USAGE_FEE",
+            base_fee,
+            memo,
+            now_unix_sec,
+            None,
+        )?;
+        Ok(MonetizationReceipt {
+            plan,
+            fee_micro: base_fee,
+            split,
+            wupz_seal,
+        })
+    }
+
     pub fn verify_invariants(&self) -> bool {
         let mut expected_prev = [0u8; 32];
         for tx in &self.txs {
@@ -1081,6 +1482,16 @@ impl UsNeoBankCore {
         let mut total_balances: u64 = 0;
         for acct in self.accounts.values() {
             match total_balances.checked_add(acct.balance_micro) {
+                Some(v) => total_balances = v,
+                None => return false,
+            }
+        }
+        for rev in [
+            self.revenue_operating_micro,
+            self.revenue_family_trust_micro,
+            self.revenue_foken_commons_micro,
+        ] {
+            match total_balances.checked_add(rev) {
                 Some(v) => total_balances = v,
                 None => return false,
             }
@@ -1537,5 +1948,79 @@ mod tests {
             let por = core.proof_of_reserve().unwrap();
             assert!(por.coverage_ratio >= Rational::ONE);
         }
+    }
+
+    #[test]
+    fn rust_us_core_multinetwork_and_monetization_sanpo_yoshi_split() {
+        let coinbase_sol = "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS";
+        let evm_addr = "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940";
+        let tron_addr = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+
+        for net in [
+            StableNetwork::Base,
+            StableNetwork::Ethereum,
+            StableNetwork::Arbitrum,
+            StableNetwork::Polygon,
+            StableNetwork::Optimism,
+        ] {
+            assert!(validate_network_address(net, StableAsset::Usdc, evm_addr).is_ok());
+            assert!(validate_network_address(net, StableAsset::Usdt, evm_addr).is_ok());
+            assert!(net.chain_id().is_some());
+        }
+        assert!(validate_network_address(StableNetwork::Solana, StableAsset::Usdc, coinbase_sol).is_ok());
+        assert!(validate_network_address(StableNetwork::Solana, StableAsset::Usdt, coinbase_sol).is_ok());
+        assert!(validate_network_address(StableNetwork::Tron, StableAsset::Usdt, tron_addr).is_ok());
+        assert_eq!(
+            validate_network_address(StableNetwork::Tron, StableAsset::Usdc, tron_addr),
+            Err(UsCoreError::UnsupportedNetworkAsset)
+        );
+        assert_eq!(
+            validate_network_address(StableNetwork::Base, StableAsset::Usdc, "0x0000000000000000000000000000000000000000"),
+            Err(UsCoreError::InvalidNetworkAddress)
+        );
+
+        let mut core = UsNeoBankCore::new();
+        core.open_us_account("$quant", "04aabbccdd", "salt_q", PrivacyTier::VerifiedUs)
+            .unwrap();
+        core.mint_from_stablecoin(
+            "$quant",
+            StableAsset::Usdc,
+            1_000 * MICRO_USD,
+            "base",
+            "0xdeposit_quant_1",
+            DAY_1_SEC,
+        )
+        .unwrap();
+
+        // Subscribe to UltraQuant ($49.00/mo) -> 10 bps auto trade fee
+        let sub = core
+            .subscribe_plan("$quant", SubscriptionPlan::UltraQuant, DAY_1_SEC + 1)
+            .unwrap();
+        assert_eq!(sub.fee_micro, 49_000_000);
+        assert_eq!(sub.split.family_trust_micro, 14_700_000); // 30%
+        assert_eq!(sub.split.foken_commons_micro, 9_800_000); // 20%
+        assert_eq!(sub.split.operating_micro, 24_500_000);    // 50%
+
+        // Bill 5 auto-trade ticks on $2,000 notional: 5 * $0.01 ($0.05) + 10 bps * $2,000 ($2.00) = $2.05
+        let usage = core
+            .bill_metered_usage(
+                "$quant",
+                UsageMeterKind::AutoTradeTick,
+                5,
+                2_000 * MICRO_USD,
+                DAY_1_SEC + 2,
+            )
+            .unwrap();
+        assert_eq!(usage.fee_micro, 2_050_000);
+        assert_eq!(
+            usage.split.operating_micro
+                + usage.split.family_trust_micro
+                + usage.split.foken_commons_micro,
+            usage.fee_micro
+        );
+        let (op, ft, fc) = core.revenue_totals_micro();
+        assert_eq!(op + ft + fc, 51_050_000);
+        assert_eq!(core.balance_micro("$quant").unwrap(), 948_950_000);
+        assert!(core.verify_invariants());
     }
 }

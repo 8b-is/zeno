@@ -13,6 +13,7 @@ node_modules/
 
 # Local zeno state
 .zeno/
+.zeno-local/
 
 # Swift & Android builds
 .build/

@@ -85,6 +85,7 @@ const icmlWorkshopsMd = readFileSync(join(root, "spec", "research", "ICML_2026_W
 const issuerAngelMd = readFileSync(join(root, "spec", "GOOGLE_WALLET_ISSUER_ANGEL.md"), "utf8");
 const rfc008Md = readFileSync(join(root, "spec", "RFC-008-US-USDC-USDT-OPEN-CORE.md"), "utf8");
 const solanaPipelineMd = readFileSync(join(root, "spec", "SOLANA_USDC_VAKED_FOKEN_PIPELINE.md"), "utf8");
+const monetizationMd = readFileSync(join(root, "spec", "US_MONETIZATION_SUBSCRIPTIONS.md"), "utf8");
 const licensingBoundaryMd = readFileSync(join(root, "LICENSING_BOUNDARY.md"), "utf8");
 const usHtml = readFileSync(join(root, "us.html"), "utf8");
 const usCss = readFileSync(join(root, "us.css"), "utf8");
@@ -126,15 +127,16 @@ const ICML_WORKSHOPS_MD = ${JSON.stringify(icmlWorkshopsMd)};
 const ISSUER_ANGEL_MD = ${JSON.stringify(issuerAngelMd)};
 const RFC_008_MD = ${JSON.stringify(rfc008Md)};
 const SOLANA_PIPELINE_MD = ${JSON.stringify(solanaPipelineMd)};
+const MONETIZATION_MD = ${JSON.stringify(monetizationMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
   "domains": ["https://zeno.vaked.dev", "https://zeno.8b.is"],
-  "supportedRails": ["stripe_fiat", "zeno_kintsugi", "zeno_microstream", "revolut_ultra", "usdc_usdt_us_rail", "foken_usdc_usdt_gate", "solana_spl_usdc_rail"],
+  "supportedRails": ["stripe_fiat", "zeno_kintsugi", "zeno_microstream", "revolut_ultra", "usdc_usdt_us_rail", "foken_usdc_usdt_gate", "solana_spl_usdc_rail", "multinet_usdc_usdt_7chains", "automated_trading_metered_subscriptions"],
   "supportedCurrencies": ["USD", "USDC", "USDT", "FOKEN", "JPY", "EUR", "HUF"],
   "services": [
     {
@@ -640,6 +642,18 @@ export default {
       });
     }
 
+    if (p === "/monetization-spec" || p === "/spec/US_MONETIZATION_SUBSCRIPTIONS.md") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(MONETIZATION_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
     if (p === "/licensing-boundary" || p === "/LICENSING_BOUNDARY.md") {
       return new Response(LICENSING_BOUNDARY_MD, {
         headers: {
@@ -692,11 +706,53 @@ export default {
           "/qrcode.js",
           "/rfc-008",
           "/solana-pipeline",
+          "/monetization-spec",
           "/licensing-boundary",
           "/api/us/foken",
           "/api/us/solana-payout-spec",
+          "/api/us/networks",
+          "/api/us/pricing",
         ],
         privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel"],
+      });
+    }
+
+    if (p === "/api/us/networks") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return gwJson({
+        assetBacking: ["USDC", "USDT"],
+        count: 7,
+        networks: [
+          { id: "solana", name: "Solana Mainnet", chainId: "mainnet-beta", usdcContract: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", usdtContract: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB" },
+          { id: "base", name: "Base L2", chainId: 8453, usdcContract: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", usdtContract: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2" },
+          { id: "ethereum", name: "Ethereum L1", chainId: 1, usdcContract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", usdtContract: "0xdAC17F958D2ee523a2206206994597C13D831ec7" },
+          { id: "arbitrum", name: "Arbitrum One", chainId: 42161, usdcContract: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", usdtContract: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9" },
+          { id: "polygon", name: "Polygon PoS", chainId: 137, usdcContract: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", usdtContract: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" },
+          { id: "optimism", name: "OP Mainnet", chainId: 10, usdcContract: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", usdtContract: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58" },
+          { id: "tron", name: "Tron TRC-20", chainId: "tron-mainnet", usdcContract: null, usdtContract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" },
+        ],
+      });
+    }
+
+    if (p === "/api/us/pricing") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return gwJson({
+        version: "1.9.0",
+        currency: "USD",
+        sanpoYoshiRevenueSplitPQ: { operating: "1/2", familyTrustUsdc: "3/10", fokenCommons: "1/5" },
+        stripeBillingConfigured: Boolean(env && env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET),
+        plans: [
+          { id: "free", name: "Free", monthlyFeeMicro: 0, autoTradeBps: 50, bridgeBps: 25, includedApiCalls: 500 },
+          { id: "plus", name: "ZENO Plus", monthlyFeeMicro: 9990000, autoTradeBps: 25, bridgeBps: 15, includedApiCalls: 10000 },
+          { id: "ultra_quant", name: "ZENO Ultra Quant", monthlyFeeMicro: 49000000, autoTradeBps: 10, bridgeBps: 5, includedApiCalls: 100000 },
+          { id: "institutional", name: "Institutional", monthlyFeeMicro: 199000000, autoTradeBps: 5, bridgeBps: 2, includedApiCalls: 1000000 },
+        ],
+        meteredRatesMicro: {
+          apiCallOverage: 500,
+          autoTradeTick: 10000,
+          crossChainBridgeMin: 50000,
+          disposableCardMint: 250000,
+        },
       });
     }
 

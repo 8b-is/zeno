@@ -140,8 +140,148 @@
     renderMarkets();
     renderActivity();
     renderPockets(parity);
+    renderProDashboard();
     updateFxPreview();
     drawChart();
+  }
+
+  function renderProDashboard() {
+    const planGrid = document.getElementById("pro-plans-grid");
+    const netGrid = document.getElementById("pro-networks-grid");
+    const activePlan = engine.getPlan("$you");
+    const activeBadge = document.getElementById("pro-active-plan-badge");
+    if (activeBadge) {
+      activeBadge.textContent = `ACTIVE: ${activePlan.name.toUpperCase()} (${activePlan.autoTradeBps.toString()} BPS)`;
+    }
+    const rev = engine.getRevenueSummary();
+    const setText = (id, txt) => {
+      const node = document.getElementById(id);
+      if (node) node.textContent = txt;
+    };
+    setText("pro-total-revenue", `REV: ${Engine.formatUsd(rev.totalRevenueMicro)}`);
+    setText("rev-operating", Engine.formatUsd(rev.operatingMicro));
+    setText("rev-family", Engine.formatUsd(rev.familyTrustMicro));
+    setText("rev-foken", Engine.formatUsd(rev.fokenCommonsMicro));
+
+    if (planGrid && ZenoEngine.SUBSCRIPTION_PLANS) {
+      const cards = Object.values(ZenoEngine.SUBSCRIPTION_PLANS).map((plan) => {
+        const isCurrent = plan.id === activePlan.id;
+        const btn = el("button", {
+          type: "button",
+          className: isCurrent ? "btn-secondary w-full" : "btn-primary w-full",
+          textContent: isCurrent ? "✓ Active Plan" : `Subscribe (${Engine.formatUsd(plan.monthlyFeeMicro)}/mo)`,
+        });
+        btn.addEventListener("click", () => {
+          try {
+            const res = engine.subscribePlan("$you", plan.id);
+            saveEngine();
+            renderAll();
+            updateUsagePreview();
+            window.zenoAudio?.playBell();
+            showToast(`Activated ${plan.name} (${Engine.formatUsd(res.feeMicro)} billed 50/30/20)`);
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+        return el("div", { className: isCurrent ? "plan-card plan-active" : "plan-card" }, [
+          el("div", {}, [
+            el("div", { className: "stat-label", textContent: plan.id.toUpperCase() }),
+            el("div", { className: "plan-price", textContent: `${Engine.formatUsd(plan.monthlyFeeMicro)}/mo` }),
+            el("div", {
+              className: "panel-sub mt-xs",
+              textContent: `${plan.autoTradeBps.toString()} bps auto-trade · ${plan.bridgeBps.toString()} bps bridge · ${plan.includedApiCalls.toLocaleString("en-US")} API calls`,
+            }),
+          ]),
+          btn,
+        ]);
+      });
+      planGrid.replaceChildren(...cards);
+    }
+
+    if (netGrid && ZenoEngine.STABLECOIN_NETWORKS) {
+      const cards = Object.values(ZenoEngine.STABLECOIN_NETWORKS).map((net) =>
+        el("div", { className: "net-card" }, [
+          el("div", { className: "stat-label", textContent: `${net.name} (${String(net.chainId)})` }),
+          el("div", { className: "panel-sub", textContent: `Finality ${net.avgFinality} · Typical fee ${net.typicalFee}` }),
+          el("div", {
+            className: "net-contract",
+            textContent: `USDC: ${net.usdcContract || "unsupported (native deprecated)"}`,
+          }),
+          el("div", {
+            className: "net-contract",
+            textContent: `USDT: ${net.usdtContract}`,
+          }),
+        ]),
+      );
+      netGrid.replaceChildren(...cards);
+    }
+  }
+
+  function updateUsagePreview() {
+    const outEl = document.getElementById("pro-fee-preview");
+    const kindEl = document.getElementById("pro-usage-kind");
+    const unitsEl = document.getElementById("pro-usage-units");
+    const notionalEl = document.getElementById("pro-usage-notional");
+    if (!outEl || !kindEl || !unitsEl || !notionalEl) return;
+    try {
+      const rawUnits = String(unitsEl.value || "").trim();
+      if (!/^\d+$/.test(rawUnits) || BigInt(rawUnits) <= 0n) throw new Error("—");
+      const units = BigInt(rawUnits);
+      const plan = engine.getPlan("$you");
+      const rates = ZenoEngine.USAGE_RATES_MICRO;
+      let notional = 0n;
+      try {
+        notional = parseUsdToMicro(notionalEl.value);
+      } catch {
+        notional = 0n;
+      }
+      let fee = 0n;
+      if (kindEl.value === "API_CALL_OVERAGE") fee = units * rates.API_CALL_OVERAGE;
+      else if (kindEl.value === "AUTO_TRADE_TICK") fee = units * rates.AUTO_TRADE_TICK + (notional * plan.autoTradeBps) / 10000n;
+      else if (kindEl.value === "CROSS_CHAIN_BRIDGE") {
+        const bpsFee = (notional * plan.bridgeBps) / 10000n;
+        const minFee = units * rates.CROSS_CHAIN_BRIDGE_MIN;
+        fee = bpsFee > minFee ? bpsFee : minFee;
+      } else {
+        fee = units * rates.DISPOSABLE_CARD_MINT;
+      }
+      outEl.textContent = Engine.formatUsd(fee);
+    } catch {
+      outEl.textContent = "—";
+    }
+  }
+
+  function initProMonetization() {
+    ["pro-usage-kind", "pro-usage-units", "pro-usage-notional"].forEach((id) => {
+      const node = document.getElementById(id);
+      if (node) {
+        node.addEventListener("input", updateUsagePreview);
+        node.addEventListener("change", updateUsagePreview);
+      }
+    });
+    document.getElementById("btn-bill-usage")?.addEventListener("click", () => {
+      try {
+        const kind = document.getElementById("pro-usage-kind").value;
+        const rawUnits = String(document.getElementById("pro-usage-units").value || "").trim();
+        if (!/^\d+$/.test(rawUnits) || BigInt(rawUnits) <= 0n) {
+          throw new Error("Units must be a positive integer");
+        }
+        const units = BigInt(rawUnits);
+        let notional = 0n;
+        if (kind === "AUTO_TRADE_TICK" || kind === "CROSS_CHAIN_BRIDGE") {
+          notional = parseUsdToMicro(document.getElementById("pro-usage-notional").value);
+        }
+        const res = engine.billMeteredUsage("$you", kind, units, notional);
+        saveEngine();
+        renderAll();
+        updateUsagePreview();
+        window.zenoAudio?.playUltraShimmer?.() || window.zenoAudio?.playBell();
+        showToast(`Billed ${Engine.formatUsd(res.feeMicro)} (${res.kind}) · Split 50/30/20 · Seal ${res.receipt.seal.slice(0, 12)}`);
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+    updateUsagePreview();
   }
 
   function renderMarkets() {
@@ -368,12 +508,15 @@
       el("option", { value: "USDC", textContent: "USDC (Circle)" }),
       el("option", { value: "USDT", textContent: "USDT (Tether)" }),
     ]);
-    const railInput = el("input", {
-      id: "mdl-rail",
-      className: "input",
-      type: "text",
-      value: isDeposit ? "Base Mainnet" : "0xSelfCustodyUS",
-    });
+    const railInput = el("select", { id: "mdl-rail", className: "select" }, [
+      el("option", { value: "Solana Mainnet", textContent: "Solana Mainnet (USDC/USDT)" }),
+      el("option", { value: "Base L2", textContent: "Base L2 (USDC/USDT)" }),
+      el("option", { value: "Ethereum L1", textContent: "Ethereum L1 (USDC/USDT)" }),
+      el("option", { value: "Arbitrum One", textContent: "Arbitrum One (USDC/USDT)" }),
+      el("option", { value: "Polygon PoS", textContent: "Polygon PoS (USDC/USDT)" }),
+      el("option", { value: "OP Mainnet", textContent: "OP Mainnet (USDC/USDT)" }),
+      el("option", { value: "Tron TRC-20", textContent: "Tron TRC-20 (USDT only)" }),
+    ]);
     const amtInput = el("input", {
       id: "mdl-amt",
       className: "input",
@@ -893,6 +1036,7 @@
     initKeypad();
     initSolanaPayout();
     initSwapAndFx();
+    initProMonetization();
     initCards();
     initPrivacyTab();
     initLocalWebCrypto();
