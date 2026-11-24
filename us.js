@@ -281,6 +281,36 @@
         showToast(err.message, true);
       }
     });
+    document.getElementById("btn-pro-checkout")?.addEventListener("click", async () => {
+      const planId = document.getElementById("pro-checkout-plan")?.value || "ultra_quant";
+      const paymentRail = document.getElementById("pro-checkout-rail")?.value || "stripe";
+      const outEl = document.getElementById("pro-checkout-out");
+      if (!outEl) return;
+      outEl.textContent = "Requesting live checkout from /api/us/checkout…";
+      try {
+        const resp = await fetch("/api/us/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ planId, paymentRail, cashtag: "$you" }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error || `HTTP ${resp.status}`);
+        }
+        if (data.mode === "stripe_live" && data.checkoutUrl) {
+          outEl.textContent = `LIVE STRIPE CHECKOUT (${data.planId}): ${data.checkoutUrl}`;
+        } else if (data.paymentUri) {
+          outEl.textContent = `DIRECT ${data.mode.toUpperCase()} (${data.amountExact} USDC): ${data.paymentUri}`;
+        } else {
+          const missing = Array.isArray(data.missingSecrets) ? data.missingSecrets.join(", ") : "configuration";
+          outEl.textContent = `${data.mode || "unconfigured"} · Set Wrangler secrets: ${missing}`;
+        }
+        window.zenoAudio?.playPluck();
+      } catch (err) {
+        outEl.textContent = `Checkout error: ${err.message}`;
+        showToast(err.message, true);
+      }
+    });
     updateUsagePreview();
   }
 

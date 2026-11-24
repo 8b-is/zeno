@@ -131,7 +131,7 @@ const MONETIZATION_MD = ${JSON.stringify(monetizationMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -712,6 +712,7 @@ export default {
           "/api/us/solana-payout-spec",
           "/api/us/networks",
           "/api/us/pricing",
+          "/api/us/checkout",
         ],
         privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel"],
       });
@@ -753,6 +754,128 @@ export default {
           crossChainBridgeMin: 50000,
           disposableCardMint: 250000,
         },
+      });
+    }
+
+    if (p === "/api/us/checkout") {
+      if (request.method !== "POST") return methodNotAllowed("POST");
+      const read = await readBoundedText(request, 8192);
+      if (read.error) return gwJson({ error: read.error }, read.status);
+      let body;
+      try {
+        body = JSON.parse(read.text);
+      } catch {
+        return gwJson({ error: "invalid_json_payload" }, 400);
+      }
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return gwJson({ error: "checkout_payload_must_be_object" }, 400);
+      }
+      const planCatalog = {
+        plus: { monthlyFeeMicro: 9990000, amountExact: "9.99", priceEnvKey: "STRIPE_PRICE_PLUS" },
+        ultra_quant: { monthlyFeeMicro: 49000000, amountExact: "49", priceEnvKey: "STRIPE_PRICE_ULTRA" },
+        institutional: { monthlyFeeMicro: 199000000, amountExact: "199", priceEnvKey: "STRIPE_PRICE_INSTITUTIONAL" },
+      };
+      const planId = String(body.planId || "").trim();
+      if (!Object.hasOwn(planCatalog, planId)) {
+        return gwJson({ error: "invalid_plan_id", allowed: ["plus", "ultra_quant", "institutional"] }, 400);
+      }
+      const paymentRail = String(body.paymentRail || "").trim();
+      if (paymentRail !== "stripe" && paymentRail !== "usdc_solana" && paymentRail !== "usdc_base") {
+        return gwJson({ error: "invalid_payment_rail", allowed: ["stripe", "usdc_solana", "usdc_base"] }, 400);
+      }
+      const rawTag = body.cashtag === undefined ? "$you" : String(body.cashtag || "").trim().toLowerCase();
+      if (!/^\\$[a-z0-9_]{2,20}$/.test(rawTag)) {
+        return gwJson({ error: "invalid_cashtag" }, 400);
+      }
+      const planMeta = planCatalog[planId];
+
+      if (paymentRail === "stripe") {
+        const stripeKey = env && env.STRIPE_SECRET_KEY;
+        const priceId = env && env[planMeta.priceEnvKey];
+        const missingSecrets = [];
+        if (!stripeKey) missingSecrets.push("STRIPE_SECRET_KEY");
+        if (!priceId) missingSecrets.push(planMeta.priceEnvKey);
+        if (missingSecrets.length > 0) {
+          return gwJson({
+            mode: "stripe_unconfigured",
+            planId: planId,
+            monthlyFeeMicro: planMeta.monthlyFeeMicro,
+            missingSecrets: missingSecrets,
+            setupHint: "wrangler secret put STRIPE_SECRET_KEY -c deploy/wrangler.toml",
+          });
+        }
+        const form = new URLSearchParams({
+          mode: "subscription",
+          "line_items[0][price]": String(priceId),
+          "line_items[0][quantity]": "1",
+          success_url: "https://zeno.vaked.dev/us?checkout=success",
+          cancel_url: "https://zeno.vaked.dev/us?checkout=cancel",
+          client_reference_id: rawTag,
+        });
+        const stripeResp = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+          method: "POST",
+          headers: {
+            "authorization": "Bearer " + stripeKey,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          body: form.toString(),
+        });
+        if (!stripeResp.ok) {
+          return gwJson({ error: "stripe_upstream_error", status: stripeResp.status }, 502);
+        }
+        const stripeData = await stripeResp.json();
+        return gwJson({
+          mode: "stripe_live",
+          planId: planId,
+          sessionId: stripeData.id,
+          checkoutUrl: stripeData.url,
+        });
+      }
+
+      if (paymentRail === "usdc_solana") {
+        const treasurySol = env && env.ZENO_TREASURY_SOLANA;
+        if (!treasurySol) {
+          return gwJson({
+            mode: "treasury_unconfigured",
+            paymentRail: "usdc_solana",
+            planId: planId,
+            monthlyFeeMicro: planMeta.monthlyFeeMicro,
+            missingSecrets: ["ZENO_TREASURY_SOLANA"],
+          });
+        }
+        const mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+        const memoEnc = encodeURIComponent("SUB:" + planId + ":" + rawTag);
+        return gwJson({
+          mode: "usdc_solana_direct",
+          planId: planId,
+          monthlyFeeMicro: planMeta.monthlyFeeMicro,
+          amountExact: planMeta.amountExact,
+          mint: mint,
+          treasury: treasurySol,
+          paymentUri: "solana:" + treasurySol + "?amount=" + planMeta.amountExact + "&spl-token=" + mint + "&label=ZENO%20US%20Pro&memo=" + memoEnc,
+        });
+      }
+
+      const treasuryEvm = env && env.ZENO_TREASURY_EVM;
+      if (!treasuryEvm) {
+        return gwJson({
+          mode: "treasury_unconfigured",
+          paymentRail: "usdc_base",
+          planId: planId,
+          monthlyFeeMicro: planMeta.monthlyFeeMicro,
+          missingSecrets: ["ZENO_TREASURY_EVM"],
+        });
+      }
+      const baseUsdc = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+      return gwJson({
+        mode: "usdc_base_direct",
+        planId: planId,
+        monthlyFeeMicro: planMeta.monthlyFeeMicro,
+        amountExact: planMeta.amountExact,
+        chainId: 8453,
+        contract: baseUsdc,
+        treasury: treasuryEvm,
+        paymentUri: "ethereum:" + baseUsdc + "@8453/transfer?address=" + treasuryEvm + "&uint256=" + String(planMeta.monthlyFeeMicro),
       });
     }
 

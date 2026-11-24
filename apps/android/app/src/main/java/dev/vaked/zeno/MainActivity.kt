@@ -32,6 +32,7 @@ import dev.vaked.zeno.ui.components.IcTransitCard
 import dev.vaked.zeno.ui.components.PhysicalIcCard
 import dev.vaked.zeno.ui.components.RevolutUltraCard
 import dev.vaked.zeno.ui.components.StripeAgenticCommerceCard
+import dev.vaked.zeno.ui.components.ZenoUsMonetizationCard
 import dev.vaked.zeno.ui.theme.BgSumi
 import dev.vaked.zeno.ui.theme.ColorGold
 import dev.vaked.zeno.ui.theme.ColorTeal
@@ -349,7 +350,9 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 4 -> {
-                                    // Stripe & ACP Agentic Commerce Tab
+                                    // ZENO US 7-Chain Monetization + Stripe & ACP Agentic Commerce Tab
+                                    ZenoUsMonetizationCard()
+                                    Spacer(modifier = Modifier.height(16.dp))
                                     StripeAgenticCommerceCard()
                                 }
                                 5 -> {

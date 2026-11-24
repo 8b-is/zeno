@@ -96,7 +96,7 @@ test("Fuzz Edge Worker API routes against malformed JSON, prototype pollution, i
       });
     }
 
-    for (const ep of ["/api/us/foken", "/api/v1/gate"]) {
+    for (const ep of ["/api/us/foken", "/api/v1/gate", "/api/us/checkout"]) {
       const res = await fetchWorker(ep, {
         method: "POST",
         headers: { "content-type": "application/json" },

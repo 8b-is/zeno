@@ -585,6 +585,33 @@
           </div>
 
           <div class="plan-grid" id="pro-plans-grid"></div>
+
+          <div class="stat-box mt-lg">
+            <div class="stat-label">Live Subscription Checkout (Stripe Card/ACH or Direct On-Chain USDC)</div>
+            <div class="field-grid mt-xs">
+              <div class="field">
+                <label for="pro-checkout-plan">Subscription Plan</label>
+                <select id="pro-checkout-plan" class="select">
+                  <option value="plus">ZENO Plus ($9.99/mo · 25 bps)</option>
+                  <option value="ultra_quant" selected>ZENO Ultra Quant ($49.00/mo · 10 bps)</option>
+                  <option value="institutional">Institutional ($199.00/mo · 5 bps)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="pro-checkout-rail">Checkout Rail</label>
+                <select id="pro-checkout-rail" class="select">
+                  <option value="stripe">Stripe Subscription (USD Card / ACH)</option>
+                  <option value="usdc_solana">Solana USDC Direct</option>
+                  <option value="usdc_base">Base L2 USDC Direct</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="btn-pro-checkout">Create Live Checkout</label>
+                <button id="btn-pro-checkout" class="btn-primary w-full" type="button">💳 Generate Checkout Link</button>
+              </div>
+            </div>
+            <div id="pro-checkout-out" class="cli-code-box">Select a plan and checkout rail to generate a live Stripe Checkout URL or direct USDC payment URI.</div>
+          </div>
         </div>
 
         <div class="panel">

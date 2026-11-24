@@ -11,8 +11,8 @@ import worker from "./deploy/worker.js";
 const here = dirname(fileURLToPath(import.meta.url));
 const { StablecoinReserveEngine, ContinuousStreamEngine, FokenGateValidator, MICRO_USD } = ZenoEngine;
 
-async function fetchWorker(path, init = {}) {
-  return worker.fetch(new Request("https://zeno.vaked.dev" + path, init), {}, {});
+async function fetchWorker(path, init = {}, env = {}) {
+  return worker.fetch(new Request("https://zeno.vaked.dev" + path, init), env, {});
 }
 
 test("ZENO US backend is Rust-only (#![no_std], zero floats, zero Python)", () => {
@@ -222,6 +222,65 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
 
   const solSpec405 = await fetchWorker("/api/us/solana-payout-spec", { method: "POST" });
   assert.equal(solSpec405.status, 405);
+
+  // /api/us/checkout tests (Stripe unconfigured fail-closed, direct USDC Solana/Base, 405, 400, 413)
+  assert.equal(await fetchWorker("/api/us/checkout", { method: "GET" }).then((r) => r.status), 405);
+  const stripeUnconf = await fetchWorker("/api/us/checkout", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ planId: "ultra_quant", paymentRail: "stripe", cashtag: "$you" }),
+  });
+  assert.equal(stripeUnconf.status, 200);
+  const stripeDoc = await stripeUnconf.json();
+  assert.equal(stripeDoc.mode, "stripe_unconfigured");
+  assert.deepEqual(stripeDoc.missingSecrets, ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ULTRA"]);
+
+  const solCheckout = await fetchWorker(
+    "/api/us/checkout",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ planId: "plus", paymentRail: "usdc_solana", cashtag: "$you" }),
+    },
+    { ZENO_TREASURY_SOLANA: "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS" },
+  );
+  assert.equal(solCheckout.status, 200);
+  const solCheckoutDoc = await solCheckout.json();
+  assert.equal(solCheckoutDoc.mode, "usdc_solana_direct");
+  assert.equal(solCheckoutDoc.amountExact, "9.99");
+  assert.ok(solCheckoutDoc.paymentUri.startsWith("solana:HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS?amount=9.99"));
+
+  const baseCheckout = await fetchWorker(
+    "/api/us/checkout",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ planId: "institutional", paymentRail: "usdc_base", cashtag: "$you" }),
+    },
+    { ZENO_TREASURY_EVM: "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940" },
+  );
+  assert.equal(baseCheckout.status, 200);
+  const baseCheckoutDoc = await baseCheckout.json();
+  assert.equal(baseCheckoutDoc.mode, "usdc_base_direct");
+  assert.equal(baseCheckoutDoc.chainId, 8453);
+  assert.ok(baseCheckoutDoc.paymentUri.includes("uint256=199000000"));
+
+  assert.equal(
+    await fetchWorker("/api/us/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ planId: "bad", paymentRail: "stripe" }),
+    }).then((r) => r.status),
+    400,
+  );
+  assert.equal(
+    await fetchWorker("/api/us/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pad: "a".repeat(9000) }),
+    }).then((r) => r.status),
+    413,
+  );
 
   // Method & prototype-key hardening
   const method405 = await fetchWorker("/us", { method: "POST" });
