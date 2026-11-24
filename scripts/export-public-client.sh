@@ -51,6 +51,7 @@ ALLOWLIST=(
   "spec/RFC-008-US-USDC-USDT-OPEN-CORE.md"
   "spec/SOLANA_USDC_VAKED_FOKEN_PIPELINE.md"
   "spec/US_MONETIZATION_SUBSCRIPTIONS.md"
+  "spec/COMPLIANCE_AUDIT_SOC2_GDPR_PCIDSS_BSA.md"
   "scripts/export-public-client.sh"
   "design/DESIGN_SYSTEM.md"
   "design/PHILOSOPHY.md"

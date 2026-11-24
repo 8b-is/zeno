@@ -4,10 +4,12 @@
 pub const SYSTEM_CODE_JAPAN_IC: u16 = 0x0003;
 pub const SERVICE_HISTORY: u16 = 0x090f;
 pub const CMD_POLLING: u8 = 0x00;
+#[allow(dead_code)]
 pub const RESP_POLLING: u8 = 0x01;
 pub const CMD_READ_WO_ENCRYPTION: u8 = 0x06;
 pub const RESP_READ_WO_ENCRYPTION: u8 = 0x07;
 pub const BLOCK_SIZE: usize = 16;
+#[allow(dead_code)]
 pub const HISTORY_BLOCKS: usize = 20;
 pub const MAX_BLOCKS_PER_READ: usize = 15;
 
@@ -121,9 +123,10 @@ fn kind_name(console: u8, process: u8) -> String {
 /// History ends at the first block whose date word is zero.
 pub fn parse_history(raw: &[u8]) -> ReadResult {
     let mut result = ReadResult::default();
-    let blocks: Vec<&[u8]> = raw.chunks_exact(BLOCK_SIZE).collect();
-    let used: Vec<&[u8]> = blocks
-        .into_iter()
+    let (block_arrays, _) = raw.as_chunks::<BLOCK_SIZE>();
+    let used: Vec<&[u8]> = block_arrays
+        .iter()
+        .map(|b| &b[..])
         .take_while(|b| be(b, 4, 2) != 0)
         .collect();
     for (index, block) in used.iter().enumerate() {

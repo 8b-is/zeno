@@ -10,7 +10,7 @@ mod felica;
 const MAX_JNI_BYTES: usize = 16_384;
 
 thread_local! {
-    static LAST_ERROR: std::cell::RefCell<String> = std::cell::RefCell::new(String::new());
+    static LAST_ERROR: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
 }
 
 fn set_error(message: String) {

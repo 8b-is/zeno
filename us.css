@@ -72,6 +72,33 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   outline-offset: 2px;
 }
 
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  z-index: 300;
+  background: var(--emerald);
+  color: #04120c;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.skip-link:focus-visible {
+  left: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Top Bar */
 .us-header {
   position: sticky;

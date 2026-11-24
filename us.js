@@ -109,7 +109,11 @@
       pane.classList.toggle("active", pane.id === `view-${viewName}`);
     });
     document.querySelectorAll(".nav-item, .bottom-nav-btn").forEach((btn) => {
-      btn.classList.toggle("active", btn.getAttribute("data-view") === viewName);
+      const isSelected = btn.getAttribute("data-view") === viewName;
+      btn.classList.toggle("active", isSelected);
+      if (btn.getAttribute("role") === "tab") {
+        btn.setAttribute("aria-selected", isSelected ? "true" : "false");
+      }
     });
     if (viewName === "home") drawChart();
     window.zenoAudio?.playPluck();
@@ -1035,6 +1039,9 @@
     document.getElementById("btn-close-us-modal").addEventListener("click", closeModal);
     document.getElementById("us-modal-backdrop").addEventListener("click", (e) => {
       if (e.target.id === "us-modal-backdrop") closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
     });
 
     const soundBtn = document.getElementById("btn-us-sound");

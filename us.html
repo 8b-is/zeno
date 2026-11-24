@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="us.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-stage">Skip to main content</a>
   <header class="us-header">
     <div class="us-brand">
       <div class="us-logo" aria-hidden="true">Z$</div>
@@ -34,13 +35,13 @@
 
   <div class="us-shell">
     <!-- Desktop Persistent Rail -->
-    <aside class="us-rail" aria-label="ZENO US navigation">
-      <button class="nav-item active" data-view="home" type="button">📈 Home · Portfolio</button>
-      <button class="nav-item" data-view="pay" type="button">💸 Pay · $zenotag</button>
-      <button class="nav-item" data-view="swap" type="button">⇄ Swap · USDC⇄USDT</button>
-      <button class="nav-item" data-view="pro" type="button">⚡ Pro · Trade &amp; 7 Chains</button>
-      <button class="nav-item" data-view="vaults" type="button">💳 Vaults · Cards</button>
-      <button class="nav-item" data-view="privacy" type="button">🛡 Privacy · Proof</button>
+    <aside class="us-rail" aria-label="ZENO US navigation" role="tablist">
+      <button class="nav-item active" data-view="home" type="button" role="tab" aria-selected="true">📈 Home · Portfolio</button>
+      <button class="nav-item" data-view="pay" type="button" role="tab" aria-selected="false">💸 Pay · $zenotag</button>
+      <button class="nav-item" data-view="swap" type="button" role="tab" aria-selected="false">⇄ Swap · USDC⇄USDT</button>
+      <button class="nav-item" data-view="pro" type="button" role="tab" aria-selected="false">⚡ Pro · Trade &amp; 7 Chains</button>
+      <button class="nav-item" data-view="vaults" type="button" role="tab" aria-selected="false">💳 Vaults · Cards</button>
+      <button class="nav-item" data-view="privacy" type="button" role="tab" aria-selected="false">🛡 Privacy · Proof</button>
 
       <div class="rail-meta">
         <div><strong>Backing:</strong> USDC + USDT (1:1)</div>
@@ -52,7 +53,7 @@
     </aside>
 
     <!-- Main Stage -->
-    <main>
+    <main id="main-stage">
       <div id="us-toast" class="toast-banner" role="status" aria-live="polite"></div>
 
       <!-- 1. HOME / PORTFOLIO (ROBINHOOD DNA) -->
@@ -562,6 +563,7 @@
             <a href="/rfc-008" target="_blank" rel="noopener noreferrer" class="pill-btn">📄 Spec: RFC-008</a>
             <a href="/solana-pipeline" target="_blank" rel="noopener noreferrer" class="pill-btn">📜 Solana+VAKED+FOKEN Pipeline</a>
             <a href="/monetization-spec" target="_blank" rel="noopener noreferrer" class="pill-btn">💰 Monetization Spec</a>
+            <a href="/compliance-audit" target="_blank" rel="noopener noreferrer" class="pill-btn">📋 Compliance Audit</a>
             <a href="/licensing-boundary" target="_blank" rel="noopener noreferrer" class="pill-btn">⚖ Licensing Boundary</a>
             <a href="/api/us/reserve-proof" target="_blank" rel="noopener noreferrer" class="pill-btn">🔍 /api/us/reserve-proof</a>
             <a href="/api/us/architecture" target="_blank" rel="noopener noreferrer" class="pill-btn">🧱 /api/us/architecture</a>
@@ -569,6 +571,7 @@
             <a href="/api/us/solana-payout-spec" target="_blank" rel="noopener noreferrer" class="pill-btn">◎ /api/us/solana-payout-spec</a>
             <a href="/api/us/networks" target="_blank" rel="noopener noreferrer" class="pill-btn">🌐 /api/us/networks</a>
             <a href="/api/us/pricing" target="_blank" rel="noopener noreferrer" class="pill-btn">💳 /api/us/pricing</a>
+            <a href="/api/us/compliance" target="_blank" rel="noopener noreferrer" class="pill-btn">🛡 /api/us/compliance</a>
           </div>
         </div>
       </section>

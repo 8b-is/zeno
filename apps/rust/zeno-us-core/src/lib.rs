@@ -34,6 +34,8 @@ pub const MAX_MEMO_LEN: usize = 256;
 pub const SOLANA_USDC_MINT: &str = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 pub const SOLANA_USDT_MINT: &str = "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 pub const SOLANA_TOKEN_PROGRAM: &str = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+pub const FINCEN_TRAVEL_RULE_MICRO: u64 = 3_000 * MICRO_USD;
+pub const FINCEN_CTR_THRESHOLD_MICRO: u64 = 10_000 * MICRO_USD;
 pub const VAKED_POLYGON_ERC20: &str = "0x2Ae7DA713A2c8527AF70825C0F79632AF2e2ae4A";
 pub const VAKED_MAX_SUPPLY: u64 = 21_000_000;
 
@@ -148,8 +150,17 @@ pub enum UsCoreError {
     UnsupportedNetworkAsset,
     InvalidNetworkAddress,
     ZeroUsageUnits,
+    ComplianceBlocked,
+    AccountNonZeroBalance,
     InternalInvariant,
     Overflow,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ComplianceCheckResult {
+    pub travel_rule_required: bool,
+    pub ctr_reportable: bool,
+    pub sanctioned: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -689,6 +700,7 @@ pub struct UsNeoBankCore {
     revenue_foken_commons_micro: u64,
     seen_deposits: BTreeSet<(String, String)>,
     seen_invoices: BTreeSet<String>,
+    sanctioned_addresses: BTreeSet<String>,
     txs: Vec<KintsugiTx>,
     chain_head: [u8; 32],
 }
@@ -710,6 +722,7 @@ impl UsNeoBankCore {
             revenue_foken_commons_micro: 0,
             seen_deposits: BTreeSet::new(),
             seen_invoices: BTreeSet::new(),
+            sanctioned_addresses: BTreeSet::new(),
             txs: Vec::new(),
             chain_head: [0u8; 32],
         }
@@ -843,7 +856,7 @@ impl UsNeoBankCore {
         Self::validate_cashtag(cashtag)?;
         Self::validate_bounded(pubkey_hex, MAX_PUBKEY_HEX_LEN)?;
         Self::validate_bounded(identity_salt, MAX_SALT_LEN)?;
-        if !pubkey_hex.bytes().all(|b| b.is_ascii_hexdigit()) || pubkey_hex.len() % 2 != 0 {
+        if !pubkey_hex.bytes().all(|b| b.is_ascii_hexdigit()) || !pubkey_hex.len().is_multiple_of(2) {
             return Err(UsCoreError::InvalidCommitmentInputs);
         }
         if self.accounts.contains_key(cashtag) {
@@ -953,6 +966,9 @@ impl UsNeoBankCore {
             return Err(UsCoreError::InvalidAmount);
         }
         Self::validate_bounded(destination, MAX_ID_LEN)?;
+        if self.sanctioned_addresses.contains(destination) {
+            return Err(UsCoreError::ComplianceBlocked);
+        }
 
         let acct = self
             .accounts
@@ -1196,6 +1212,9 @@ impl UsNeoBankCore {
             return Err(UsCoreError::InvalidAmount);
         }
         Self::validate_bounded(memo, MAX_MEMO_LEN)?;
+        if self.sanctioned_addresses.contains(recipient_solana) {
+            return Err(UsCoreError::ComplianceBlocked);
+        }
         let recipient_pubkey = decode_solana_pubkey(recipient_solana)?;
 
         let acct = self
@@ -1438,6 +1457,59 @@ impl UsNeoBankCore {
             split,
             wupz_seal,
         })
+    }
+
+    pub fn add_sanctioned_address(&mut self, addr: &str) -> Result<(), UsCoreError> {
+        Self::validate_bounded(addr, MAX_ID_LEN)?;
+        self.sanctioned_addresses.insert(addr.to_string());
+        Ok(())
+    }
+
+    pub fn evaluate_bsa_compliance(
+        &self,
+        recipient: &str,
+        amount_micro: u64,
+        daily_volume_micro: u64,
+    ) -> ComplianceCheckResult {
+        let total_daily = daily_volume_micro.saturating_add(amount_micro);
+        ComplianceCheckResult {
+            travel_rule_required: amount_micro >= FINCEN_TRAVEL_RULE_MICRO,
+            ctr_reportable: total_daily > FINCEN_CTR_THRESHOLD_MICRO,
+            sanctioned: self.sanctioned_addresses.contains(recipient),
+        }
+    }
+
+    /// GDPR Art. 17 crypto-shredding: erases identity commitment & public key once balance is $0.00
+    /// while preserving immutable pseudonymous Kintsugi seals for FinCEN 5-year recordkeeping.
+    pub fn gdpr_crypto_shred_account(&mut self, cashtag: &str) -> Result<(), UsCoreError> {
+        let acct = self
+            .accounts
+            .get_mut(cashtag)
+            .ok_or(UsCoreError::AccountNotFound)?;
+        if acct.balance_micro != 0 {
+            return Err(UsCoreError::AccountNonZeroBalance);
+        }
+        acct.identity_commitment = [0u8; 32];
+        acct.pubkey_hex = "SHREDDED".to_string();
+        self.account_plans.remove(cashtag);
+        Ok(())
+    }
+
+    /// GDPR Art. 20 minimal pseudonymous portability snapshot (zero raw PII).
+    pub fn export_account_portability_json(&self, cashtag: &str) -> Result<String, UsCoreError> {
+        let acct = self
+            .accounts
+            .get(cashtag)
+            .ok_or(UsCoreError::AccountNotFound)?;
+        let plan = self.plan_for(cashtag);
+        Ok(format!(
+            "{{\"cashtag\":\"{}\",\"plan\":\"{}\",\"balanceMicro\":{},\"dailyVolumeMicro\":{},\"keyStatus\":\"{}\"}}",
+            acct.cashtag,
+            plan.code(),
+            acct.balance_micro,
+            acct.daily_volume_micro,
+            if acct.pubkey_hex == "SHREDDED" { "SHREDDED" } else { "ACTIVE_COMMITMENT" }
+        ))
     }
 
     pub fn verify_invariants(&self) -> bool {
@@ -1887,7 +1959,7 @@ mod tests {
             let op = next_u64(&mut rng) % 7;
             let t1 = tags[(next_u64(&mut rng) % 4) as usize];
             let t2 = tags[(next_u64(&mut rng) % 4) as usize];
-            let asset = if next_u64(&mut rng) % 2 == 0 {
+            let asset = if next_u64(&mut rng).is_multiple_of(2) {
                 StableAsset::Usdc
             } else {
                 StableAsset::Usdt
@@ -1896,7 +1968,7 @@ mod tests {
 
             match op {
                 0 => {
-                    let chain = if next_u64(&mut rng) % 2 == 0 { "solana" } else { "base" };
+                    let chain = if next_u64(&mut rng).is_multiple_of(2) { "solana" } else { "base" };
                     let tx_id = format!("tx_{}", step % 150); // triggers replays intentionally
                     let _ = core.mint_from_stablecoin(t1, asset, amt, chain, &tx_id, sec);
                 }
@@ -2021,6 +2093,64 @@ mod tests {
         let (op, ft, fc) = core.revenue_totals_micro();
         assert_eq!(op + ft + fc, 51_050_000);
         assert_eq!(core.balance_micro("$quant").unwrap(), 948_950_000);
+        assert!(core.verify_invariants());
+    }
+
+    #[test]
+    fn rust_us_core_compliance_bsa_ofac_and_gdpr_crypto_shred() {
+        let blocked_sol = "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS";
+        let mut core = UsNeoBankCore::new();
+        core.open_us_account("$comp", "04aabbccdd", "salt_c", PrivacyTier::Institutional)
+            .unwrap();
+        core.mint_from_stablecoin(
+            "$comp",
+            StableAsset::Usdc,
+            12_000 * MICRO_USD,
+            "base",
+            "0xbsa_seed_1",
+            DAY_1_SEC,
+        )
+        .unwrap();
+
+        // FinCEN Travel Rule ($3k) & CTR ($10k)
+        let bsa_travel = core.evaluate_bsa_compliance(blocked_sol, 3_500 * MICRO_USD, 0);
+        assert!(bsa_travel.travel_rule_required);
+        assert!(!bsa_travel.ctr_reportable);
+        assert!(!bsa_travel.sanctioned);
+
+        let bsa_ctr = core.evaluate_bsa_compliance(blocked_sol, 5_000 * MICRO_USD, 6_000 * MICRO_USD);
+        assert!(bsa_ctr.travel_rule_required);
+        assert!(bsa_ctr.ctr_reportable);
+
+        // OFAC / sanctioned address block on Solana payout & redeem
+        core.add_sanctioned_address(blocked_sol).unwrap();
+        assert_eq!(
+            core.prepare_solana_usdc_payout("$comp", blocked_sol, 100 * MICRO_USD, "test", DAY_1_SEC + 1),
+            Err(UsCoreError::ComplianceBlocked)
+        );
+        assert_eq!(
+            core.redeem_to_stablecoin("$comp", StableAsset::Usdc, 100 * MICRO_USD, blocked_sol, DAY_1_SEC + 2),
+            Err(UsCoreError::ComplianceBlocked)
+        );
+
+        // GDPR Art. 17 refuses non-zero balance, succeeds after full withdrawal
+        assert_eq!(
+            core.gdpr_crypto_shred_account("$comp"),
+            Err(UsCoreError::AccountNonZeroBalance)
+        );
+        core.redeem_to_stablecoin(
+            "$comp",
+            StableAsset::Usdc,
+            12_000 * MICRO_USD,
+            "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940",
+            DAY_1_SEC + 3,
+        )
+        .unwrap();
+        core.gdpr_crypto_shred_account("$comp").unwrap();
+
+        let portability = core.export_account_portability_json("$comp").unwrap();
+        assert!(portability.contains("\"keyStatus\":\"SHREDDED\""));
+        assert!(portability.contains("\"balanceMicro\":0"));
         assert!(core.verify_invariants());
     }
 }

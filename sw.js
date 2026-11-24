@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v14-us-checkout-android-v1100";
+const CACHE_NAME = "zeno-v15-us-compliance-pro-v1110";
 const STATIC_ASSETS = [
   "/",
   "/index.html",

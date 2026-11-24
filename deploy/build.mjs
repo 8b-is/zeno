@@ -86,6 +86,7 @@ const issuerAngelMd = readFileSync(join(root, "spec", "GOOGLE_WALLET_ISSUER_ANGE
 const rfc008Md = readFileSync(join(root, "spec", "RFC-008-US-USDC-USDT-OPEN-CORE.md"), "utf8");
 const solanaPipelineMd = readFileSync(join(root, "spec", "SOLANA_USDC_VAKED_FOKEN_PIPELINE.md"), "utf8");
 const monetizationMd = readFileSync(join(root, "spec", "US_MONETIZATION_SUBSCRIPTIONS.md"), "utf8");
+const complianceAuditMd = readFileSync(join(root, "spec", "COMPLIANCE_AUDIT_SOC2_GDPR_PCIDSS_BSA.md"), "utf8");
 const licensingBoundaryMd = readFileSync(join(root, "LICENSING_BOUNDARY.md"), "utf8");
 const usHtml = readFileSync(join(root, "us.html"), "utf8");
 const usCss = readFileSync(join(root, "us.css"), "utf8");
@@ -128,10 +129,11 @@ const ISSUER_ANGEL_MD = ${JSON.stringify(issuerAngelMd)};
 const RFC_008_MD = ${JSON.stringify(rfc008Md)};
 const SOLANA_PIPELINE_MD = ${JSON.stringify(solanaPipelineMd)};
 const MONETIZATION_MD = ${JSON.stringify(monetizationMd)};
+const COMPLIANCE_AUDIT_MD = ${JSON.stringify(complianceAuditMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -654,6 +656,18 @@ export default {
       });
     }
 
+    if (p === "/compliance-audit" || p === "/spec/COMPLIANCE_AUDIT_SOC2_GDPR_PCIDSS_BSA.md") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(COMPLIANCE_AUDIT_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
     if (p === "/licensing-boundary" || p === "/LICENSING_BOUNDARY.md") {
       return new Response(LICENSING_BOUNDARY_MD, {
         headers: {
@@ -713,8 +727,42 @@ export default {
           "/api/us/networks",
           "/api/us/pricing",
           "/api/us/checkout",
+          "/api/us/compliance",
+          "/compliance-audit",
         ],
         privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel"],
+      });
+    }
+
+    if (p === "/api/us/compliance") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return gwJson({
+        version: "1.11.0",
+        formalCertification: false,
+        note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
+        frameworks: {
+          gdpr: {
+            nonExtractableWebCrypto: true,
+            zeroThirdPartyTrackers: true,
+            art17CryptoShredding: true,
+            art20PortabilityJson: true,
+          },
+          finCenBsaOfac: {
+            travelRuleThresholdMicro: 3000000000,
+            ctrThresholdMicro: 10000000000,
+            ofacAddressScreening: true,
+            liveSponsorBankFboActive: false,
+          },
+          pciDssSaqA: {
+            rawPanHandled: false,
+            stripeHostedTokenization: true,
+          },
+          owaspMasvsAndroid: {
+            allowBackup: false,
+            usesCleartextTraffic: false,
+            maxJniBytes: 16384,
+          },
+        },
       });
     }
 

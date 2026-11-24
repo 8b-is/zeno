@@ -16,10 +16,19 @@
         <package android:name="com.jreast.mobile.suica" />
         <package android:name="com.samsung.android.spay" />
         <package android:name="com.google.android.apps.walletnfcrel" />
+        <package android:name="app.phantom" />
+        <package android:name="org.toshi" />
+        <package android:name="com.solflare.mobile" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="solana" />
+        </intent>
     </queries>
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:usesCleartextTraffic="false"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher"
         android:label="ZENO 銭"
         android:roundIcon="@mipmap/ic_launcher_round"

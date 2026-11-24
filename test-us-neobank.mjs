@@ -190,10 +190,20 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(usRes.headers.get("x-frame-options"), "DENY");
   assert.equal(usRes.headers.get("cross-origin-opener-policy"), "same-origin");
 
-  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/monetization-spec", "/licensing-boundary"]) {
+  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/monetization-spec", "/compliance-audit", "/licensing-boundary"]) {
     const res = await fetchWorker(path);
     assert.equal(res.status, 200, `${path} did not return 200`);
   }
+
+  const compRes = await fetchWorker("/api/us/compliance");
+  assert.equal(compRes.status, 200);
+  const compDoc = await compRes.json();
+  assert.equal(compDoc.formalCertification, false);
+  assert.equal(compDoc.frameworks.gdpr.art17CryptoShredding, true);
+  assert.equal(compDoc.frameworks.pciDssSaqA.rawPanHandled, false);
+  assert.equal(compDoc.frameworks.owaspMasvsAndroid.usesCleartextTraffic, false);
+  assert.equal(await fetchWorker("/api/us/compliance", { method: "POST" }).then((r) => r.status), 405);
+  assert.equal(await fetchWorker("/compliance-audit", { method: "POST" }).then((r) => r.status), 405);
 
   const netsRes = await fetchWorker("/api/us/networks");
   assert.equal(netsRes.status, 200);

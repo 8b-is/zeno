@@ -428,14 +428,11 @@ fn compress_block(state: &mut [u32; 8], block: &[u8; 64]) {
 /// Compute SHA-256 over arbitrary bytes in `#![no_std]` with zero heap allocations.
 pub fn sha256(data: &[u8]) -> [u8; 32] {
     let mut state = H0;
-    let mut chunks = data.chunks_exact(64);
-    for chunk in &mut chunks {
-        let mut block = [0u8; 64];
-        block.copy_from_slice(chunk);
-        compress_block(&mut state, &block);
+    let (chunks, rem) = data.as_chunks::<64>();
+    for chunk in chunks {
+        compress_block(&mut state, chunk);
     }
 
-    let rem = chunks.remainder();
     let bit_len = (data.len() as u64).wrapping_mul(8);
     let mut tail = [0u8; 128];
     tail[..rem.len()].copy_from_slice(rem);
@@ -531,8 +528,8 @@ pub fn wupz_xor_fold(bytes: &[u8]) -> u64 {
     let mut a1 = 0u64;
     let mut a2 = 0u64;
     let mut a3 = 0u64;
-    let mut chunks64 = bytes.chunks_exact(64);
-    for c in &mut chunks64 {
+    let (chunks64, rem64) = bytes.as_chunks::<64>();
+    for c in chunks64 {
         a0 ^= u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]])
             ^ u64::from_le_bytes([c[32], c[33], c[34], c[35], c[36], c[37], c[38], c[39]]);
         a1 ^= u64::from_le_bytes([c[8], c[9], c[10], c[11], c[12], c[13], c[14], c[15]])
@@ -543,11 +540,10 @@ pub fn wupz_xor_fold(bytes: &[u8]) -> u64 {
             ^ u64::from_le_bytes([c[56], c[57], c[58], c[59], c[60], c[61], c[62], c[63]]);
     }
     let mut acc = (a0 ^ a1) ^ (a2 ^ a3);
-    let mut chunks8 = chunks64.remainder().chunks_exact(8);
-    for c in &mut chunks8 {
+    let (chunks8, rem) = rem64.as_chunks::<8>();
+    for c in chunks8 {
         acc ^= u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]);
     }
-    let rem = chunks8.remainder();
     if !rem.is_empty() {
         let mut tail = [0u8; 8];
         tail[..rem.len()].copy_from_slice(rem);
@@ -562,8 +558,8 @@ pub fn wupz_popcount(bytes: &[u8]) -> u32 {
     let mut c1 = 0u32;
     let mut c2 = 0u32;
     let mut c3 = 0u32;
-    let mut chunks32 = bytes.chunks_exact(32);
-    for c in &mut chunks32 {
+    let (chunks32, rem32) = bytes.as_chunks::<32>();
+    for c in chunks32 {
         c0 = c0.wrapping_add(
             u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]).count_ones(),
         );
@@ -580,7 +576,7 @@ pub fn wupz_popcount(bytes: &[u8]) -> u32 {
         );
     }
     let mut count = (c0.wrapping_add(c1)).wrapping_add(c2.wrapping_add(c3));
-    for &b in chunks32.remainder() {
+    for &b in rem32 {
         count = count.wrapping_add(b.count_ones());
     }
     count
