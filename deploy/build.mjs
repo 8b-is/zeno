@@ -129,12 +129,12 @@ const SOLANA_PIPELINE_MD = ${JSON.stringify(solanaPipelineMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
   "domains": ["https://zeno.vaked.dev", "https://zeno.8b.is"],
-  "supportedRails": ["stripe_fiat", "zeno_kintsugi", "zeno_microstream", "revolut_ultra", "usdc_usdt_us_rail", "foken_usdc_usdt_gate"],
+  "supportedRails": ["stripe_fiat", "zeno_kintsugi", "zeno_microstream", "revolut_ultra", "usdc_usdt_us_rail", "foken_usdc_usdt_gate", "solana_spl_usdc_rail"],
   "supportedCurrencies": ["USD", "USDC", "USDT", "FOKEN", "JPY", "EUR", "HUF"],
   "services": [
     {
@@ -237,6 +237,7 @@ export default {
     }
 
     if (p === "/us.css") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(US_CSS, {
         headers: {
           ...COMMON_HEADERS,
@@ -247,6 +248,7 @@ export default {
     }
 
     if (p === "/us.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(US_JS, {
         headers: {
           ...COMMON_HEADERS,
@@ -257,6 +259,7 @@ export default {
     }
 
     if (p === "/style.css") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(STYLE_CSS, {
         headers: {
           ...COMMON_HEADERS,
@@ -267,6 +270,7 @@ export default {
     }
 
     if (p === "/app.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(APP_JS, {
         headers: {
           ...COMMON_HEADERS,
@@ -277,6 +281,7 @@ export default {
     }
 
     if (p === "/sound.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(SOUND_JS, {
         headers: {
           ...COMMON_HEADERS,
@@ -287,6 +292,7 @@ export default {
     }
 
     if (p === "/qrcode.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(QRCODE_JS, {
         headers: {
           ...COMMON_HEADERS,
@@ -297,6 +303,7 @@ export default {
     }
 
     if (p === "/zeno-engine.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(ZENO_ENGINE_JS, {
         headers: {
           ...COMMON_HEADERS,
@@ -307,6 +314,7 @@ export default {
     }
 
     if (p === "/favicon.svg") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(FAVICON_SVG, {
         headers: {
           ...COMMON_HEADERS,
@@ -317,6 +325,7 @@ export default {
     }
 
     if (p === "/og.svg") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(OG_SVG, {
         headers: {
           ...COMMON_HEADERS,
@@ -328,6 +337,7 @@ export default {
 
     // Android App Links verification (https://zeno.vaked.dev/pay/... → ZENO app)
     if (p === "/.well-known/assetlinks.json" || p === "/assetlinks.json") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(ASSETLINKS_JSON, {
         headers: {
           ...COMMON_HEADERS,
@@ -339,6 +349,7 @@ export default {
 
     // Constellation registry — the 8b-is projects ZENO values (RFC-007).
     if (p === "/api/constellation" || p === "/.well-known/constellation.json") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return new Response(CONSTELLATION_JSON, {
         headers: {
           ...COMMON_HEADERS,
@@ -350,6 +361,7 @@ export default {
 
     // KOMRESS-ULTRA ZKP1 receipts (verified bytes + SHA-256 seals, RFC-007).
     if (p === "/api/kompress") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       const doc = JSON.parse(CONSTELLATION_JSON);
       const body = JSON.stringify(
         {
@@ -651,6 +663,7 @@ export default {
         coverageRatioPQ: "1/1",
         trit: 0,
         gate: "0x62",
+        isSimulatedGenesisSeed: true,
         mode: "simulated_local_por_until_us_custody_live",
       });
     }
@@ -750,6 +763,7 @@ export default {
     }
 
     if (p === "/api/wallet/issuer-angel") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
         serviceAccountName: "zeno-wallet-issuer-angel",
         description: "ZENO Kintsugi Ledger Bridge: Authorized signer for FeliCa transit tokens and Google/Apple Wallet passes via Client ID 812856185326 (Merchant ID BCR2DN6DZKGJ5BI5). Integrity enforced via SHA-256 trace-chaining.",

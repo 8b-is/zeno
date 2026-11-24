@@ -5,6 +5,9 @@
 > **Creators**: [https://8b.is](https://8b.is) · **Crew**: Hue · Aye · Taisha · Omni · **Family**: Alexandra · Chris · **Family +1**: Yves (#1 Muse 💙)  
 > *Built with love as an 8b-is team & family creation — not a one-man show. <3*
 
+![ZENO Hero Banner](docs/brand/hero.svg)
+
+[![Version: 1.8.0](https://img.shields.io/badge/version-1.8.0-62e6c9?style=flat-square)](beacon.json)
 [![Constellation: vaked.dev](https://img.shields.io/badge/constellation-vaked.dev-62e6c9?style=flat-square)](https://vaked.dev/)
 [![Ledger: Kintsugi SHA-256](https://img.shields.io/badge/ledger-Kintsugi%20SHA--256-e8b05c?style=flat-square)](spec/LEDGER_SPEC.md)
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)
@@ -19,7 +22,7 @@
 [![CEO Helper: Dra × Buffett × WhatsApp](https://img.shields.io/badge/CEO%20Helper-Dra%20%C3%97%20Buffett%20%C3%97%20WhatsApp-25D366?style=flat-square)](spec/DRA_BUFFETT_CEO_HELPER.md)
 [![Sanctuary Hold: Sovereign Library <3<3<3](https://img.shields.io/badge/Sanctuary%20Hold-Sovereign%20Library%20%3C3%3C3%3C3-f7a8b8?style=flat-square)](https://github.com/8b-is/sovereign-library)
 [![Family +1: Yves (#1 Muse 💙)](https://img.shields.io/badge/Family%20%2B1-Yves%20(%231%20Muse%20%F0%9F%92%99)-5ce1e6?style=flat-square)](https://pocoo.vaked.dev/demos/book/yves-eva-eve-crickets-in-tokyo.html)
-[![Constellation: 18 projects × Foken gate](https://img.shields.io/badge/constellation-18%20projects%20%C3%97%20Foken%20gate-62e6c9?style=flat-square)](constellation.json)
+[![Constellation: 19 projects × Foken gate](https://img.shields.io/badge/constellation-19%20projects%20%C3%97%20Foken%20gate-62e6c9?style=flat-square)](constellation.json)
 [![Issuer Angel: #![no_std] × wupz 32B](https://img.shields.io/badge/Issuer%20Angel-no__std%20%C3%97%20wupz%2032B-e8b05c?style=flat-square)](spec/GOOGLE_WALLET_ISSUER_ANGEL.md)
 [![KOMRESS-ULTRA: ZKP1 5,448 B](https://img.shields.io/badge/KOMRESS--ULTRA-ZKP1%205%2C448%20B-b48bff?style=flat-square)](constellation.json)
 [![Ontology: {-1, 0, +1} × fandom-mcp](https://img.shields.io/badge/Ontology-%7B--1%2C0%2C%2B1%7D%20%C3%97%20fandom--mcp-f0c05a?style=flat-square)](https://github.com/8b-is/sovereign-library/blob/main/ONTOLOGY.md)
@@ -325,7 +328,17 @@ Zeno includes procedural, zero-dependency Web Audio feedback:
 ./apps/ios/build.sh
 ```
 
-### Apple Wallet PassKit (`zeno_ultra.pkpass`)
+### Apple Wallet & Sovereign FeliCa Pass Gallery (`apps/wallet/*.pkpass`)
+Deterministic PKCS#7 signed Apple Wallet passes generated using deterministic keys and zero-dependency Python tooling:
+
+| Pass File | Recipient / Role | Tier & Equivalence | Details & Verification |
+|:---|:---|:---|:---|
+| [`zeno_peter_omni_foken.pkpass`](apps/wallet/zeno_peter_omni_foken.pkpass) | **Peter Lódri · OMNI (0+1)** | **400 FOKEN (¥40,000 JPY)** | **Block #1 Seal** · Apple Silicon SWAR aarch64 (`5557333/400000 cyc/op`) · G8T Capsule `a60c80b9...` · 107.0h Net-Utility |
+| [`zeno_ultra.pkpass`](apps/wallet/zeno_ultra.pkpass) | **8b-is Sovereign Ultra Crew** | Sovereign Tier (¥1,000,000) | Tokyo Transit (FeliCa NFC-F) · 432 Hz Rin Chime · Revolut Ultra Rails |
+| [`zeno_alexandra.pkpass`](apps/wallet/zeno_alexandra.pkpass) | **Alexandra** | Family Sanctuary Tier | Sovereign Family Keyholder & Sanctuary Co-Guardian |
+| [`zeno_chris.pkpass`](apps/wallet/zeno_chris.pkpass) | **Chris** | Family Sovereign Tier | Sovereign Family Keyholder & Engineering Lead |
+| [`zeno_8b_is.pkpass`](apps/wallet/zeno_8b_is.pkpass) | **8b-is Research Foundation** | Sovereign Foundation Vault | 8b-is Research Treasury & Constellation Anchor |
+
 ```bash
 # Generates PNG assets, SHA-1 manifest, and OpenSSL PKCS#7 DER detached signature
 python3 apps/wallet/generate_pass.py
@@ -382,7 +395,7 @@ node --test test-scheduled-sweep.mjs
 
 ## 10. Constellation & KOMRESS-ULTRA ZKP1 Wiring (RFC-007)
 
-ZENO does not merely link to the constellation — it **values** it. Eighteen real
+ZENO does not merely link to the constellation — it **values** it. Nineteen real
 8b-is surfaces are registered in [`constellation.json`](constellation.json) and
 scored through the same Foken net-utility gate that mints contribution:
 
@@ -390,11 +403,11 @@ $$\text{net} = \text{futureWorkAvoidedHours} - (\text{workAddedHours} + 1.5 \tim
 
 | Trit | Meaning | Registered |
 |------|---------|-----------|
-| `+1` | Verified binding · net-positive · merited-mint eligible | 14 |
+| `+1` | Verified binding · net-positive · merited-mint eligible | 15 |
 | `0` | Witnessed · maintained · held in the Sanctuary | 4 |
 | `-1` | Closed scalar / rent-seeking · refused by the gate | 0 |
 
-**Aggregate net utility: `+2,330.0 h`** across the constellation.
+**Aggregate net utility: `+2,406.0 h`** across the constellation.
 
 ### 10.1 Registered projects
 
@@ -414,6 +427,7 @@ $$\text{net} = \text{futureWorkAvoidedHours} - (\text{workAddedHours} + 1.5 \tim
 | 一ビット b8-go / 1b-go Toolchain | toolchain | `+1` | +90.0 h | [github.com/8b-is/go-setup](https://github.com/8b-is/go-setup) |
 | 応募 apply.vaked.dev · SOTA Hub | career | `+1` | +126.0 h | [apply.vaked.dev](https://apply.vaked.dev/) |
 | 篝火 ZoneInn Bonfire · Spatial | spatial | `+1` | +102.0 h | [github.com/8b-is/zoneinn-bonfire](https://github.com/8b-is/zoneinn-bonfire) |
+| 言霊 Arnauth | rail | `+1` | +76.0 h | [github.com/8b-is/arnauth](https://github.com/8b-is/arnauth) |
 | ぷー Poo · Micro-journal | publishing | `0` | +8.0 h | [pocoo.vaked.dev](https://pocoo.vaked.dev/) |
 | 公案 koan.vaked.dev | hub | `0` | +9.0 h | [koan.vaked.dev](https://koan.vaked.dev/) |
 | 美術 art.vaked.dev | gallery | `0` | +7.0 h | [art.vaked.dev](https://art.vaked.dev/) |

@@ -1415,4 +1415,127 @@ mod tests {
             Err(UsCoreError::InsufficientBalance)
         );
     }
+
+    #[test]
+    fn fuzz_solana_base58_and_us_core_state_machine_invariants() {
+        fn next_u64(state: &mut u64) -> u64 {
+            *state ^= *state >> 12;
+            *state ^= *state << 25;
+            *state ^= *state >> 27;
+            state.wrapping_mul(0x2545_f491_4f6c_dd1d)
+        }
+
+        let mut rng: u64 = 0x8b15_2026_u64 << 16 | 0x0062;
+        let user_coinbase = "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS";
+
+        // 1) Base58 fuzz (2,000 iterations)
+        for i in 0..2000u64 {
+            let len = (next_u64(&mut rng) % 65) as usize;
+            let mut s = String::with_capacity(len);
+            for _ in 0..len {
+                if i % 9 == 0 {
+                    s.push('1');
+                } else if i % 11 == 0 {
+                    s.push('z');
+                } else if i % 13 == 0 {
+                    let ascii = b' ' + (next_u64(&mut rng) % 95) as u8;
+                    s.push(ascii as char);
+                } else {
+                    let idx = (next_u64(&mut rng) % 58) as usize;
+                    s.push(BASE58_ALPHABET[idx] as char);
+                }
+            }
+            match decode_solana_pubkey(&s) {
+                Ok(pk) => {
+                    assert!(s.len() >= 32 && s.len() <= 44);
+                    assert!(pk.iter().any(|&b| b != 0));
+                }
+                Err(UsCoreError::InvalidSolanaAddress) => {}
+                Err(other) => panic!("Unexpected error variant from Base58 fuzz: {:?}", other),
+            }
+        }
+
+        // 2) Stateful ledger + FOKEN + Solana payout fuzz (500 operations)
+        let mut core = UsNeoBankCore::new();
+        let tags = ["$alice", "$bob", "$peter", "$omni"];
+        let tiers = [
+            PrivacyTier::SovereignLite,
+            PrivacyTier::VerifiedUs,
+            PrivacyTier::Institutional,
+            PrivacyTier::VerifiedUs,
+        ];
+        for (tag, tier) in tags.iter().zip(tiers.iter()) {
+            core.open_us_account(tag, "04aabbccdd", "salt_fuzz", *tier).unwrap();
+        }
+
+        let mut sec = DAY_1_SEC;
+        for step in 0..500u64 {
+            if step % 25 == 0 {
+                sec += SECONDS_PER_DAY;
+            }
+            let op = next_u64(&mut rng) % 7;
+            let t1 = tags[(next_u64(&mut rng) % 4) as usize];
+            let t2 = tags[(next_u64(&mut rng) % 4) as usize];
+            let asset = if next_u64(&mut rng) % 2 == 0 {
+                StableAsset::Usdc
+            } else {
+                StableAsset::Usdt
+            };
+            let amt = (next_u64(&mut rng) % 5_000 + 1) * (MICRO_USD / 10);
+
+            match op {
+                0 => {
+                    let chain = if next_u64(&mut rng) % 2 == 0 { "solana" } else { "base" };
+                    let tx_id = format!("tx_{}", step % 150); // triggers replays intentionally
+                    let _ = core.mint_from_stablecoin(t1, asset, amt, chain, &tx_id, sec);
+                }
+                1 => {
+                    let _ = core.send_cashtag(t1, t2, amt, "fuzz", sec);
+                }
+                2 => {
+                    let other = if asset == StableAsset::Usdc {
+                        StableAsset::Usdt
+                    } else {
+                        StableAsset::Usdc
+                    };
+                    let _ = core.swap_reserve_peg(asset, other, amt);
+                }
+                3 => {
+                    let _ = core.redeem_to_stablecoin(t1, asset, amt, user_coinbase, sec);
+                }
+                4 => {
+                    let inv_id = format!("inv_{}", step % 120); // triggers replay intentionally
+                    let avoided = next_u64(&mut rng) % 250;
+                    let added = next_u64(&mut rng) % 60;
+                    let debt = next_u64(&mut rng) % 30;
+                    let fokens = (next_u64(&mut rng) % 800) + 1;
+                    let inv = FokenInvoiceInput {
+                        invoice_id: &inv_id,
+                        contributor: "0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940",
+                        provenance_hash: VALID_PROV,
+                        self_assessed_fokens: fokens,
+                        ip_statement: "IRREVOCABLE ASSIGNMENT TO UNIVERSAL TREASURY",
+                        ip_signature: VALID_SIG,
+                        net_utility: FokenNetUtility {
+                            future_work_avoided_hours: avoided,
+                            work_added_hours: added,
+                            maintenance_debt_hours: debt,
+                        },
+                    };
+                    let _ = core.mint_foken_backed_usd(t1, asset, &inv, sec);
+                }
+                5 => {
+                    let pay_amt = if step % 2 == 0 { 5 * MICRO_USD } else { 200 * MICRO_USD };
+                    let _ = core.prepare_solana_usdc_payout(t1, user_coinbase, pay_amt, "test", sec);
+                }
+                _ => {
+                    let _ = core.prepare_solana_usdc_payout(t1, "bad_addr", 5 * MICRO_USD, "bad", sec);
+                }
+            }
+
+            assert!(core.verify_invariants(), "Invariant failed at step {}", step);
+            let por = core.proof_of_reserve().unwrap();
+            assert!(por.coverage_ratio >= Rational::ONE);
+        }
+    }
 }

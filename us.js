@@ -835,6 +835,12 @@
     recEl.addEventListener("input", () => refresh(false));
     amtEl.addEventListener("input", () => refresh(false));
     if (memoEl) memoEl.addEventListener("input", () => refresh(false));
+    document.querySelectorAll(".sol-amt-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        amtEl.value = chip.getAttribute("data-sol-amt") || "5.00";
+        refresh(true);
+      });
+    });
     document.getElementById("btn-sol-refresh")?.addEventListener("click", () => refresh(true));
     document.getElementById("btn-sol-copy-uri")?.addEventListener("click", () => {
       copyText(latestIntent?.solanaPayUri, "Solana Pay URI");

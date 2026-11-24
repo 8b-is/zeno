@@ -56,8 +56,8 @@ test("Foken gate is net-positive for every registered project", () => {
 
 test("registry totals match the arithmetic", () => {
   const total = registry.projects.reduce((sum, p) => sum + netHours(p.foken), 0);
-  assert.equal(Number(total.toFixed(3)), 2330);
-  assert.equal(registry.projects.filter((p) => p.trit === 1).length, 14);
+  assert.equal(Number(total.toFixed(3)), 2406);
+  assert.equal(registry.projects.filter((p) => p.trit === 1).length, 15);
   assert.equal(registry.projects.filter((p) => p.trit === 0).length, 4);
   assert.equal(registry.projects.filter((p) => p.trit === -1).length, 0);
 });
@@ -96,7 +96,7 @@ test("worker serves /api/constellation with computed netHours", async () => {
   assert.equal(res.status, 200);
   assert.match(res.headers.get("content-type"), /application\/json/);
   assert.equal(body.projects.length, registry.projects.length);
-  assert.equal(body.totals.netHours, 2330);
+  assert.equal(body.totals.netHours, 2406);
 
   for (const project of body.projects) {
     assert.equal(project.netHours, netHours(project.foken), `netHours mismatch: ${project.id}`);

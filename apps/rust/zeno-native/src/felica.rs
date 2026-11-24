@@ -263,4 +263,29 @@ mod tests {
         assert_eq!(parsed.entries[0].kind, "チャージ");
         assert_eq!(parsed.entries[0].delta, Some(-4759));
     }
+
+    #[test]
+    fn fuzz_felica_extract_blocks_and_parse_never_panics() {
+        let mut rng: u64 = 0x8b15_fe11_c420_0062;
+        let next = |s: &mut u64| -> u64 {
+            *s ^= *s >> 12;
+            *s ^= *s << 25;
+            *s ^= *s >> 27;
+            s.wrapping_mul(0x2545_f491_4f6c_dd1d)
+        };
+        for _ in 0..2000 {
+            let len = (next(&mut rng) % 265) as usize;
+            let mut buf = Vec::with_capacity(len);
+            for _ in 0..len {
+                buf.push((next(&mut rng) & 0xff) as u8);
+            }
+            let block_count = (next(&mut rng) % 256) as usize;
+            if let Ok(blocks) = extract_blocks(&buf, block_count) {
+                assert!(block_count <= MAX_BLOCKS_PER_READ);
+                assert_eq!(blocks.len(), block_count * 16);
+                let _ = parse_history(&blocks);
+            }
+            let _ = parse_history(&buf);
+        }
+    }
 }

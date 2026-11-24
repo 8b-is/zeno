@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v11-us-foken-solana-hardened";
+const CACHE_NAME = "zeno-v12-us-foken-solana-fuzzed-v180";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
