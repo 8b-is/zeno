@@ -7,7 +7,7 @@
 
 ![ZENO Hero Banner](docs/brand/hero.svg)
 
-[![Version: 1.11.0](https://img.shields.io/badge/version-1.11.0-62e6c9?style=flat-square)](beacon.json)
+[![Version: 1.12.0](https://img.shields.io/badge/version-1.12.0-62e6c9?style=flat-square)](beacon.json)
 [![Constellation: vaked.dev](https://img.shields.io/badge/constellation-vaked.dev-62e6c9?style=flat-square)](https://vaked.dev/)
 [![Ledger: Kintsugi SHA-256](https://img.shields.io/badge/ledger-Kintsugi%20SHA--256-e8b05c?style=flat-square)](spec/LEDGER_SPEC.md)
 [![Bridge: Foken Net-Utility](https://img.shields.io/badge/gate-Foken%20Net--Utility-b48bff?style=flat-square)](spec/FOKEN_BRIDGE.md)

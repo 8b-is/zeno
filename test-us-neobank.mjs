@@ -184,16 +184,25 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   const usRes = await fetchWorker("/us");
   assert.equal(usRes.status, 200);
   const csp = usRes.headers.get("content-security-policy") || "";
-  assert.match(csp, /script-src 'self'/);
+  assert.match(csp, /script-src 'self' 'wasm-unsafe-eval'/);
+  assert.ok(!csp.includes("'unsafe-eval'"), "JS unsafe-eval must remain forbidden");
   assert.match(csp, /style-src 'self'/);
   assert.match(csp, /frame-ancestors 'none'/);
   assert.equal(usRes.headers.get("x-frame-options"), "DENY");
   assert.equal(usRes.headers.get("cross-origin-opener-policy"), "same-origin");
 
-  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/monetization-spec", "/compliance-audit", "/licensing-boundary"]) {
+  for (const path of ["/us.css", "/us.js", "/rfc-008", "/solana-pipeline", "/monetization-spec", "/compliance-audit", "/rust-wasm-spec", "/licensing-boundary"]) {
     const res = await fetchWorker(path);
     assert.equal(res.status, 200, `${path} did not return 200`);
   }
+
+  const wasmRes = await fetchWorker("/zeno-client.wasm");
+  assert.equal(wasmRes.status, 200);
+  assert.equal(wasmRes.headers.get("content-type"), "application/wasm");
+  const wasmBytes = new Uint8Array(await wasmRes.arrayBuffer());
+  assert.deepEqual(Array.from(wasmBytes.subarray(0, 4)), [0x00, 0x61, 0x73, 0x6d]);
+  assert.equal(await fetchWorker("/zeno-client.wasm", { method: "POST" }).then((r) => r.status), 405);
+  assert.equal(await fetchWorker("/rust-wasm-spec", { method: "POST" }).then((r) => r.status), 405);
 
   const compRes = await fetchWorker("/api/us/compliance");
   assert.equal(compRes.status, 200);
@@ -350,13 +359,16 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(arch.backendLanguage, "rust");
   assert.equal(arch.pythonAllowed, false);
   assert.equal(arch.zeroFloatPQ, true);
-  assert.equal(arch.clientRuntime, "safe-isomorphic-js");
+  assert.equal(arch.clientRuntime, "rust-wasm-no-std+safe-isomorphic-js");
+  assert.equal(arch.wasmClientActive, true);
+  assert.equal(arch.wasmClientPath, "/zeno-client.wasm");
+  assert.equal(arch.asmKernelCrate, "apps/rust/zeno-asm");
   assert.equal(arch.clientLicense, "MIT");
   assert.equal(arch.coreLicense, "PROPRIETARY_PRIVATE");
   assert.equal(arch.zeroTelemetry, true);
   assert.equal(arch.fokenGate, true);
   assert.deepEqual(arch.domains, ["zeno.vaked.dev", "zeno.8b.is"]);
-  assert.deepEqual(arch.privateCoreModules, ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel"]);
+  assert.deepEqual(arch.privateCoreModules, ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm"]);
 
   const fokenInfoRes = await fetchWorker("/api/us/foken");
   assert.equal(fokenInfoRes.status, 200);
@@ -424,8 +436,83 @@ test("Public MIT client exporter dry-run excludes all private-core paths", () =>
   });
   assert.match(out, /us\.html/);
   assert.match(out, /zeno-engine\.js/);
+  assert.match(out, /zeno-client\.wasm/);
+  assert.match(out, /RUST_ASM_WASM_ARCHITECTURE\.md/);
   assert.ok(!out.includes("apps/core"), "exporter leaked apps/core");
   assert.ok(!out.includes("apps/rust"), "exporter leaked apps/rust");
   assert.ok(!out.includes(".pkpass"), "exporter leaked .pkpass");
   assert.ok(!out.includes("certs"), "exporter leaked certs");
+});
+
+test("Client-side Rust WASM module (zeno-client.wasm) matches BigInt engine parity and bounds guards", async () => {
+  const bytes = readFileSync(join(here, "zeno-client.wasm"));
+  assert.ok(bytes.length < 32768, `WASM binary too large: ${bytes.length} bytes`);
+  const { instance } = await WebAssembly.instantiate(bytes, {});
+  const ex = instance.exports;
+
+  assert.equal(ex.zeno_wasm_version(), 1120);
+  const scratchPtr = ex.zeno_scratch_ptr();
+  const scratchLen = ex.zeno_scratch_len();
+  assert.equal(scratchLen, 1024);
+
+  const memView = new Uint8Array(ex.memory.buffer, scratchPtr, scratchLen);
+  const write = (offset, data) => {
+    const src = typeof data === "string" ? Buffer.from(data, "utf8") : data;
+    memView.set(src, offset);
+    return src.length;
+  };
+
+  assert.equal(ex.zeno_gcd_u64(305n, 2n), 1n);
+  assert.equal(ex.zeno_gcd_u64(52040500000n, 52040500000n), 52040500000n);
+
+  // Exact FX parity with StablecoinReserveEngine.convertFx
+  assert.equal(
+    ex.zeno_fx_convert_micro(100n * MICRO_USD, 1),
+    StablecoinReserveEngine.convertFx(100n * MICRO_USD, "JPY").amountMicroOut,
+  );
+  assert.equal(
+    ex.zeno_fx_convert_micro(100n * MICRO_USD, 2),
+    StablecoinReserveEngine.convertFx(100n * MICRO_USD, "EUR").amountMicroOut,
+  );
+  assert.equal(
+    ex.zeno_fx_convert_micro(100n * MICRO_USD, 3),
+    StablecoinReserveEngine.convertFx(100n * MICRO_USD, "GBP").amountMicroOut,
+  );
+  assert.equal(
+    ex.zeno_fx_convert_micro(100n * MICRO_USD, 4),
+    StablecoinReserveEngine.convertFx(100n * MICRO_USD, "HUF").amountMicroOut,
+  );
+
+  // Sanpo Yoshi exact zero-sum 50/30/20
+  const fee = 49000000n;
+  const fam = ex.zeno_sanpo_yoshi_family(fee);
+  const fok = ex.zeno_sanpo_yoshi_foken(fee);
+  const ops = ex.zeno_sanpo_yoshi_operating(fee);
+  assert.equal(fam, 14700000n);
+  assert.equal(fok, 9800000n);
+  assert.equal(ops, 24500000n);
+  assert.equal(fam + fok + ops, fee);
+
+  // FOKEN net utility milli-hours
+  assert.equal(ex.zeno_foken_net_milli_hours(100000n, 10000n, 2000n), 87000n);
+
+  // Solana Base58 validation
+  const goodLen = write(0, "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS");
+  assert.equal(ex.zeno_validate_solana_b58(0, goodLen), 1);
+  const badLen = write(64, "0OIlHpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkb");
+  assert.equal(ex.zeno_validate_solana_b58(64, badLen), 0);
+  const zeroLen = write(128, "11111111111111111111111111111111");
+  assert.equal(ex.zeno_validate_solana_b58(128, zeroLen), 0);
+
+  // WUPZ XOR-fold, popcount & constant-time compare + OOB guards
+  const d = new Uint8Array(32).fill(0x55);
+  write(256, d);
+  write(320, d);
+  assert.equal(ex.zeno_wupz_popcount(256, 32), 128);
+  assert.equal(ex.zeno_ct_eq_32(256, 320), 1);
+  d[15] ^= 0x80;
+  write(320, d);
+  assert.equal(ex.zeno_ct_eq_32(256, 320), 0);
+  assert.equal(ex.zeno_ct_eq_32(1000, 0), -1);
+  assert.equal(ex.zeno_wupz_xor_fold(1020, 16), 0n);
 });

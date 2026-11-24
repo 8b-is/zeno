@@ -76,8 +76,10 @@ const checks = [
   {
     id: "EDGE-STRICT-CSP-HEADERS",
     standard: "SOC2-CC6.6",
-    desc: "Strict /us CSP + X-Frame-Options DENY + COOP + CORP enforced in Edge Worker",
-    ok: buildMjs.includes("default-src 'none'; script-src 'self'; style-src 'self'")
+    desc: "Strict /us CSP ('self' + 'wasm-unsafe-eval', zero unsafe-eval/unsafe-inline) + DENY + COOP + CORP enforced",
+    ok: buildMjs.includes("default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'")
+      && !buildMjs.includes("'unsafe-eval'")
+      && !buildMjs.includes("'unsafe-inline'")
       && buildMjs.includes('"x-frame-options": "DENY"')
       && buildMjs.includes('"cross-origin-opener-policy": "same-origin"'),
   },
@@ -129,6 +131,15 @@ const checks = [
       && caddyfile.includes("header_up -CF-Connecting-IP")
       && gitignore.includes(".zeno-local/")
       && gitignore.includes(".st/"),
+  },
+  {
+    id: "RUST-ASM-ISOLATION",
+    standard: "SOC2-PI1.4 / Defense-in-Depth",
+    desc: "Inline assembly isolated to apps/rust/zeno-asm while zeno-us-core retains #![forbid(unsafe_code)] and valid client WASM magic",
+    ok: existsSync(join(root, "apps", "rust", "zeno-asm", "src", "lib.rs"))
+      && existsSync(join(root, "zeno-client.wasm"))
+      && readFileSync(join(root, "zeno-client.wasm")).subarray(0, 4).toString("latin1") === "\0asm"
+      && rustNonTest.includes("#![forbid(unsafe_code)]"),
   },
 ];
 

@@ -45,6 +45,64 @@
   });
   let localKeyPair = null;
   let localFingerprint = "";
+  let wasmCore = null;
+  const WASM_FX_ID = Object.freeze({ USD: 0, JPY: 1, EUR: 2, GBP: 3, HUF: 4 });
+
+  function writeWasmScratch(core, input) {
+    const bytes = typeof input === "string" ? new TextEncoder().encode(input) : input;
+    if (!core || bytes.length > core.scratchLen) return -1;
+    const view = new Uint8Array(core.exports.memory.buffer, core.scratchPtr, core.scratchLen);
+    view.set(bytes, 0);
+    return bytes.length;
+  }
+
+  async function initRustWasmClient() {
+    const statusEl = document.getElementById("rail-wasm-status");
+    if (typeof WebAssembly !== "object") {
+      if (statusEl) statusEl.textContent = "BigInt JS Fallback";
+      return;
+    }
+    try {
+      let instance;
+      if (typeof WebAssembly.instantiateStreaming === "function") {
+        try {
+          const streamed = await WebAssembly.instantiateStreaming(fetch("/zeno-client.wasm"), {});
+          instance = streamed.instance;
+        } catch {
+          const resp = await fetch("/zeno-client.wasm");
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const bytes = await resp.arrayBuffer();
+          instance = (await WebAssembly.instantiate(bytes, {})).instance;
+        }
+      } else {
+        const resp = await fetch("/zeno-client.wasm");
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const bytes = await resp.arrayBuffer();
+        instance = (await WebAssembly.instantiate(bytes, {})).instance;
+      }
+
+      const ex = instance.exports;
+      const version = Number(ex.zeno_wasm_version());
+      const scratchPtr = Number(ex.zeno_scratch_ptr());
+      const scratchLen = Number(ex.zeno_scratch_len());
+      const core = { exports: ex, scratchPtr, scratchLen, version };
+
+      const gcdOk = ex.zeno_gcd_u64(305n, 2n) === 1n;
+      const testAddr = "HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS";
+      const n = writeWasmScratch(core, testAddr);
+      const solOk = n > 0 && ex.zeno_validate_solana_b58(0, n) === 1;
+      if (version !== 1120 || !gcdOk || !solOk) {
+        throw new Error("WASM self-test mismatch");
+      }
+
+      wasmCore = core;
+      if (statusEl) statusEl.textContent = `🦀 Rust WASM v1.12.0 (OK)`;
+      updateFxPreview();
+    } catch {
+      wasmCore = null;
+      if (statusEl) statusEl.textContent = "BigInt JS Fallback";
+    }
+  }
 
   function el(tag, attrs = {}, children = []) {
     const node = document.createElement(tag);
@@ -706,8 +764,15 @@
       const usdMicro = parseUsdToMicro(document.getElementById("fx-amount-usd").value);
       const target = document.getElementById("fx-target-currency").value;
       const quote = Engine.convertFx(usdMicro, target);
+      let wasmTag = "";
+      if (wasmCore && Object.hasOwn(WASM_FX_ID, target)) {
+        const wasmOut = wasmCore.exports.zeno_fx_convert_micro(usdMicro, WASM_FX_ID[target]);
+        if (wasmOut === quote.amountMicroOut) {
+          wasmTag = " · Rust WASM OK";
+        }
+      }
       outEl.textContent = quote.formattedOut;
-      pqEl.textContent = `Rate p/q = ${quote.ratePQ} · Fee: ${quote.feeBps} bps`;
+      pqEl.textContent = `Rate p/q = ${quote.ratePQ} · Fee: ${quote.feeBps} bps${wasmTag}`;
     } catch (err) {
       outEl.textContent = "—";
       pqEl.textContent = err.message;
@@ -962,6 +1027,13 @@
     const refresh = (notify = false) => {
       try {
         const amountMicro = parseUsdToMicro(amtEl.value);
+        if (wasmCore) {
+          const cleanRec = String(recEl.value ?? "").trim();
+          const len = writeWasmScratch(wasmCore, cleanRec);
+          if (len <= 0 || wasmCore.exports.zeno_validate_solana_b58(0, len) !== 1) {
+            throw new Error("Rust WASM Base58 check rejected recipient address");
+          }
+        }
         latestIntent = Engine.buildSolanaPayUsdcIntent({
           recipient: recEl.value,
           amountMicro,
@@ -1077,6 +1149,7 @@
     initCards();
     initPrivacyTab();
     initLocalWebCrypto();
+    initRustWasmClient();
     renderAll();
   });
 })();

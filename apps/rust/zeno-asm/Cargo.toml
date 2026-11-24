@@ -1,0 +1,10 @@
+[package]
+name = "zeno-asm"
+version = "0.1.0"
+edition = "2024"
+description = "Bare-metal #![no_std] Rust + inline assembly kernels for ZENO (aarch64 NEON/scalar, x86_64, portable fallback)"
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "zeno_asm"
+path = "src/lib.rs"

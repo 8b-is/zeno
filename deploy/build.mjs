@@ -87,7 +87,9 @@ const rfc008Md = readFileSync(join(root, "spec", "RFC-008-US-USDC-USDT-OPEN-CORE
 const solanaPipelineMd = readFileSync(join(root, "spec", "SOLANA_USDC_VAKED_FOKEN_PIPELINE.md"), "utf8");
 const monetizationMd = readFileSync(join(root, "spec", "US_MONETIZATION_SUBSCRIPTIONS.md"), "utf8");
 const complianceAuditMd = readFileSync(join(root, "spec", "COMPLIANCE_AUDIT_SOC2_GDPR_PCIDSS_BSA.md"), "utf8");
+const rustWasmSpecMd = readFileSync(join(root, "spec", "RUST_ASM_WASM_ARCHITECTURE.md"), "utf8");
 const licensingBoundaryMd = readFileSync(join(root, "LICENSING_BOUNDARY.md"), "utf8");
+const zenoClientWasmBase64 = readFileSync(join(root, "zeno-client.wasm")).toString("base64");
 const usHtml = readFileSync(join(root, "us.html"), "utf8");
 const usCss = readFileSync(join(root, "us.css"), "utf8");
 const usJs = readFileSync(join(root, "us.js"), "utf8");
@@ -106,6 +108,7 @@ const APP_JS = ${JSON.stringify(appJs)};
 const SOUND_JS = ${JSON.stringify(soundJs)};
 const QRCODE_JS = ${JSON.stringify(qrcodeJs)};
 const ZENO_ENGINE_JS = ${JSON.stringify(zenoEngineJs)};
+const ZENO_CLIENT_WASM_BASE64 = ${JSON.stringify(zenoClientWasmBase64)};
 const FAVICON_SVG = ${JSON.stringify(faviconSvg)};
 const OG_SVG = ${JSON.stringify(ogSvg)};
 const ROBOTS_TXT = ${JSON.stringify(robotsTxt)};
@@ -130,10 +133,11 @@ const RFC_008_MD = ${JSON.stringify(rfc008Md)};
 const SOLANA_PIPELINE_MD = ${JSON.stringify(solanaPipelineMd)};
 const MONETIZATION_MD = ${JSON.stringify(monetizationMd)};
 const COMPLIANCE_AUDIT_MD = ${JSON.stringify(complianceAuditMd)};
+const RUST_WASM_SPEC_MD = ${JSON.stringify(rustWasmSpecMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -178,7 +182,7 @@ const COMMON_HEADERS = {
   "permissions-policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
 };
 
-const US_CSP_HEADER = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
+const US_CSP_HEADER = "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
 
 function methodNotAllowed(allowed) {
   return new Response(JSON.stringify({ error: "method_not_allowed" }), {
@@ -312,6 +316,20 @@ export default {
         headers: {
           ...COMMON_HEADERS,
           "content-type": "application/javascript; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/zeno-client.wasm") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      const bin = atob(ZENO_CLIENT_WASM_BASE64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new Response(bytes, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/wasm",
           "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
         },
       });
@@ -668,6 +686,18 @@ export default {
       });
     }
 
+    if (p === "/rust-wasm-spec" || p === "/spec/RUST_ASM_WASM_ARCHITECTURE.md") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(RUST_WASM_SPEC_MD, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/markdown; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control": "public, max-age=3600",
+        },
+      });
+    }
+
     if (p === "/licensing-boundary" || p === "/LICENSING_BOUNDARY.md") {
       return new Response(LICENSING_BOUNDARY_MD, {
         headers: {
@@ -709,13 +739,17 @@ export default {
         backendLanguage: "rust",
         pythonAllowed: false,
         zeroFloatPQ: true,
-        clientRuntime: "safe-isomorphic-js",
+        clientRuntime: "rust-wasm-no-std+safe-isomorphic-js",
+        wasmClientActive: true,
+        wasmClientPath: "/zeno-client.wasm",
+        asmKernelCrate: "apps/rust/zeno-asm",
         zeroTelemetry: true,
         openSourceClientRoutes: [
           "/us",
           "/us.css",
           "/us.js",
           "/zeno-engine.js",
+          "/zeno-client.wasm",
           "/sound.js",
           "/qrcode.js",
           "/rfc-008",
@@ -729,15 +763,16 @@ export default {
           "/api/us/checkout",
           "/api/us/compliance",
           "/compliance-audit",
+          "/rust-wasm-spec",
         ],
-        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel"],
+        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm"],
       });
     }
 
     if (p === "/api/us/compliance") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
-        version: "1.11.0",
+        version: "1.12.0",
         formalCertification: false,
         note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
         frameworks: {

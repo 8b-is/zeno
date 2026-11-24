@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v15-us-compliance-pro-v1110";
+const CACHE_NAME = "zeno-v16-rust-asm-wasm-v1120";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   "/us.css",
   "/us.js",
   "/zeno-engine.js",
+  "/zeno-client.wasm",
   "/style.css",
   "/app.js",
   "/sound.js",
