@@ -9,3 +9,8 @@ routes = [
 [[services]]
 binding = "RUST_EDGE_API"
 service = "zeno-us-rust-worker"
+
+[vars]
+STRIPE_LINK_PLUS = "https://buy.stripe.com/7sYeVddYxdkh5BraNI6Na03"
+STRIPE_LINK_ULTRA = "https://buy.stripe.com/5kQdR94nXa85bZP3lg6Na04"
+STRIPE_LINK_INSTITUTIONAL = "https://buy.stripe.com/9B63cv5s13JHe7XdZU6Na05"

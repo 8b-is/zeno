@@ -165,6 +165,20 @@ const checks = [
       && read("apps/rust/zeno-native/src/lib.rs").includes("MAX_JNI_BYTES")
       && read("apps/android/app/src/main/java/dev/vaked/zeno/native/NativeBridge.kt").includes("asmSelfTestJson()"),
   },
+  {
+    id: "STRIPE-DISCORD-SUPPORT-HYGIENE",
+    standard: "SOC2-CC6.1 / PCI-DSS / Support Contact",
+    desc: "/api/us/support + Admin BCC configured and zero plaintext Discord/Stripe secret URLs checked into repo files",
+    ok: buildMjs.includes('if (p === "/api/us/support")')
+      && buildMjs.includes("aye@8b.is")
+      && buildMjs.includes("56 Broad St STE 14135")
+      && buildMjs.includes("a@8b.is")
+      && buildMjs.includes("c@8b.is")
+      && buildMjs.includes("p@8b.is")
+      && ![buildMjs, usHtml, usJs, read("deploy/wrangler.toml"), read("scripts/activate-live-stripe-and-treasury.sh")].some(
+        (s) => /discord\.com\/api\/webhooks\/|whsec_|sk_live_/i.test(s),
+      ),
+  },
 ];
 
 const passed = checks.filter((c) => c.ok).length;

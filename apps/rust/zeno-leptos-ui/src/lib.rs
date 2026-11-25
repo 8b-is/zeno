@@ -507,6 +507,7 @@ pub fn ZenoRustApp() -> impl IntoView {
         <footer class="us-footer" role="contentinfo">
             <div class="footer-kicker">"the constellation · lovetta lane"</div>
             <div class="mt-sm">"ZENO US Leptos 0.8 Rust WASM Client · 8b-is Family Research <3"</div>
+            <div class="mt-sm mono">"Support: aye@8b.is · Phone: +1 808-400-8428 · WhatsApp R&D (Japan · Hue): +1 757-614-7542 · 56 Broad St STE 14135, Boston, MA 02109-4301, United States"</div>
             <div class="us-footer-links">
                 <a href="https://koan.vaked.dev/">"✧ koan.vaked.dev"</a>
                 <a href="https://zeno.vaked.dev/">"zeno.vaked.dev"</a>

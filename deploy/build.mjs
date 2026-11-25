@@ -145,7 +145,7 @@ const RUST_WASM_SPEC_MD = ${JSON.stringify(rustWasmSpecMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -191,6 +191,14 @@ const COMMON_HEADERS = {
 };
 
 const US_CSP_HEADER = "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
+
+const OFFICIAL_SUPPORT_CONTACT = {
+  supportEmail: "aye@8b.is",
+  adminBccEmails: ["a@8b.is", "c@8b.is", "p@8b.is"],
+  phone: "+1 808-400-8428",
+  whatsappRdJapanHue: "+1 757-614-7542",
+  mailingAddress: "56 Broad St STE 14135, Boston, MA 02109-4301, United States",
+};
 
 function methodNotAllowed(allowed) {
   return new Response(JSON.stringify({ error: "method_not_allowed" }), {
@@ -860,6 +868,7 @@ export default {
           "/api/us/pricing",
           "/api/us/checkout",
           "/api/us/compliance",
+          "/api/us/support",
           "/compliance-audit",
           "/rust-wasm-spec",
         ],
@@ -867,10 +876,26 @@ export default {
       });
     }
 
+    if (p === "/api/us/support") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return gwJson({
+        ...OFFICIAL_SUPPORT_CONTACT,
+        version: "1.15.0",
+        billingReadiness: {
+          solanaDirectLive: Boolean(env && env.ZENO_TREASURY_SOLANA),
+          stripePaymentLinksLive: Boolean(env && env.STRIPE_LINK_PLUS && env.STRIPE_LINK_ULTRA && env.STRIPE_LINK_INSTITUTIONAL),
+          stripeSecretApiLive: Boolean(env && env.STRIPE_SECRET_KEY),
+          stripeWebhookLive: Boolean(env && env.STRIPE_WEBHOOK_SECRET),
+          discordAlertsLive: Boolean(env && env.DISCORD_WEBHOOK_URL),
+          emailApiConfigured: Boolean(env && env.RESEND_API_KEY),
+        },
+      });
+    }
+
     if (p === "/api/us/compliance") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
-        version: "1.14.0",
+        version: "1.15.0",
         formalCertification: false,
         note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
         frameworks: {
@@ -952,9 +977,9 @@ export default {
         return gwJson({ error: "checkout_payload_must_be_object" }, 400);
       }
       const planCatalog = {
-        plus: { monthlyFeeMicro: 9990000, amountExact: "9.99", priceEnvKey: "STRIPE_PRICE_PLUS" },
-        ultra_quant: { monthlyFeeMicro: 49000000, amountExact: "49", priceEnvKey: "STRIPE_PRICE_ULTRA" },
-        institutional: { monthlyFeeMicro: 199000000, amountExact: "199", priceEnvKey: "STRIPE_PRICE_INSTITUTIONAL" },
+        plus: { monthlyFeeMicro: 9990000, amountExact: "9.99", priceEnvKey: "STRIPE_PRICE_PLUS", linkEnvKey: "STRIPE_LINK_PLUS" },
+        ultra_quant: { monthlyFeeMicro: 49000000, amountExact: "49", priceEnvKey: "STRIPE_PRICE_ULTRA", linkEnvKey: "STRIPE_LINK_ULTRA" },
+        institutional: { monthlyFeeMicro: 199000000, amountExact: "199", priceEnvKey: "STRIPE_PRICE_INSTITUTIONAL", linkEnvKey: "STRIPE_LINK_INSTITUTIONAL" },
       };
       const planId = String(body.planId || "").trim();
       if (!Object.hasOwn(planCatalog, planId)) {
@@ -973,6 +998,18 @@ export default {
       if (paymentRail === "stripe") {
         const stripeKey = env && env.STRIPE_SECRET_KEY;
         const priceId = env && env[planMeta.priceEnvKey];
+        const paymentLink = env && env[planMeta.linkEnvKey];
+        if (!stripeKey && paymentLink) {
+          return gwJson({
+            mode: "stripe_payment_link_live",
+            planId: planId,
+            monthlyFeeMicro: planMeta.monthlyFeeMicro,
+            amountExact: planMeta.amountExact,
+            priceId: priceId || null,
+            checkoutUrl: paymentLink + "?client_reference_id=" + encodeURIComponent(rawTag),
+            supportEmail: OFFICIAL_SUPPORT_CONTACT.supportEmail,
+          });
+        }
         const missingSecrets = [];
         if (!stripeKey) missingSecrets.push("STRIPE_SECRET_KEY");
         if (!priceId) missingSecrets.push(planMeta.priceEnvKey);
@@ -1193,9 +1230,83 @@ export default {
       if (!v1s.some((s) => ctEq(s, expected))) return json({ received: false, error: "invalid_signature" }, 400);
       let event;
       try { event = JSON.parse(raw); } catch { return json({ received: false, error: "invalid_json" }, 400); }
-      // Verified acknowledgement only. Ledger posting + Sanpo Yoshi split happen in zeno_core
-      // (apps/core/zeno_core/stripe_bridge.py), not at the edge.
-      return json({ received: true, verified: true, eventId: event.id || null, type: event.type || null });
+
+      const eventId = event.id || null;
+      const eventType = event.type || "stripe.event";
+      const dataObj = (event.data && event.data.object) ? event.data.object : {};
+      const customerEmail = (dataObj.customer_details && dataObj.customer_details.email) || dataObj.customer_email || null;
+      const clientRef = dataObj.client_reference_id || null;
+      const amountCents = dataObj.amount_total ?? dataObj.amount_paid ?? dataObj.amount ?? null;
+      const currency = String(dataObj.currency || "usd").toUpperCase();
+      const amountLabel = Number.isInteger(amountCents)
+        ? (currency === "USD" ? "$" + (amountCents / 100).toFixed(2) : (amountCents / 100).toFixed(2) + " " + currency)
+        : "n/a";
+
+      const discordUrl = env && env.DISCORD_WEBHOOK_URL;
+      const resendKey = env && env.RESEND_API_KEY;
+      const notifyStripeEvent = async () => {
+        if (discordUrl) {
+          try {
+            await fetch(discordUrl, {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                content: "🦀 **ZENO US Stripe Event**: [" + eventType + "] · " + amountLabel + (clientRef ? " · " + clientRef : "") + " · id " + String(eventId || "n/a"),
+              }),
+            });
+          } catch {}
+        }
+        if (resendKey) {
+          const toList = customerEmail ? [customerEmail] : [OFFICIAL_SUPPORT_CONTACT.supportEmail];
+          const mailText = [
+            "ZENO US Sovereign Billing Notice",
+            "Event: " + eventType + " (" + String(eventId || "n/a") + ")",
+            "Amount: " + amountLabel,
+            clientRef ? "Cashtag / Ref: " + clientRef : "",
+            "",
+            "Need help?",
+            "Email: " + OFFICIAL_SUPPORT_CONTACT.supportEmail,
+            "Phone: " + OFFICIAL_SUPPORT_CONTACT.phone,
+            "WhatsApp R&D (Japan · Hue): " + OFFICIAL_SUPPORT_CONTACT.whatsappRdJapanHue,
+            "Mailing Address: " + OFFICIAL_SUPPORT_CONTACT.mailingAddress,
+          ].filter(Boolean).join("\\n");
+          try {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "authorization": "Bearer " + resendKey,
+                "content-type": "application/json",
+              },
+              body: JSON.stringify({
+                from: "ZENO US <" + OFFICIAL_SUPPORT_CONTACT.supportEmail + ">",
+                to: toList,
+                bcc: OFFICIAL_SUPPORT_CONTACT.adminBccEmails,
+                reply_to: OFFICIAL_SUPPORT_CONTACT.supportEmail,
+                subject: "ZENO US Receipt · " + eventType + " (" + amountLabel + ")",
+                text: mailText,
+              }),
+            });
+          } catch {}
+        }
+      };
+
+      if (discordUrl || resendKey) {
+        if (ctx && typeof ctx.waitUntil === "function") {
+          ctx.waitUntil(notifyStripeEvent());
+        } else {
+          await notifyStripeEvent();
+        }
+      }
+
+      return json({
+        received: true,
+        verified: true,
+        eventId: eventId,
+        type: eventType,
+        discordNotified: Boolean(discordUrl),
+        adminBcc: OFFICIAL_SUPPORT_CONTACT.adminBccEmails,
+        emailDispatched: Boolean(resendKey),
+      });
     }
 
     // Foken Gate Pre-Filter endpoint: /api/v1/gate

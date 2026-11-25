@@ -3,7 +3,7 @@
  * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v18-rust-service-binding-neon-jni-v1140";
+const CACHE_NAME = "zeno-v19-live-stripe-discord-support-v1150";
 const STATIC_ASSETS = [
   "/",
   "/index.html",

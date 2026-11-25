@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { createHmac } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -269,6 +270,82 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   const stripeDoc = await stripeUnconf.json();
   assert.equal(stripeDoc.mode, "stripe_unconfigured");
   assert.deepEqual(stripeDoc.missingSecrets, ["STRIPE_SECRET_KEY", "STRIPE_PRICE_ULTRA"]);
+
+  const linkCheckout = await fetchWorker(
+    "/api/us/checkout",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ planId: "ultra_quant", paymentRail: "stripe", cashtag: "$you" }),
+    },
+    { STRIPE_LINK_ULTRA: "https://buy.stripe.com/5kQdR94nXa85bZP3lg6Na04", STRIPE_PRICE_ULTRA: "price_test" },
+  );
+  assert.equal(linkCheckout.status, 200);
+  const linkDoc = await linkCheckout.json();
+  assert.equal(linkDoc.mode, "stripe_payment_link_live");
+  assert.equal(linkDoc.supportEmail, "aye@8b.is");
+  assert.ok(linkDoc.checkoutUrl.startsWith("https://buy.stripe.com/5kQdR94nXa85bZP3lg6Na04?client_reference_id="));
+
+  const supportRes = await fetchWorker("/api/us/support");
+  assert.equal(supportRes.status, 200);
+  const supportDoc = await supportRes.json();
+  assert.equal(supportDoc.supportEmail, "aye@8b.is");
+  assert.deepEqual(supportDoc.adminBccEmails, ["a@8b.is", "c@8b.is", "p@8b.is"]);
+  assert.equal(supportDoc.phone, "+1 808-400-8428");
+  assert.equal(supportDoc.whatsappRdJapanHue, "+1 757-614-7542");
+  assert.ok(supportDoc.mailingAddress.includes("56 Broad St STE 14135"));
+  assert.equal(await fetchWorker("/api/us/support", { method: "POST" }).then((r) => r.status), 405);
+
+  // Verified Stripe webhook dispatches Discord + Subscriber/Admin BCC emails
+  const whSecret = "unit_test_hmac_signing_key_0062";
+  const whPayload = JSON.stringify({
+    id: "evt_live_test_0062",
+    type: "checkout.session.completed",
+    data: {
+      object: {
+        amount_total: 4900,
+        currency: "usd",
+        client_reference_id: "$you",
+        customer_details: { email: "sub@example.com" },
+      },
+    },
+  });
+  const ts = Math.floor(Date.now() / 1000);
+  const sig = createHmac("sha256", whSecret).update(`${ts}.${whPayload}`).digest("hex");
+  const outboundCalls = [];
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    outboundCalls.push({ url: String(url), body: JSON.parse(init.body) });
+    return new Response("ok", { status: 204 });
+  };
+  try {
+    const whRes = await fetchWorker(
+      "/api/v1/stripe/webhook",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "stripe-signature": `t=${ts},v1=${sig}` },
+        body: whPayload,
+      },
+      {
+        STRIPE_WEBHOOK_SECRET: whSecret,
+        DISCORD_WEBHOOK_URL: "https://example.invalid/mock-discord-hook",
+        RESEND_API_KEY: "re_mock_unit_key",
+      },
+    );
+    assert.equal(whRes.status, 200);
+    const whDoc = await whRes.json();
+    assert.equal(whDoc.verified, true);
+    assert.equal(whDoc.discordNotified, true);
+    assert.equal(whDoc.emailDispatched, true);
+    assert.deepEqual(whDoc.adminBcc, ["a@8b.is", "c@8b.is", "p@8b.is"]);
+    assert.equal(outboundCalls.length, 2);
+    assert.equal(outboundCalls[0].url, "https://example.invalid/mock-discord-hook");
+    assert.equal(outboundCalls[1].url, "https://api.resend.com/emails");
+    assert.deepEqual(outboundCalls[1].body.to, ["sub@example.com"]);
+    assert.deepEqual(outboundCalls[1].body.bcc, ["a@8b.is", "c@8b.is", "p@8b.is"]);
+  } finally {
+    globalThis.fetch = origFetch;
+  }
 
   const solCheckout = await fetchWorker(
     "/api/us/checkout",

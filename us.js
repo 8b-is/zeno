@@ -359,8 +359,17 @@
         if (!resp.ok) {
           throw new Error(data.error || `HTTP ${resp.status}`);
         }
-        if (data.mode === "stripe_live" && data.checkoutUrl) {
-          outEl.textContent = `LIVE STRIPE CHECKOUT (${data.planId}): ${data.checkoutUrl}`;
+        if ((data.mode === "stripe_live" || data.mode === "stripe_payment_link_live") && data.checkoutUrl) {
+          outEl.replaceChildren(
+            el("span", { textContent: `LIVE STRIPE CHECKOUT (${data.planId}): ` }),
+            el("a", {
+              href: data.checkoutUrl,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "text-emerald",
+              textContent: "Open Live Stripe Checkout →",
+            }),
+          );
         } else if (data.paymentUri) {
           outEl.textContent = `DIRECT ${data.mode.toUpperCase()} (${data.amountExact} USDC): ${data.paymentUri}`;
         } else {
