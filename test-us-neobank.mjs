@@ -296,7 +296,7 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.ok(supportDoc.mailingAddress.includes("56 Broad St STE 14135"));
   assert.equal(await fetchWorker("/api/us/support", { method: "POST" }).then((r) => r.status), 405);
 
-  // Verified Stripe webhook dispatches Discord + Subscriber/Admin BCC emails
+  // Verified Stripe webhook dispatches Discord alert cleanly (email provider deferred)
   const whSecret = "unit_test_hmac_signing_key_0062";
   const whPayload = JSON.stringify({
     id: "evt_live_test_0062",
@@ -329,20 +329,17 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
       {
         STRIPE_WEBHOOK_SECRET: whSecret,
         DISCORD_WEBHOOK_URL: "https://example.invalid/mock-discord-hook",
-        RESEND_API_KEY: "re_mock_unit_key",
       },
     );
     assert.equal(whRes.status, 200);
     const whDoc = await whRes.json();
     assert.equal(whDoc.verified, true);
     assert.equal(whDoc.discordNotified, true);
-    assert.equal(whDoc.emailDispatched, true);
+    assert.equal(whDoc.emailDispatched, false);
+    assert.equal(whDoc.emailProvider, "deferred");
     assert.deepEqual(whDoc.adminBcc, ["a@8b.is", "c@8b.is", "p@8b.is"]);
-    assert.equal(outboundCalls.length, 2);
+    assert.equal(outboundCalls.length, 1);
     assert.equal(outboundCalls[0].url, "https://example.invalid/mock-discord-hook");
-    assert.equal(outboundCalls[1].url, "https://api.resend.com/emails");
-    assert.deepEqual(outboundCalls[1].body.to, ["sub@example.com"]);
-    assert.deepEqual(outboundCalls[1].body.bcc, ["a@8b.is", "c@8b.is", "p@8b.is"]);
   } finally {
     globalThis.fetch = origFetch;
   }
@@ -395,6 +392,30 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   );
 
   // Method & prototype-key hardening
+  for (const route of ["/welcome", "/landing", "/eli5"]) {
+    const zenRes = await fetchWorker(route);
+    assert.equal(zenRes.status, 200);
+    assert.match(zenRes.headers.get("content-security-policy") || "", /default-src 'none'; script-src 'self' 'wasm-unsafe-eval'/);
+    const zenHtml = await zenRes.text();
+    assert.match(zenHtml, /zen-enso-hero\.svg/);
+    assert.match(zenHtml, /ELI5/);
+  }
+  assert.equal(await fetchWorker("/welcome", { method: "POST" }).then((r) => r.status), 405);
+  assert.equal(await fetchWorker("/landing.css").then((r) => r.status), 200);
+  assert.equal(await fetchWorker("/landing.js").then((r) => r.status), 200);
+  for (const svgName of [
+    "zen-enso-hero.svg",
+    "eli5-vault-scales.svg",
+    "eli5-kintsugi-ledger.svg",
+    "eli5-sanpo-yoshi.svg",
+    "eli5-how-to-use.svg",
+  ]) {
+    const svgRes = await fetchWorker(`/illustrations/${svgName}`);
+    assert.equal(svgRes.status, 200);
+    assert.equal(svgRes.headers.get("content-type"), "image/svg+xml; charset=utf-8");
+  }
+  assert.equal(await fetchWorker("/illustrations/constructor").then((r) => r.status), 404);
+
   const method405 = await fetchWorker("/us", { method: "POST" });
   assert.equal(method405.status, 405);
   const gateGet405 = await fetchWorker("/api/v1/gate", { method: "GET" });
@@ -553,6 +574,15 @@ test("Safe isomorphic US client has zero innerHTML, zero inline styles, zero Goo
     assert.ok(!/\bpurple\b/i.test(src), "purple color keyword is forbidden in US UI");
     assert.ok(!/\bviolet\b/i.test(src), "violet color keyword is forbidden in US UI");
     assert.ok(!/rgba\(\s*180\s*,\s*139\s*,\s*255/i.test(src), "purple rgba is forbidden in US UI");
+  }
+  const landingCss = readFileSync(join(here, "landing.css"), "utf8");
+  const landingHtml = readFileSync(join(here, "landing.html"), "utf8");
+  const landingJs = readFileSync(join(here, "landing.js"), "utf8");
+  assert.ok(!/innerHTML/i.test(landingJs), "innerHTML is forbidden in landing.js");
+  assert.ok(!/\sstyle="/i.test(landingHtml), "inline style attributes are forbidden on /welcome");
+  assert.ok(!/fonts\.googleapis\.com|fonts\.gstatic\.com/i.test(landingHtml), "external font telemetry forbidden on /welcome");
+  for (const src of [landingCss, landingHtml, landingJs]) {
+    assert.ok(!/#b48bff|\bpurple\b|\bviolet\b|rgba\(\s*180\s*,\s*139\s*,\s*255/i.test(src), "purple tokens forbidden on Zen landing");
   }
   assert.ok(!/<xml/i.test(usJs), "no XML allowed");
 });

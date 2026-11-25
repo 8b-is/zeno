@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZENO 銭・禅・善 — Illustrated ELI5 Guide &amp; Japan Zen Sovereign Neo-Bank</title>
+  <meta name="description" content="Plain-English ELI5 guide with minimalist Japanese Zen illustrations explaining ZENO: 1:1 USDC+USDT backing, Kintsugi double-entry receipts, Sanpo Yoshi splits, and zero-telemetry WASM apps.">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#06080b">
+  <link rel="stylesheet" href="/landing.css">
+</head>
+<body>
+  <a class="skip-link" href="#zen-main">Skip to guide content</a>
+
+  <header class="zen-header">
+    <div class="zen-header-inner">
+      <a class="zen-brand" href="/welcome">
+        <img class="zen-logo" src="/favicon.svg" alt="ZENO 銭 Emblem">
+        <div>
+          <div class="zen-brand-name">ZENO · 銭 禅 善</div>
+          <div class="zen-brand-tag">Japan Zen Minimal · MIT Open Client · Rust Private Core</div>
+        </div>
+      </a>
+
+      <nav class="zen-nav-links" aria-label="Guide sections">
+        <a href="#eli5-what">What is ZENO</a>
+        <a href="#eli5-how">How It Works</a>
+        <a href="#eli5-steps">How to Use</a>
+        <a href="#eli5-playground">Try Math</a>
+        <a href="#eli5-plans">Plans</a>
+        <a href="#eli5-faq">FAQ</a>
+      </nav>
+
+      <div class="zen-actions">
+        <button id="btn-zen-sound" class="btn-pill" type="button">🔔 Bell Sound On</button>
+        <a href="/" class="btn-pill gold-pill">🌌 Constellation</a>
+        <a href="/us" class="btn-pill">🇺🇸 Launch App →</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="zen-main" class="zen-main">
+    <!-- Asymmetric Zen Hero -->
+    <section class="hero-grid" aria-label="ZENO Overview">
+      <div>
+        <div class="hero-eyebrow-row">
+          <span class="kanji-vertical-seal">銭 · 禅 · 善</span>
+          <span class="por-pill">● 1:1 USDC+USDT · 0 Cookies · 0 Trackers</span>
+        </div>
+
+        <h1 class="hero-headline">
+          Money that settles like water.
+          <span class="hero-headline-accent">Explained so anyone can verify it.</span>
+        </h1>
+
+        <p class="hero-subcopy">
+          Think of ZENO as a calm Japanese stone garden for your digital dollars: every dollar you see on screen matches a real digital dollar kept safely at 1:1 parity, every receipt snaps cleanly to zero like golden <em>Kintsugi</em> joinery, and nothing watches you browse.
+        </p>
+
+        <div class="hero-cta-row">
+          <a href="/us" class="btn-primary">🇺🇸 Open ZENO US App →</a>
+          <a href="/us-rust" class="btn-secondary">🦀 100% Rust WASM Terminal</a>
+          <a href="#eli5-what" class="btn-pill">↓ 2-Min ELI5 Guide</a>
+        </div>
+
+        <div class="hero-facts">
+          <div>
+            <div class="hero-fact-num">1 / 1 Exact</div>
+            <div class="hero-fact-label">Integer micro-USD parity, zero floating-point drift</div>
+          </div>
+          <div>
+            <div class="hero-fact-num">0 Bytes</div>
+            <div class="hero-fact-label">Cookies, ad pixels, or third-party font requests</div>
+          </div>
+          <div>
+            <div class="hero-fact-num">7 Chains + Stripe</div>
+            <div class="hero-fact-label">Card / ACH checkout &amp; direct Solana / Base USDC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-art-frame">
+        <img class="art-svg" src="/illustrations/zen-enso-hero.svg" alt="Minimalist gold leaf Zen Enso circle over quiet water waves with a vermilion hanko seal">
+      </div>
+    </section>
+
+    <!-- Section 1: ELI5 What Is ZENO -->
+    <section id="eli5-what" aria-label="ELI5 What is ZENO">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">ELI5 · EXPLAIN LIKE I'M FIVE</div>
+          <h2 class="section-title">What is ZENO in plain English?</h2>
+        </div>
+        <p class="section-lead">No buzzwords. Three simple ideas inspired by timeless Japanese craftsmanship.</p>
+      </div>
+
+      <div class="grid-2 mb-md">
+        <div class="zen-card kintsugi">
+          <div class="card-title">Imagine a tea house lockbox, not a casino bank</div>
+          <p class="card-copy">
+            Most apps act like traditional banks: they take your $100, lend out $90 behind closed doors, track every click you make, and sneak rounding errors into currency exchange.
+          </p>
+          <blockquote class="eli5-quote">
+            ZENO works like a transparent ceramic lockbox: for every $1 shown in your balance, $1 of USDC or USDT sits reserved. No secret lending, no guessing, no debt minting.
+          </blockquote>
+          <table class="contrast-table" aria-label="Traditional Apps compared with ZENO">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Typical Bank / Fintech</th>
+                <th>ZENO Sovereign Way</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Who holds debt risk?</td>
+                <td>Lent out fractionally</td>
+                <td class="text-jade">0 debt · 1/1 ratio (trit 0)</td>
+              </tr>
+              <tr>
+                <td>How are cents counted?</td>
+                <td>Imprecise floats</td>
+                <td class="text-gold">Exact integer micro-USD &amp; p/q</td>
+              </tr>
+              <tr>
+                <td>Who tracks your taps?</td>
+                <td>Cookies &amp; ad brokers</td>
+                <td class="text-asagi">Zero external requests (MIT client)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hero-art-frame">
+          <img class="art-svg" src="/illustrations/eli5-vault-scales.svg" alt="Balance scale in exact 1 to 1 equilibrium showing USDC/USDT vault matching ZENO user balance with zero debt">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <article class="zen-card">
+          <div class="card-title">1. Safe Keys Stay on Your Device</div>
+          <p class="card-copy">
+            Your browser generates a non-extractable hardware-style ECDSA P-256 identity locally. Your private key never leaves your browser tab, and no signup wall blocks you from inspecting every number first.
+          </p>
+        </article>
+        <article class="zen-card">
+          <div class="card-title">2. Open Screen, Private Rust Brain</div>
+          <p class="card-copy">
+            Every screen (<span class="mono">/welcome</span>, <span class="mono">/us</span>, <span class="mono">/us-rust</span>) is MIT open-source and verifiable line-by-line. Behind the edge, <span class="mono">#![no_std]</span> Rust checks invariants with zero unsafe code or floats.
+          </p>
+        </article>
+        <article class="zen-card">
+          <div class="card-title">3. Honest Sandbox vs. Live Rails</div>
+          <p class="card-copy">
+            The interactive wallet balance on <span class="mono">/us</span> starts with a clearly labeled <em>simulated local PoR seed</em> for safe learning. Live paid tiers charge real Stripe Card/ACH or direct Solana / Base USDC.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Section 2: How It Works (Kintsugi & Sanpo Yoshi) -->
+    <section id="eli5-how" aria-label="How ZENO Accounting and Economics Work">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">KINTSUGI (金継ぎ) · SANPO YOSHI (三方よし)</div>
+          <h2 class="section-title">How every coin &amp; fee stays honest</h2>
+        </div>
+        <p class="section-lead">Japanese philosophy meets deterministic SHA-256 cryptography.</p>
+      </div>
+
+      <div class="grid-2 mb-md">
+        <div class="hero-art-frame">
+          <img class="art-svg" src="/illustrations/eli5-kintsugi-ledger.svg" alt="Three ceramic slate ledger blocks joined by golden Kintsugi SHA-256 chains keeping entries zero-sum">
+        </div>
+        <div class="zen-card kintsugi">
+          <div class="card-title">What does "Kintsugi SHA-256 Ledger" mean?</div>
+          <p class="card-copy">
+            In Japan, <em>Kintsugi</em> repairs pottery with pure gold lacquer so every join is visible and stronger than before. In ZENO's ledger, every payment writes two matching lines — minus $25 from sender, plus $25 to receiver — so all lines always add up to <strong>zero</strong>.
+          </p>
+          <p class="card-copy mt-md">
+            Each receipt hashes itself onto the previous receipt (<span class="mono">H(prev || tx)</span>). Even changing one invisible thousandth of a cent breaks the golden chain immediately.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="zen-card kintsugi">
+          <div class="card-title">Where do subscription &amp; trading fees go? (Sanpo Yoshi)</div>
+          <p class="card-copy">
+            Kyoto merchants practiced <em>Sanpo Yoshi</em> — a deal must be good for the buyer, good for the seller, and good for society. Every fee on ZENO splits automatically in integer micro-dollars:
+          </p>
+          <blockquote class="eli5-quote">
+            <strong>50% Operations</strong> (servers, Rust edge &amp; security) · <strong>30% Family Trust USDC</strong> (long-term Solana safety buffer) · <strong>20% FOKEN Builders</strong> (engineers who genuinely save future work via the <span class="mono">0x62</span> net-utility gate).
+          </blockquote>
+        </div>
+        <div class="hero-art-frame">
+          <img class="art-svg" src="/illustrations/eli5-sanpo-yoshi.svg" alt="Sanpo Yoshi three-way circle showing exact 50 percent Operations, 30 percent Family Trust USDC, and 20 percent FOKEN Commons split">
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: How to Use ZENO in 4 Calm Steps -->
+    <section id="eli5-steps" aria-label="How to use ZENO step by step">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">TOBI-ISHI · STEPPING STONES</div>
+          <h2 class="section-title">How to use ZENO in 4 calm steps</h2>
+        </div>
+        <p class="section-lead">Start in under 30 seconds — no password, no email spam, no browser extension required.</p>
+      </div>
+
+      <div class="hero-art-frame mb-md">
+        <img class="art-svg" src="/illustrations/eli5-how-to-use.svg" alt="Four Japanese stepping stones showing how to open ZENO, check 1:1 reserves, pay via $zenotag or Solana QR, and upgrade via Pro rails">
+      </div>
+
+      <div class="grid-4">
+        <article class="zen-card">
+          <div class="step-num">01</div>
+          <div class="card-title">Pick Your Terminal</div>
+          <p class="card-copy">
+            Open <a href="/us">/us</a> for the full portfolio + QR experience, <a href="/us-rust">/us-rust</a> for 100% pure Leptos Rust WASM, or <a href="/">/</a> for Tokyo FeliCa transit &amp; constellation vaults.
+          </p>
+        </article>
+        <article class="zen-card">
+          <div class="step-num">02</div>
+          <div class="card-title">Practice Swap &amp; PoR</div>
+          <p class="card-copy">
+            Deposit simulated USDC or USDT, flip the 1:1 swap switch, and watch the Proof-of-Reserve bar hold exact <span class="mono">1/1 · trit 0</span> parity using Rust WASM.
+          </p>
+        </article>
+        <article class="zen-card">
+          <div class="step-num">03</div>
+          <div class="card-title">Send by $zenotag or QR</div>
+          <p class="card-copy">
+            Tap the keypad to pay contacts like <span class="mono">$alexandra</span>, scan a live Solana SPL-USDC QR with Phantom or Coinbase Wallet, or load Apple/Google Wallet passes.
+          </p>
+        </article>
+        <article class="zen-card">
+          <div class="step-num">04</div>
+          <div class="card-title">Activate Pro Live</div>
+          <p class="card-copy">
+            Ready for automated bot metering &amp; lower bps? Checkout cleanly in <a href="/us">/us → ⚡ Pro</a> via live Stripe Payment Links or direct Solana USDC.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Exact Rust WASM Playground -->
+    <section id="eli5-playground" aria-label="Interactive exact Rust math playground">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">LIVE RUST WASM SANDBOX · ZERO FLOATS</div>
+          <h2 class="section-title">Try ZENO's exact p/q math right now</h2>
+        </div>
+        <span id="pg-runtime-badge" class="por-pill">Loading /zeno-client.wasm…</span>
+      </div>
+
+      <div class="zen-card kintsugi">
+        <div class="chip-row" role="group" aria-label="Preset USD amounts">
+          <button class="chip-btn pg-preset" data-usd="9.99" type="button">$9.99 (Plus)</button>
+          <button class="chip-btn pg-preset" data-usd="49.00" type="button">$49.00 (Ultra Quant)</button>
+          <button class="chip-btn pg-preset" data-usd="100.00" type="button">$100.00 (FX Travel)</button>
+          <button class="chip-btn pg-preset" data-usd="199.00" type="button">$199.00 (Institutional)</button>
+        </div>
+
+        <div class="playground-controls">
+          <div class="field">
+            <label for="pg-usd-input">Amount (USD · max 6 decimals)</label>
+            <input id="pg-usd-input" class="input" type="text" value="49.00" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label for="pg-currency">Target Currency (0 bps p/q)</label>
+            <select id="pg-currency" class="select">
+              <option value="JPY">JPY ¥ (Japanese Yen · 305/2)</option>
+              <option value="EUR">EUR € (Euro · 23/25)</option>
+              <option value="GBP">GBP £ (British Pound · 79/100)</option>
+              <option value="HUF">HUF Ft (Hungarian Forint · 737/2)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <div class="stat-label">0-Fee FX Equivalent</div>
+            <div class="stat-value text-jade" id="pg-fx-out">¥7,472.50</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">50% Operations (1/2)</div>
+            <div class="stat-value text-asagi" id="pg-ops-out">$24.50</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">30% Family Trust (3/10)</div>
+            <div class="stat-value text-jade" id="pg-fam-out">$14.70</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-label">20% FOKEN Commons (1/5)</div>
+            <div class="stat-value text-gold" id="pg-foken-out">$9.80</div>
+          </div>
+        </div>
+
+        <div id="pg-readiness-row" class="readiness-row" aria-live="polite">
+          <span class="btn-pill">Checking live worker readiness…</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Simple Plans -->
+    <section id="eli5-plans" aria-label="Subscription plans">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">TRANSPARENT MEMBERSHIP TIERS</div>
+          <h2 class="section-title">Start free, scale when you trade</h2>
+        </div>
+        <p class="section-lead">Checkout uses hosted Stripe Payment Links (no card numbers touch ZENO servers) or direct on-chain USDC.</p>
+      </div>
+
+      <div class="grid-4">
+        <article class="plan-card">
+          <div>
+            <div class="section-kicker">TIER 01</div>
+            <div class="card-title">Free Explorer</div>
+            <div class="plan-price">$0</div>
+            <p class="card-copy mt-sm">50 bps auto-trade · 25 bps bridge · 500 API calls/mo · full Rust WASM client.</p>
+          </div>
+          <a href="/us" class="btn-pill w-full">Open Free Terminal →</a>
+        </article>
+
+        <article class="plan-card">
+          <div>
+            <div class="section-kicker">TIER 02</div>
+            <div class="card-title">ZENO US Plus</div>
+            <div class="plan-price">$9.99<span class="card-copy">/mo</span></div>
+            <p class="card-copy mt-sm">25 bps auto-trade · 15 bps bridge · 10,000 Quant API calls/mo.</p>
+          </div>
+          <a href="https://buy.stripe.com/7sYeVddYxdkh5BraNI6Na03" target="_blank" rel="noopener noreferrer" class="btn-secondary w-full">Subscribe Live (Stripe) ↗</a>
+        </article>
+
+        <article class="plan-card featured">
+          <div>
+            <div class="section-kicker">MOST POPULAR · TIER 03</div>
+            <div class="card-title">Ultra Quant</div>
+            <div class="plan-price">$49<span class="card-copy">/mo</span></div>
+            <p class="card-copy mt-sm">10 bps auto-trade · 5 bps bridge · 100,000 Quant API calls/mo · Solana USDC priority.</p>
+          </div>
+          <a href="https://buy.stripe.com/5kQdR94nXa85bZP3lg6Na04" target="_blank" rel="noopener noreferrer" class="btn-primary w-full">Go Ultra Quant ↗</a>
+        </article>
+
+        <article class="plan-card">
+          <div>
+            <div class="section-kicker">TIER 04</div>
+            <div class="card-title">Institutional</div>
+            <div class="plan-price">$199<span class="card-copy">/mo</span></div>
+            <p class="card-copy mt-sm">5 bps auto-trade · 2 bps bridge · 1,000,000 Quant API calls/mo · dedicated SLA.</p>
+          </div>
+          <a href="https://buy.stripe.com/9B63cv5s13JHe7XdZU6Na05" target="_blank" rel="noopener noreferrer" class="btn-secondary w-full">Institutional Live ↗</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Section 6: Everyday Questions (FAQ) -->
+    <section id="eli5-faq" aria-label="Frequently asked questions">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">NO JARGON · HONEST ANSWERS</div>
+          <h2 class="section-title">Common questions</h2>
+        </div>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary>Which page should I open: /, /welcome, /us, or /us-rust?</summary>
+          <p>
+            <strong>/welcome</strong> (this page) is the calm illustrated guide and math sandbox. <strong>/us</strong> is the main everyday neo-bank app (Portfolio, $zenotag Pay, Swap, Solana QR, Cards, Stripe Pro). <strong>/us-rust</strong> runs 100% of the UI itself inside Rust WebAssembly via Leptos 0.8. And <strong>/</strong> is the original Tokyo Sovereign Neo-Bank constellation surface (Foken Gate, Apple/Google Wallet, FeliCa IC Card reader).
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Is ZENO an FDIC-insured bank?</summary>
+          <p>
+            No — ZENO never misrepresents itself as an FDIC sponsor bank. Instead, ZENO uses 1:1 segregated USDC+USDT Proof-of-Reserve math in deterministic Rust, and routes fiat card/ACH subscriptions strictly through Stripe SAQ-A hosted checkout pages.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I need cryptocurrency before trying the app?</summary>
+          <p>
+            Not at all. Every screen works immediately offline or in browser sandbox mode with zero logins, and paid memberships support standard credit/debit cards &amp; ACH via Stripe alongside optional direct Solana / Base USDC.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>How do Android, Apple Wallet, and Tokyo Suica/PASMO fit in?</summary>
+          <p>
+            On iPhone/Mac, ZENO issues signed Apple Wallet passes (<span class="mono">.pkpass</span>) from <a href="/">the Constellation view</a>. On Android, our native Kotlin + ARM64 Rust NEON APK (<span class="mono">dev.vaked.zeno</span>) supports read-only NFC-F physical Suica/PASMO inspection plus universal AEON Pay / Solana QR checkout.
+          </p>
+        </details>
+        <details class="faq-item">
+          <summary>How can I reach a real human at 8b-is Research?</summary>
+          <p>
+            Email <a href="mailto:aye@8b.is">aye@8b.is</a>, call <strong>+1 808-400-8428</strong>, message WhatsApp R&amp;D (Japan · Hue) at <strong>+1 757-614-7542</strong>, or write to <strong>56 Broad St STE 14135, Boston, MA 02109-4301, United States</strong>.
+          </p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lovetta Lane Constellation Footer -->
+  <footer class="zen-footer" role="contentinfo">
+    <div class="footer-kicker">the constellation · lovetta lane</div>
+    <div class="mt-sm">ZENO 銭・禅・善 · 8b-is Family Research Company &lt;3 · Kyoto Sumi &amp; Kanazawa Kintsugi UI</div>
+    <div class="mt-sm mono">Support: aye@8b.is · Phone: +1 808-400-8428 · WhatsApp R&amp;D (Japan · Hue): +1 757-614-7542 · 56 Broad St STE 14135, Boston, MA 02109-4301, United States</div>
+    <div class="footer-links">
+      <a href="https://koan.vaked.dev/">✧ koan.vaked.dev</a>
+      <a href="https://zeno.vaked.dev/">zeno.vaked.dev</a>
+      <a href="https://art.vaked.dev/">art.vaked.dev</a>
+      <a href="https://pocoo.vaked.dev/">pocoo.vaked.dev</a>
+      <a href="https://8b.is" target="_blank" rel="noopener noreferrer">8b.is</a>
+    </div>
+  </footer>
+
+  <script src="/zeno-engine.js"></script>
+  <script src="/sound.js"></script>
+  <script src="/landing.js"></script>
+</body>
+</html>

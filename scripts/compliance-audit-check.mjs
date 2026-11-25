@@ -168,16 +168,53 @@ const checks = [
   {
     id: "STRIPE-DISCORD-SUPPORT-HYGIENE",
     standard: "SOC2-CC6.1 / PCI-DSS / Support Contact",
-    desc: "/api/us/support + Admin BCC configured and zero plaintext Discord/Stripe secret URLs checked into repo files",
+    desc: "/api/us/support + Admin BCC configured, Resend deferred/removed, and zero plaintext Discord/Stripe secret URLs checked into repo files",
     ok: buildMjs.includes('if (p === "/api/us/support")')
       && buildMjs.includes("aye@8b.is")
       && buildMjs.includes("56 Broad St STE 14135")
       && buildMjs.includes("a@8b.is")
       && buildMjs.includes("c@8b.is")
       && buildMjs.includes("p@8b.is")
+      && ![buildMjs, read("scripts/activate-live-stripe-and-treasury.sh")].some(
+        (s) => /RESEND_API_KEY|api\.resend\.com/i.test(s),
+      )
       && ![buildMjs, usHtml, usJs, read("deploy/wrangler.toml"), read("scripts/activate-live-stripe-and-treasury.sh")].some(
         (s) => /discord\.com\/api\/webhooks\/|whsec_|sk_live_/i.test(s),
       ),
+  },
+  {
+    id: "ZEN-LANDING-ELI5-HYGIENE",
+    standard: "WCAG 2.1 AA / Strict CSP / Brand Integrity",
+    desc: "/welcome Japan Zen ELI5 landing + 5 SVG illustrations exist, pass strict CSP/XSS/no-purple rules, and wire cleanly in build.mjs",
+    ok: (() => {
+      const svgs = [
+        "illustrations/zen-enso-hero.svg",
+        "illustrations/eli5-vault-scales.svg",
+        "illustrations/eli5-kintsugi-ledger.svg",
+        "illustrations/eli5-sanpo-yoshi.svg",
+        "illustrations/eli5-how-to-use.svg",
+      ];
+      if (!svgs.every((rel) => existsSync(join(root, rel)))) return false;
+      const landingHtml = read("landing.html");
+      const landingCss = read("landing.css");
+      const landingJs = read("landing.js");
+      const svgSources = svgs.map((rel) => read(rel));
+      const noPurple = [landingHtml, landingCss, landingJs, ...svgSources].every(
+        (s) => !/#b48bff|\bpurple\b|\bviolet\b|rgba\(\s*180\s*,\s*139\s*,\s*255/i.test(s),
+      );
+      const safeSvg = svgSources.every(
+        (s) => !/<script/i.test(s) && !/(?:href|xlink:href)\s*=\s*["']https?:\/\//i.test(s),
+      );
+      return buildMjs.includes('if (p === "/welcome"')
+        && buildMjs.includes('if (p.startsWith("/illustrations/"))')
+        && !/\sstyle="/i.test(landingHtml)
+        && !/fonts\.googleapis\.com|fonts\.gstatic\.com/i.test(landingHtml)
+        && !/innerHTML/i.test(landingJs)
+        && landingHtml.includes('class="skip-link"')
+        && landingCss.includes("prefers-reduced-motion: reduce")
+        && noPurple
+        && safeSvg;
+    })(),
   },
 ];
 

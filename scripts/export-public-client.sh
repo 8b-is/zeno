@@ -31,6 +31,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 ALLOWLIST=(
+  "landing.html"
+  "landing.css"
+  "landing.js"
+  "illustrations/zen-enso-hero.svg"
+  "illustrations/eli5-vault-scales.svg"
+  "illustrations/eli5-kintsugi-ledger.svg"
+  "illustrations/eli5-sanpo-yoshi.svg"
+  "illustrations/eli5-how-to-use.svg"
   "us.html"
   "us.css"
   "us.js"

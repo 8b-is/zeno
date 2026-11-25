@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" role="img" aria-labelledby="title-scales desc-scales">
+  <title id="title-scales">ELI5 1:1 USDC and USDT Equilibrium Scale</title>
+  <desc id="desc-scales">Balance beam in perfect 1 to 1 equilibrium showing 1.00 USDC and USDT real reserve on the left equal to 1.00 ZENO USD balance on the right, with zero debt minting.</desc>
+  <defs>
+    <linearGradient id="beamGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4ecdc4"/>
+      <stop offset="50%" stop-color="#e8b05c"/>
+      <stop offset="100%" stop-color="#4ecdc4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="560" height="320" rx="22" fill="#0b0f16" stroke="#1e2a3a" stroke-width="1"/>
+  <path d="M 32 1 H 528" stroke="#e8b05c" stroke-width="1" opacity="0.5"/>
+
+  <text x="28" y="34" fill="#e8b05c" font-family="monospace" font-size="11" letter-spacing="2">RULE 01 · NO FRACTIONAL GAMBLING</text>
+  <text x="532" y="34" text-anchor="end" fill="#00d47e" font-family="monospace" font-size="11">RATIO p/q = 1/1</text>
+
+  <!-- Fulcrum stone -->
+  <polygon points="280,148 250,248 310,248" fill="#101824" stroke="#e8b05c" stroke-width="1.6"/>
+  <rect x="218" y="248" width="124" height="10" rx="5" fill="#172231" stroke="#2c3d52" stroke-width="1"/>
+  <circle cx="280" cy="148" r="8" fill="#e8b05c"/>
+  <circle cx="280" cy="148" r="3.5" fill="#06080b"/>
+
+  <!-- Level balance beam -->
+  <line x1="112" y1="148" x2="448" y2="148" stroke="url(#beamGold)" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Left Pan: Real Digital Dollars -->
+  <line x1="132" y1="148" x2="96" y2="212" stroke="#4ecdc4" stroke-width="1.4" opacity="0.75"/>
+  <line x1="132" y1="148" x2="168" y2="212" stroke="#4ecdc4" stroke-width="1.4" opacity="0.75"/>
+  <rect x="64" y="212" width="136" height="58" rx="12" fill="#101b24" stroke="#00d47e" stroke-width="1.4"/>
+  <circle cx="94" cy="241" r="14" fill="#072219" stroke="#00d47e" stroke-width="1.4"/>
+  <text x="94" y="246" text-anchor="middle" fill="#00d47e" font-family="monospace" font-size="13" font-weight="700">$</text>
+  <text x="116" y="236" fill="#f4f1ea" font-family="sans-serif" font-size="12" font-weight="700">1.00 USDC</text>
+  <text x="116" y="253" fill="#4ecdc4" font-family="monospace" font-size="10">or USDT Vault</text>
+
+  <!-- Right Pan: User Balance -->
+  <line x1="428" y1="148" x2="392" y2="212" stroke="#e8b05c" stroke-width="1.4" opacity="0.75"/>
+  <line x1="428" y1="148" x2="464" y2="212" stroke="#e8b05c" stroke-width="1.4" opacity="0.75"/>
+  <rect x="360" y="212" width="136" height="58" rx="12" fill="#161410" stroke="#e8b05c" stroke-width="1.4"/>
+  <circle cx="390" cy="241" r="14" fill="#211a0b" stroke="#e8b05c" stroke-width="1.4"/>
+  <text x="390" y="246" text-anchor="middle" fill="#e8b05c" font-family="serif" font-size="13" font-weight="700">銭</text>
+  <text x="412" y="236" fill="#f4f1ea" font-family="sans-serif" font-size="12" font-weight="700">1.00 ZENO</text>
+  <text x="412" y="253" fill="#e8b05c" font-family="monospace" font-size="10">Your Balance</text>
+
+  <!-- Equal badge & labels -->
+  <rect x="234" y="84" width="92" height="32" rx="16" fill="#081e17" stroke="#00d47e" stroke-width="1.2"/>
+  <text x="280" y="104" text-anchor="middle" fill="#00d47e" font-family="monospace" font-size="12" font-weight="700">ALWAYS 1:1</text>
+
+  <text x="280" y="294" text-anchor="middle" fill="#93a1b2" font-family="sans-serif" font-size="12">Every dollar in your screen equals a real digital dollar sitting idle in reserve — never lent out.</text>
+</svg>

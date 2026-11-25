@@ -110,7 +110,7 @@ fun ZenoUsMonetizationCard() {
                     )
                 }
                 Text(
-                    "v1.15.0",
+                    "v1.16.0",
                     color = gold,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,

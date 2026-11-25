@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300" role="img" aria-labelledby="title-ledger desc-ledger">
+  <title id="title-ledger">ELI5 Kintsugi Double-Entry Tamper-Proof Ledger</title>
+  <desc id="desc-ledger">Three slate ledger blocks linked by glowing gold Kintsugi SHA-256 chains proving that every payment debits one vault and credits another so total balance stays zero-sum.</desc>
+  <rect width="560" height="300" rx="22" fill="#0b0f16" stroke="#1e2a3a" stroke-width="1"/>
+  <path d="M 32 1 H 528" stroke="#e8b05c" stroke-width="1" opacity="0.5"/>
+
+  <text x="28" y="34" fill="#e8b05c" font-family="monospace" font-size="11" letter-spacing="2">RULE 02 · KINTSUGI SHA-256 NOTEBOOK</text>
+  <text x="532" y="34" text-anchor="end" fill="#4ecdc4" font-family="monospace" font-size="11">SUM(entries) = 0</text>
+
+  <!-- Connecting Kintsugi gold chains -->
+  <path d="M 164 138 C 186 128, 190 148, 210 138" fill="none" stroke="#f5cf86" stroke-width="2.5"/>
+  <path d="M 350 138 C 372 128, 376 148, 396 138" fill="none" stroke="#f5cf86" stroke-width="2.5"/>
+
+  <!-- Block 1 -->
+  <rect x="28" y="74" width="136" height="132" rx="14" fill="#101722" stroke="#2c3d52" stroke-width="1.2"/>
+  <line x1="28" y1="104" x2="164" y2="104" stroke="#1e2a3a" stroke-width="1"/>
+  <text x="42" y="94" fill="#93a1b2" font-family="monospace" font-size="10">BLOCK #101</text>
+  <text x="42" y="130" fill="#f4f1ea" font-family="sans-serif" font-size="12" font-weight="700">Deposit $100</text>
+  <text x="42" y="152" fill="#00d47e" font-family="monospace" font-size="11">+$100.00 User</text>
+  <text x="42" y="170" fill="#e8b05c" font-family="monospace" font-size="11">-$100.00 Vault</text>
+  <text x="42" y="194" fill="#4ecdc4" font-family="monospace" font-size="9">H: 0x3b8f…91a</text>
+
+  <!-- Block 2 (Active Kintsugi seal) -->
+  <rect x="210" y="66" width="140" height="148" rx="14" fill="#131922" stroke="#e8b05c" stroke-width="1.6"/>
+  <path d="M 210 164 L 246 150 L 284 170 L 350 144" fill="none" stroke="#e8b05c" stroke-width="1.4" opacity="0.5"/>
+  <text x="224" y="88" fill="#e8b05c" font-family="monospace" font-size="10" font-weight="700">BLOCK #102 · NEW</text>
+  <text x="224" y="120" fill="#f4f1ea" font-family="sans-serif" font-size="12" font-weight="700">Pay $yves $25</text>
+  <text x="224" y="144" fill="#d9534f" font-family="monospace" font-size="11">-$25.00 $you</text>
+  <text x="224" y="164" fill="#00d47e" font-family="monospace" font-size="11">+$25.00 $yves</text>
+  <text x="224" y="198" fill="#e8b05c" font-family="monospace" font-size="9">Σ=0 · H(prev||tx)</text>
+
+  <!-- Block 3 -->
+  <rect x="396" y="74" width="136" height="132" rx="14" fill="#101722" stroke="#2c3d52" stroke-width="1.2"/>
+  <line x1="396" y1="104" x2="532" y2="104" stroke="#1e2a3a" stroke-width="1"/>
+  <text x="410" y="94" fill="#93a1b2" font-family="monospace" font-size="10">BLOCK #103</text>
+  <text x="410" y="130" fill="#f4f1ea" font-family="sans-serif" font-size="12" font-weight="700">Swap ⇄ USDT</text>
+  <text x="410" y="152" fill="#4ecdc4" font-family="monospace" font-size="11">0.00% Fee</text>
+  <text x="410" y="170" fill="#00d47e" font-family="monospace" font-size="11">Exact p/q Math</text>
+  <text x="410" y="194" fill="#4ecdc4" font-family="monospace" font-size="9">Seal: 0x62 PASS</text>
+
+  <text x="280" y="254" text-anchor="middle" fill="#f4f1ea" font-family="serif" font-size="15">金継ぎ · Kintsugi turns every correction or receipt into a visible golden seam.</text>
+  <text x="280" y="276" text-anchor="middle" fill="#93a1b2" font-family="sans-serif" font-size="12">Nobody can silently edit yesterday's numbers without breaking the golden chain.</text>
+</svg>

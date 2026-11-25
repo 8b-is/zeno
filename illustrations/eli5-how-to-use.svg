@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-labelledby="title-steps desc-steps">
+  <title id="title-steps">ELI5 Four Zen Stepping Stones to Use ZENO</title>
+  <desc id="desc-steps">A flowing golden stream linking four Japanese garden stepping stones: Step 1 Open App with Zero Cookies, Step 2 Check 1:1 Reserves, Step 3 Send with $zenotag or QR, and Step 4 Pick a Pro Plan via Stripe or Direct USDC.</desc>
+  <rect width="760" height="220" rx="22" fill="#0b0f16" stroke="#1e2a3a" stroke-width="1"/>
+  <path d="M 36 1 H 724" stroke="#e8b05c" stroke-width="1" opacity="0.5"/>
+
+  <!-- Flowing stream connecting stepping stones -->
+  <path d="M 98 112 C 168 74, 212 148, 286 112 C 360 76, 404 148, 474 112 C 544 76, 588 148, 662 112"
+        fill="none" stroke="#e8b05c" stroke-width="2.5" stroke-dasharray="6 5" opacity="0.75"/>
+
+  <!-- Step 1 -->
+  <rect x="24" y="42" width="160" height="140" rx="18" fill="#101722" stroke="#4ecdc4" stroke-width="1.4"/>
+  <circle cx="52" cy="70" r="14" fill="#0b2322" stroke="#4ecdc4" stroke-width="1.3"/>
+  <text x="52" y="75" text-anchor="middle" fill="#4ecdc4" font-family="monospace" font-size="12" font-weight="700">01</text>
+  <text x="40" y="106" fill="#f4f1ea" font-family="sans-serif" font-size="13.5" font-weight="700">Open App</text>
+  <text x="40" y="126" fill="#93a1b2" font-family="sans-serif" font-size="11">Visit /us or /us-rust.</text>
+  <text x="40" y="144" fill="#93a1b2" font-family="sans-serif" font-size="11">No signup, 0 cookies.</text>
+  <text x="40" y="166" fill="#4ecdc4" font-family="monospace" font-size="10">ECDSA P-256 IN BROWSER</text>
+
+  <!-- Step 2 -->
+  <rect x="208" y="42" width="160" height="140" rx="18" fill="#101722" stroke="#00d47e" stroke-width="1.4"/>
+  <circle cx="236" cy="70" r="14" fill="#072219" stroke="#00d47e" stroke-width="1.3"/>
+  <text x="236" y="75" text-anchor="middle" fill="#00d47e" font-family="monospace" font-size="12" font-weight="700">02</text>
+  <text x="224" y="106" fill="#f4f1ea" font-family="sans-serif" font-size="13.5" font-weight="700">Inspect &amp; Swap</text>
+  <text x="224" y="126" fill="#93a1b2" font-family="sans-serif" font-size="11">Test 1:1 USDC/USDT</text>
+  <text x="224" y="144" fill="#93a1b2" font-family="sans-serif" font-size="11">&amp; 0-bps exact FX quotes.</text>
+  <text x="224" y="166" fill="#00d47e" font-family="monospace" font-size="10">ZERO-FLOAT RUST WASM</text>
+
+  <!-- Step 3 -->
+  <rect x="392" y="42" width="160" height="140" rx="18" fill="#101722" stroke="#e8b05c" stroke-width="1.4"/>
+  <circle cx="420" cy="70" r="14" fill="#211a0b" stroke="#e8b05c" stroke-width="1.3"/>
+  <text x="420" y="75" text-anchor="middle" fill="#e8b05c" font-family="monospace" font-size="12" font-weight="700">03</text>
+  <text x="408" y="106" fill="#f4f1ea" font-family="sans-serif" font-size="13.5" font-weight="700">Send &amp; Scan QR</text>
+  <text x="408" y="126" fill="#93a1b2" font-family="sans-serif" font-size="11">Pay with $zenotag or</text>
+  <text x="408" y="144" fill="#93a1b2" font-family="sans-serif" font-size="11">scan Solana Pay QR.</text>
+  <text x="408" y="166" fill="#e8b05c" font-family="monospace" font-size="10">APPLE / GOOGLE WALLET</text>
+
+  <!-- Step 4 -->
+  <rect x="576" y="42" width="160" height="140" rx="18" fill="#101722" stroke="#4ecdc4" stroke-width="1.4"/>
+  <circle cx="604" cy="70" r="14" fill="#0b2322" stroke="#4ecdc4" stroke-width="1.3"/>
+  <text x="604" y="75" text-anchor="middle" fill="#4ecdc4" font-family="monospace" font-size="12" font-weight="700">04</text>
+  <text x="592" y="106" fill="#f4f1ea" font-family="sans-serif" font-size="13.5" font-weight="700">Go Pro Live</text>
+  <text x="592" y="126" fill="#93a1b2" font-family="sans-serif" font-size="11">Subscribe via Stripe</text>
+  <text x="592" y="144" fill="#93a1b2" font-family="sans-serif" font-size="11">or direct Solana USDC.</text>
+  <text x="592" y="166" fill="#4ecdc4" font-family="monospace" font-size="10">LIVE STRIPE + DISCORD</text>
+</svg>

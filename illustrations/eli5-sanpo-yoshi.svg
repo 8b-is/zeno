@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" role="img" aria-labelledby="title-sanpo desc-sanpo">
+  <title id="title-sanpo">ELI5 Sanpo Yoshi Three-Way Sustainable Split</title>
+  <desc id="desc-sanpo">Kyoto three-way harmony diagram showing subscription and trading fee splits: 50% Operations, 30% Family Trust USDC Reserve, and 20% FOKEN Builder Commons.</desc>
+  <rect width="560" height="320" rx="22" fill="#0b0f16" stroke="#1e2a3a" stroke-width="1"/>
+  <path d="M 32 1 H 528" stroke="#e8b05c" stroke-width="1" opacity="0.5"/>
+
+  <text x="28" y="34" fill="#e8b05c" font-family="monospace" font-size="11" letter-spacing="2">RULE 03 · SANPO YOSHI (三方よし)</text>
+  <text x="532" y="34" text-anchor="end" fill="#00d47e" font-family="monospace" font-size="11">50% + 30% + 20% = 100%</text>
+
+  <!-- Central Zen ring diagram (drawn cleanly with exact stroke-dasharray arcs, r=70, C=439.82) -->
+  <g transform="translate(155, 166)">
+    <circle r="86" fill="none" stroke="#182230" stroke-width="1"/>
+    <circle r="70" fill="none" stroke="#101722" stroke-width="24"/>
+    <!-- 50% Operations (#4ecdc4): len ~ 220 -->
+    <circle r="70" fill="none" stroke="#4ecdc4" stroke-width="22" stroke-dasharray="216 440" transform="rotate(-90)"/>
+    <!-- 30% Family Trust (#00d47e): len ~ 132, offset -220 -->
+    <circle r="70" fill="none" stroke="#00d47e" stroke-width="22" stroke-dasharray="128 440" stroke-dashoffset="-220" transform="rotate(-90)"/>
+    <!-- 20% FOKEN Commons (#e8b05c): len ~ 88, offset -352 -->
+    <circle r="70" fill="none" stroke="#e8b05c" stroke-width="22" stroke-dasharray="84 440" stroke-dashoffset="-352" transform="rotate(-90)"/>
+    <text y="-4" text-anchor="middle" fill="#f4f1ea" font-family="serif" font-size="22" font-weight="700">三方</text>
+    <text y="18" text-anchor="middle" fill="#e8b05c" font-family="monospace" font-size="11">EXACT SPLIT</text>
+  </g>
+
+  <!-- Legend Cards on Right -->
+  <rect x="272" y="68" width="260" height="60" rx="12" fill="#101722" stroke="#4ecdc4" stroke-width="1.2"/>
+  <text x="290" y="92" fill="#4ecdc4" font-family="monospace" font-size="13" font-weight="700">1/2 · 50% Operations</text>
+  <text x="290" y="113" fill="#93a1b2" font-family="sans-serif" font-size="11.5">Servers, Rust edge compute, support &amp; security audits</text>
+
+  <rect x="272" y="140" width="260" height="60" rx="12" fill="#0d1b18" stroke="#00d47e" stroke-width="1.2"/>
+  <text x="290" y="164" fill="#00d47e" font-family="monospace" font-size="13" font-weight="700">3/10 · 30% Family Trust USDC</text>
+  <text x="290" y="185" fill="#93a1b2" font-family="sans-serif" font-size="11.5">Long-term Solana USDC safety cushion (never touched)</text>
+
+  <rect x="272" y="212" width="260" height="60" rx="12" fill="#17140d" stroke="#e8b05c" stroke-width="1.2"/>
+  <text x="290" y="236" fill="#e8b05c" font-family="monospace" font-size="13" font-weight="700">1/5 · 20% FOKEN Builders</text>
+  <text x="290" y="257" fill="#93a1b2" font-family="sans-serif" font-size="11.5">Rewards real engineering work that reduces debt</text>
+
+  <text x="280" y="298" text-anchor="middle" fill="#93a1b2" font-family="sans-serif" font-size="11.5">Good for you (low fees), good for builders, good for society.</text>
+</svg>

@@ -1,23 +1,23 @@
-/* ZENO Neo-Bank — 墨と金 (Sumi to Kin) Stylesheet */
+/* ZENO Neo-Bank — 墨と金 (Sumi to Kin · Kyoto Minimal) Stylesheet */
 :root {
-  --bg-sumi: #07080b;
-  --bg-card: #0d0f17;
-  --bg-elevated: #131724;
-  --border-subtle: rgba(180, 139, 255, 0.14);
-  --border-gold: rgba(232, 176, 92, 0.35);
+  --bg-sumi: #06080b;
+  --bg-card: #0b0f16;
+  --bg-elevated: #111824;
+  --border-subtle: rgba(98, 230, 201, 0.14);
+  --border-gold: rgba(232, 176, 92, 0.36);
   --color-gold: #e8b05c;
-  --color-gold-glow: rgba(232, 176, 92, 0.2);
+  --color-gold-glow: rgba(232, 176, 92, 0.16);
   --color-teal: #62e6c9;
   --color-violet: #b48bff;
-  --color-text-main: #f5f4f0;
-  --color-text-dim: #8b88a2;
+  --color-text-main: #f4f1ea;
+  --color-text-dim: #93a1b2;
   --color-fail: #ff5370;
   --color-pass: #62e6c9;
-  --font-serif: "Shippori Mincho", "Noto Serif JP", serif;
-  --font-mono: "JetBrains Mono", "Geist Mono", monospace;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --font-serif: "Shippori Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+  --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, monospace;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
 }
 
 *, *::before, *::after {
@@ -1537,4 +1537,45 @@ main.zeno-main {
   background: #1765cc;
   border-color: #fff;
   box-shadow: 0 6px 16px rgba(26, 115, 232, 0.5);
+}
+
+/* Zen Hero & Orientation Strip */
+.hero-cta-bar {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: -0.9rem 0 1.65rem;
+}
+
+.zen-eli5-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin: 0 auto 1.65rem;
+  padding: 0.75rem 1rem;
+  max-width: 820px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+.btn-pill.zen-us-cta {
+  border-color: rgba(0, 212, 126, 0.5);
+  background: rgba(0, 212, 126, 0.12);
+  color: #00d47e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-pill.zen-guide-cta {
+  border-color: var(--border-gold);
+  background: rgba(232, 176, 92, 0.12);
+  color: var(--color-gold);
+  font-weight: 700;
+  text-decoration: none;
 }

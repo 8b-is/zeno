@@ -265,6 +265,7 @@ pub fn ZenoRustApp() -> impl IntoView {
             </div>
             <div class="us-header-actions">
                 <span class="pill-btn por-ok">{move || format!("● PoR {}", coverage_pq())}</span>
+                <a href="/welcome" class="pill-btn gold-pill">"⛩ Zen Guide"</a>
                 <a href="/us" class="pill-btn">"MIT JS+WASM UI"</a>
                 <a href="/rust-wasm-spec" target="_blank" rel="noopener noreferrer" class="pill-btn gold-pill">"Rust+ASM Spec"</a>
                 <a href="/" class="pill-btn">"← Constellation"</a>
@@ -278,6 +279,7 @@ pub fn ZenoRustApp() -> impl IntoView {
                     <div><strong>"Math Core:"</strong> " zeno-wasm-client"</div>
                     <div><strong>"ASM Crate:"</strong> " zeno-asm (ARM64/x86)"</div>
                     <div><strong>"Telemetry:"</strong> " 0 cookies · 0 floats"</div>
+                    <div><a href="/welcome">"⛩ Zen ELI5 Guide"</a></div>
                     <div><a href="/us">"← Open Standard /us UI"</a></div>
                 </div>
             </aside>

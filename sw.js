@@ -3,10 +3,18 @@
  * Stale-while-revalidate for static shell; bypasses /api/* and no-store responses.
  */
 
-const CACHE_NAME = "zeno-v19-live-stripe-discord-support-v1150";
+const CACHE_NAME = "zeno-v20-zen-landing-eli5-v1160";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
+  "/welcome",
+  "/landing.css",
+  "/landing.js",
+  "/illustrations/zen-enso-hero.svg",
+  "/illustrations/eli5-vault-scales.svg",
+  "/illustrations/eli5-kintsugi-ledger.svg",
+  "/illustrations/eli5-sanpo-yoshi.svg",
+  "/illustrations/eli5-how-to-use.svg",
   "/us",
   "/us.css",
   "/us.js",

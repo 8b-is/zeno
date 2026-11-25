@@ -32,7 +32,7 @@ pub mod api {
             "status": "online",
             "surface": "ZENO US Rust Edge Worker",
             "runtime": "cloudflare-workers-rs-0.9",
-            "version": "1.15.0",
+            "version": "1.16.0",
             "zeroFloatPQ": true,
             "pythonAllowed": false,
             "backendCrate": "apps/rust/zeno-us-core",
@@ -164,7 +164,7 @@ pub mod api {
             })
             .collect();
         json!({
-            "version": "1.15.0",
+            "version": "1.16.0",
             "currency": "USD",
             "sanpoYoshiRevenueSplitPQ": {
                 "operating": "1/2",
@@ -177,7 +177,7 @@ pub mod api {
 
     pub fn compliance_json() -> Value {
         json!({
-            "version": "1.15.0",
+            "version": "1.16.0",
             "formalCertification": false,
             "runtime": "workers-rs-rust-core",
             "note": "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",

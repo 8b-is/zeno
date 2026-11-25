@@ -4,7 +4,7 @@ set -euo pipefail
 # ZENO US Live Stripe & Base EVM Treasury Activation Helper
 # Usage:
 #   1. Authenticate Stripe CLI on your VAKED account: `stripe login`
-#   2. Export live `STRIPE_SECRET_KEY` (optional) and optional `ZENO_TREASURY_EVM=0x...`, `DISCORD_WEBHOOK_URL`, `RESEND_API_KEY`
+#   2. Export live `STRIPE_SECRET_KEY` (optional) and optional `ZENO_TREASURY_EVM=0x...`, `DISCORD_WEBHOOK_URL`
 #   3. Run: `./scripts/activate-live-stripe-and-treasury.sh`
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -67,10 +67,6 @@ fi
 
 if [[ -n "${DISCORD_WEBHOOK_URL:-}" ]]; then
   printf '%s' "$DISCORD_WEBHOOK_URL" | "$WRANGLER_BIN" secret put DISCORD_WEBHOOK_URL -c "$WRANGLER_CFG"
-fi
-
-if [[ -n "${RESEND_API_KEY:-}" ]]; then
-  printf '%s' "$RESEND_API_KEY" | "$WRANGLER_BIN" secret put RESEND_API_KEY -c "$WRANGLER_CFG"
 fi
 
 echo "Active Cloudflare Worker secrets on $WRANGLER_CFG:"

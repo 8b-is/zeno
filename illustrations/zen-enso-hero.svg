@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 440" role="img" aria-labelledby="title-enso desc-enso">
+  <title id="title-enso">ZENO Kanazawa Gold Enso and Kintsugi Sanctuary</title>
+  <desc id="desc-enso">Minimalist Japanese Zen brushed gold Enso circle above peaceful Seigaiha water ripples and a vermilion hanko seal on sumi obsidian ink.</desc>
+  <defs>
+    <radialGradient id="ensoGlow" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#e8b05c" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#4ecdc4" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#06080b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7dca1"/>
+      <stop offset="48%" stop-color="#e8b05c"/>
+      <stop offset="100%" stop-color="#b98033"/>
+    </linearGradient>
+    <linearGradient id="jadeStream" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4ecdc4" stop-opacity="0.08"/>
+      <stop offset="50%" stop-color="#00d47e" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#4ecdc4" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sumi backdrop + calm aura -->
+  <rect width="560" height="440" rx="28" fill="#06080b"/>
+  <rect x="1" y="1" width="558" height="438" rx="27" fill="none" stroke="#1d2735" stroke-width="1"/>
+  <circle cx="280" cy="196" r="190" fill="url(#ensoGlow)"/>
+
+  <!-- Subtle architectural grid / Shoji proportion hairlines -->
+  <line x1="48" y1="72" x2="512" y2="72" stroke="#182230" stroke-width="1"/>
+  <line x1="48" y1="336" x2="512" y2="336" stroke="#182230" stroke-width="1"/>
+  <line x1="280" y1="40" x2="280" y2="360" stroke="#121a26" stroke-width="1" stroke-dasharray="3 6"/>
+
+  <!-- Outer fine hairline orbit -->
+  <circle cx="280" cy="192" r="144" fill="none" stroke="#202c3d" stroke-width="1"/>
+  <circle cx="280" cy="192" r="118" fill="none" stroke="#2c2418" stroke-width="1" stroke-dasharray="2 8"/>
+
+  <!-- Brushed Enso (open sovereign circle) -->
+  <path d="M 358 106
+           C 320 74, 245 70, 198 105
+           C 145 144, 141 224, 187 272
+           C 232 319, 314 322, 363 277
+           C 402 241, 412 184, 388 140"
+        fill="none" stroke="url(#goldLeaf)" stroke-width="15" stroke-linecap="round"/>
+  <path d="M 350 112
+           C 314 86, 250 84, 206 116
+           C 162 148, 158 220, 198 263"
+        fill="none" stroke="#0d131d" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Kintsugi golden fissure crossing Enso cleanly -->
+  <path d="M 118 228 L 194 214 L 240 232 L 296 186 L 352 198 L 434 162"
+        fill="none" stroke="#06080b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 118 228 L 194 214 L 240 232 L 296 186 L 352 198 L 434 162"
+        fill="none" stroke="#f5cf86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="296" cy="186" r="4" fill="#00d47e"/>
+
+  <!-- Center contemplative kanji & 1/1 ratio -->
+  <text x="280" y="182" text-anchor="middle" fill="#f4f1ea" font-family="serif" font-size="38" font-weight="700">禅 · 銭</text>
+  <text x="280" y="216" text-anchor="middle" fill="#4ecdc4" font-family="monospace" font-size="12" letter-spacing="2">1 : 1  USDC + USDT</text>
+  <text x="280" y="236" text-anchor="middle" fill="#93a1b2" font-family="monospace" font-size="10" letter-spacing="1.5">ZERO DEBT MINTING</text>
+
+  <!-- Seigaiha / Zen water waves (settles like water) -->
+  <path d="M 88 358 Q 140 342 192 358 T 296 358 T 400 358 T 472 358" fill="none" stroke="url(#jadeStream)" stroke-width="2"/>
+  <path d="M 112 374 Q 164 360 216 374 T 320 374 T 448 374" fill="none" stroke="#4ecdc4" stroke-width="1.2" opacity="0.4"/>
+  <path d="M 140 390 Q 192 378 244 390 T 348 390 T 420 390" fill="none" stroke="#e8b05c" stroke-width="1" opacity="0.35"/>
+
+  <!-- Vermilion Hanko personal seal stamp -->
+  <g transform="translate(454, 56)">
+    <rect width="46" height="46" rx="8" fill="#180a0b" stroke="#d9534f" stroke-width="1.8"/>
+    <text x="23" y="23" text-anchor="middle" fill="#e87470" font-family="serif" font-size="16" font-weight="700">三方</text>
+    <text x="23" y="39" text-anchor="middle" fill="#e87470" font-family="serif" font-size="13" font-weight="700">よし</text>
+  </g>
+
+  <!-- Subtle bottom caption -->
+  <text x="48" y="416" fill="#93a1b2" font-family="monospace" font-size="10" letter-spacing="1.8">KYOTO MA · KINTSUGI AUDIT · MIT OPEN CLIENT</text>
+  <text x="512" y="416" text-anchor="end" fill="#e8b05c" font-family="monospace" font-size="10">0x62 VERIFIED</text>
+</svg>

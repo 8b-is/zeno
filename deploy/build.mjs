@@ -97,6 +97,22 @@ const usRustLeptosWasmBase64 = readFileSync(join(root, "us-rust", "zeno_leptos_b
 const usHtml = readFileSync(join(root, "us.html"), "utf8");
 const usCss = readFileSync(join(root, "us.css"), "utf8");
 const usJs = readFileSync(join(root, "us.js"), "utf8");
+const landingHtml = readFileSync(join(root, "landing.html"), "utf8");
+const landingCss = readFileSync(join(root, "landing.css"), "utf8");
+const landingJs = readFileSync(join(root, "landing.js"), "utf8");
+const ILLUSTRATION_FILES = [
+  "zen-enso-hero.svg",
+  "eli5-vault-scales.svg",
+  "eli5-kintsugi-ledger.svg",
+  "eli5-sanpo-yoshi.svg",
+  "eli5-how-to-use.svg",
+];
+const illustrationsSvg = Object.fromEntries(
+  ILLUSTRATION_FILES.map((name) => [
+    name,
+    readFileSync(join(root, "illustrations", name), "utf8"),
+  ]),
+);
 const zenoEngineJs = readFileSync(join(root, "zeno-engine.js"), "utf8");
 
 const worker = `// zeno.vaked.dev — Japanese Proof-of-Contribution Sovereign Neo-Bank
@@ -106,6 +122,10 @@ const INDEX_HTML = ${JSON.stringify(indexHtml)};
 const US_HTML = ${JSON.stringify(usHtml)};
 const US_CSS = ${JSON.stringify(usCss)};
 const US_JS = ${JSON.stringify(usJs)};
+const LANDING_HTML = ${JSON.stringify(landingHtml)};
+const LANDING_CSS = ${JSON.stringify(landingCss)};
+const LANDING_JS = ${JSON.stringify(landingJs)};
+const ILLUSTRATIONS_SVG = ${JSON.stringify(illustrationsSvg)};
 const US_RUST_INDEX_HTML = ${JSON.stringify(usRustIndexHtml)};
 const US_RUST_BOOT_JS = ${JSON.stringify(usRustBootJs)};
 const US_RUST_LEPTOS_JS = ${JSON.stringify(usRustLeptosJs)};
@@ -145,7 +165,7 @@ const RUST_WASM_SPEC_MD = ${JSON.stringify(rustWasmSpecMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -280,6 +300,55 @@ export default {
           "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
         },
       });
+    }
+
+    if (p === "/welcome" || p === "/landing" || p === "/eli5" || p === "/guide" || p === "/start") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(LANDING_HTML, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-security-policy": US_CSP_HEADER,
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "public, max-age=300, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/landing.css") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(LANDING_CSS, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "text/css; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p === "/landing.js") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return new Response(LANDING_JS, {
+        headers: {
+          ...COMMON_HEADERS,
+          "content-type": "application/javascript; charset=utf-8",
+          "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+        },
+      });
+    }
+
+    if (p.startsWith("/illustrations/")) {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      const name = p.slice("/illustrations/".length);
+      if (Object.hasOwn(ILLUSTRATIONS_SVG, name)) {
+        return new Response(ILLUSTRATIONS_SVG[name], {
+          headers: {
+            ...COMMON_HEADERS,
+            "content-type": "image/svg+xml; charset=utf-8",
+            "cache-control": "public, max-age=86400",
+          },
+        });
+      }
+      return gwJson({ error: "illustration_not_found" }, 404);
     }
 
     if (p === "/style.css") {
@@ -793,7 +862,7 @@ export default {
         status: "online",
         surface: "ZENO US Edge Fallback",
         serviceBinding: "RUST_EDGE_API",
-        version: "1.14.0",
+        version: "1.16.0",
         zeroFloatPQ: true,
       });
     }
@@ -845,6 +914,10 @@ export default {
         androidJniAsmBridge: "apps/rust/zeno-native",
         zeroTelemetry: true,
         openSourceClientRoutes: [
+          "/welcome",
+          "/landing.css",
+          "/landing.js",
+          "/illustrations/zen-enso-hero.svg",
           "/us",
           "/us.css",
           "/us.js",
@@ -880,14 +953,14 @@ export default {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
         ...OFFICIAL_SUPPORT_CONTACT,
-        version: "1.15.0",
+        version: "1.16.0",
         billingReadiness: {
           solanaDirectLive: Boolean(env && env.ZENO_TREASURY_SOLANA),
           stripePaymentLinksLive: Boolean(env && env.STRIPE_LINK_PLUS && env.STRIPE_LINK_ULTRA && env.STRIPE_LINK_INSTITUTIONAL),
           stripeSecretApiLive: Boolean(env && env.STRIPE_SECRET_KEY),
           stripeWebhookLive: Boolean(env && env.STRIPE_WEBHOOK_SECRET),
           discordAlertsLive: Boolean(env && env.DISCORD_WEBHOOK_URL),
-          emailApiConfigured: Boolean(env && env.RESEND_API_KEY),
+          emailProvider: "deferred_custom_provider",
         },
       });
     }
@@ -895,7 +968,7 @@ export default {
     if (p === "/api/us/compliance") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
-        version: "1.15.0",
+        version: "1.16.0",
         formalCertification: false,
         note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
         frameworks: {
@@ -1243,7 +1316,6 @@ export default {
         : "n/a";
 
       const discordUrl = env && env.DISCORD_WEBHOOK_URL;
-      const resendKey = env && env.RESEND_API_KEY;
       const notifyStripeEvent = async () => {
         if (discordUrl) {
           try {
@@ -1256,41 +1328,9 @@ export default {
             });
           } catch {}
         }
-        if (resendKey) {
-          const toList = customerEmail ? [customerEmail] : [OFFICIAL_SUPPORT_CONTACT.supportEmail];
-          const mailText = [
-            "ZENO US Sovereign Billing Notice",
-            "Event: " + eventType + " (" + String(eventId || "n/a") + ")",
-            "Amount: " + amountLabel,
-            clientRef ? "Cashtag / Ref: " + clientRef : "",
-            "",
-            "Need help?",
-            "Email: " + OFFICIAL_SUPPORT_CONTACT.supportEmail,
-            "Phone: " + OFFICIAL_SUPPORT_CONTACT.phone,
-            "WhatsApp R&D (Japan · Hue): " + OFFICIAL_SUPPORT_CONTACT.whatsappRdJapanHue,
-            "Mailing Address: " + OFFICIAL_SUPPORT_CONTACT.mailingAddress,
-          ].filter(Boolean).join("\\n");
-          try {
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: {
-                "authorization": "Bearer " + resendKey,
-                "content-type": "application/json",
-              },
-              body: JSON.stringify({
-                from: "ZENO US <" + OFFICIAL_SUPPORT_CONTACT.supportEmail + ">",
-                to: toList,
-                bcc: OFFICIAL_SUPPORT_CONTACT.adminBccEmails,
-                reply_to: OFFICIAL_SUPPORT_CONTACT.supportEmail,
-                subject: "ZENO US Receipt · " + eventType + " (" + amountLabel + ")",
-                text: mailText,
-              }),
-            });
-          } catch {}
-        }
       };
 
-      if (discordUrl || resendKey) {
+      if (discordUrl) {
         if (ctx && typeof ctx.waitUntil === "function") {
           ctx.waitUntil(notifyStripeEvent());
         } else {
@@ -1305,7 +1345,8 @@ export default {
         type: eventType,
         discordNotified: Boolean(discordUrl),
         adminBcc: OFFICIAL_SUPPORT_CONTACT.adminBccEmails,
-        emailDispatched: Boolean(resendKey),
+        emailDispatched: false,
+        emailProvider: "deferred",
       });
     }
 

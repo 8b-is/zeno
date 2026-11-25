@@ -2,10 +2,10 @@
  * Obsidian & Emerald · Zero Trackers · Tabular Numerals · Touch-First >= 48px
  */
 :root {
-  --bg-void: #06090e;
-  --bg-panel: #0c121b;
-  --bg-elevated: #121b28;
-  --bg-glass: rgba(12, 18, 27, 0.88);
+  --bg-void: #06080b;
+  --bg-panel: #0b0f16;
+  --bg-elevated: #101722;
+  --bg-glass: rgba(11, 15, 22, 0.88);
   --emerald: #00d47e;
   --emerald-soft: rgba(0, 212, 126, 0.14);
   --teal: #4ecdc4;
@@ -15,10 +15,11 @@
   --gold-soft: rgba(232, 176, 92, 0.14);
   --crimson: #ff4d6d;
   --crimson-soft: rgba(255, 77, 109, 0.14);
-  --text-primary: #f3f6fa;
-  --text-secondary: #8ea0b5;
+  --text-primary: #f4f1ea;
+  --text-secondary: #93a1b2;
   --border-hairline: rgba(78, 205, 196, 0.16);
-  --border-gold: rgba(232, 176, 92, 0.36);
+  --border-gold: rgba(232, 176, 92, 0.34);
+  --font-serif: "Hiragino Mincho ProN", "YuMincho", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --font-display: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -301,8 +302,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   backdrop-filter: blur(18px);
   border-top: 1px solid var(--border-hairline);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 0.35rem 0.35rem env(safe-area-inset-bottom, 0.35rem);
+  grid-template-columns: repeat(6, 1fr);
+  padding: 0.35rem 0.25rem env(safe-area-inset-bottom, 0.35rem);
 }
 
 .bottom-nav-btn {
@@ -935,4 +936,36 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .net-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(225px, 1fr)); gap: 0.75rem; margin-top: 0.9rem; }
 .net-card { background: var(--bg-elevated); border: 1px solid var(--border-hairline); border-radius: var(--radius-md); padding: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .net-contract { font-family: var(--font-mono); font-size: 0.66rem; color: var(--teal); word-break: break-all; }
+.zen-intro-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 1.15rem;
+}
+.zen-intro-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.zen-intro-enso {
+  width: 48px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-gold);
+  object-fit: cover;
+  background: #06080b;
+}
+.zen-intro-kicker {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+}
+.zen-intro-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
 
