@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.vaked.zeno.audio.ZenoAudioEngine
+import dev.vaked.zeno.native.NativeBridge
 
 private data class UsNetworkSpec(
     val id: String,
@@ -66,6 +67,15 @@ fun ZenoUsMonetizationCard() {
     var activePlanIdx by remember { mutableIntStateOf(2) }
     var revenueTotalMicro by remember { mutableLongStateOf(49_000_000L) }
     var statusMsg by remember { mutableStateOf("Ready · 7 USDC+USDT networks wired · zero-float p/q metering") }
+    var asmStatus by remember {
+        mutableStateOf(
+            try {
+                "JNI ASM: ${NativeBridge.asmBackendTag()}"
+            } catch (e: Throwable) {
+                "JNI unavailable: ${e.message}"
+            }
+        )
+    }
 
     val selectedNet = TOP_7_NETWORKS[selectedNetIdx]
     val activePlan = PRO_PLANS[activePlanIdx]
@@ -100,7 +110,7 @@ fun ZenoUsMonetizationCard() {
                     )
                 }
                 Text(
-                    "v1.13.0",
+                    "v1.14.0",
                     color = gold,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -243,6 +253,25 @@ fun ZenoUsMonetizationCard() {
                 }
             }
 
+            Text(asmStatus, color = teal, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+            OutlinedButton(
+                onClick = {
+                    try {
+                        val json = NativeBridge.asmSelfTestJson()
+                        val solOk = NativeBridge.validateSolanaBase58("HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS")
+                        asmStatus = "ARM64 NEON OK (SolanaB58=$solOk): $json"
+                        ZenoAudioEngine.playUltraShimmer()
+                    } catch (e: Throwable) {
+                        asmStatus = "ARM64 ASM test error: ${e.message}"
+                        ZenoAudioEngine.playFeliCaError()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, teal.copy(alpha = 0.55f)),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = elevated, contentColor = teal),
+            ) {
+                Text("🦀 Run ARM64 NEON ASM + Solana JNI Self-Test", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
             Text(statusMsg, color = Color(0xFF9FB0C3), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
         }
     }

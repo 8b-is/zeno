@@ -382,6 +382,10 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
   assert.equal(arch.asmKernelCrate, "apps/rust/zeno-asm");
   assert.equal(arch.workersRsCrate, "apps/rust/zeno-edge-worker");
   assert.equal(arch.rustEdgeWorkerUrl, "https://zeno-us-rust-worker.cabotage.workers.dev");
+  assert.equal(arch.rustServiceBinding, "RUST_EDGE_API");
+  assert.equal(arch.androidJniAsmBridge, "apps/rust/zeno-native");
+  assert.ok(arch.rustDelegatedRoutes.includes("/api/us/reserve-proof"));
+  assert.ok(arch.rustDelegatedRoutes.includes("/api/us/solana-validate"));
   assert.equal(arch.clientLicense, "MIT");
   assert.equal(arch.coreLicense, "PROPRIETARY_PRIVATE");
   assert.equal(arch.zeroTelemetry, true);
@@ -392,7 +396,30 @@ test("Worker serves hardened /us CSP, 405/413 guards, safe icons, and Rust-only 
     "apps/rust/zeno-issuer-angel",
     "apps/rust/zeno-asm",
     "apps/rust/zeno-edge-worker",
+    "apps/rust/zeno-native",
   ]);
+
+  // Cloudflare Service Binding dispatch (RUST_EDGE_API -> zeno-us-rust-worker)
+  const delegatedRes = await fetchWorker(
+    "/api/us/reserve-proof",
+    {},
+    {
+      RUST_EDGE_API: {
+        fetch: async (req) => {
+          const url = new URL(req.url);
+          return new Response(
+            JSON.stringify({ runtime: "workers-rs-rust-wasm", path: url.pathname, coverageRatioPQ: "1/1" }),
+            { headers: { "content-type": "application/json", "x-zeno-runtime": "workers-rs-rust-wasm" } },
+          );
+        },
+      },
+    },
+  );
+  assert.equal(delegatedRes.status, 200);
+  assert.equal(delegatedRes.headers.get("x-zeno-runtime"), "workers-rs-rust-wasm");
+  const delegatedBody = await delegatedRes.json();
+  assert.equal(delegatedBody.runtime, "workers-rs-rust-wasm");
+  assert.equal(delegatedBody.path, "/api/us/reserve-proof");
 
   const fokenInfoRes = await fetchWorker("/api/us/foken");
   assert.equal(fokenInfoRes.status, 200);

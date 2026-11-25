@@ -154,6 +154,17 @@ const checks = [
       && !/\bf32\b|\bf64\b/.test(read("apps/rust/zeno-leptos-ui/src/lib.rs").split("#[cfg(test)]")[0])
       && !/#b48bff|\bpurple\b|\bviolet\b/i.test(read("apps/rust/zeno-leptos-ui/src/lib.rs")),
   },
+  {
+    id: "RUST-SERVICE-BINDING-AND-ANDROID-NEON-JNI",
+    standard: "SOC2-PI1.4 / Edge & Mobile ASM Isolation",
+    desc: "wrangler.toml binds RUST_EDGE_API to zeno-us-rust-worker and Android NativeBridge links ARM64 NEON ASM + zeno-us-core",
+    ok: read("deploy/wrangler.toml").includes('binding = "RUST_EDGE_API"')
+      && read("deploy/wrangler.toml").includes('service = "zeno-us-rust-worker"')
+      && buildMjs.includes("env.RUST_EDGE_API.fetch(request)")
+      && read("apps/rust/zeno-native/src/lib.rs").includes("NativeBridge_asmSelfTestJson")
+      && read("apps/rust/zeno-native/src/lib.rs").includes("MAX_JNI_BYTES")
+      && read("apps/android/app/src/main/java/dev/vaked/zeno/native/NativeBridge.kt").includes("asmSelfTestJson()"),
+  },
 ];
 
 const passed = checks.filter((c) => c.ok).length;

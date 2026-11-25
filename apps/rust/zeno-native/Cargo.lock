@@ -251,13 +251,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
 
 [[package]]
+name = "zeno-asm"
+version = "0.1.0"
+
+[[package]]
 name = "zeno-issuer-angel"
 version = "0.1.0"
+
+[[package]]
+name = "zeno-us-core"
+version = "0.4.0"
+dependencies = [
+ "zeno-issuer-angel",
+]
 
 [[package]]
 name = "zeno_native"
 version = "0.1.0"
 dependencies = [
  "jni",
+ "zeno-asm",
  "zeno-issuer-angel",
+ "zeno-us-core",
 ]

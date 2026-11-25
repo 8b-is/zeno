@@ -11,8 +11,8 @@ android {
         applicationId = "dev.vaked.zeno"
         minSdk = 26
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.13.0"
+        versionCode = 15
+        versionName = "1.14.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

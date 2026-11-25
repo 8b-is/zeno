@@ -1,8 +1,8 @@
 //! JNI surface for the ZENO native core. Kotlin moves bytes and pixels;
 //! every protocol decision lives in Rust (`felica`).
 
-use jni::objects::{JByteArray, JClass};
-use jni::sys::{jbyte, jbyteArray, jint, jstring};
+use jni::objects::{JByteArray, JClass, JString};
+use jni::sys::{jboolean, jbyte, jbyteArray, jint, jlong, jstring, JNI_FALSE, JNI_TRUE};
 use jni::JNIEnv;
 
 mod felica;
@@ -211,5 +211,149 @@ pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_parseHistoryJson(
     match env.new_string(json) {
         Ok(value) => value.into_raw(),
         Err(_) => std::ptr::null_mut(),
+    }
+}
+
+/// Deterministic ARM64 NEON + `zeno-us-core` hardware verification summary.
+pub fn build_asm_self_test_json() -> String {
+    let backend = zeno_asm::asm_backend_tag();
+    let sample = b"ZENO_ARM64_NEON_KINTSUGI_0X62_WITNESS_BLOCK_64BYTES_VERIFIED!!!!";
+    let xor_fold = zeno_asm::wupz_xor_fold_asm(sample);
+    let popcnt = zeno_asm::wupz_popcount_asm(sample);
+    let gcd_305_2 = zeno_asm::gcd_u64_asm(305, 2);
+    let d = [0x62u8; 32];
+    let mut d_diff = d;
+    d_diff[31] ^= 0x01;
+    let ct_eq_ok = zeno_asm::ct_eq_32_asm(&d, &d) && !zeno_asm::ct_eq_32_asm(&d, &d_diff);
+    let solana_b58_ok =
+        zeno_us_core::decode_solana_pubkey("HpQPzh6Y6h4AdrqePmCdVPMipWT9fnMBEguNMtkbmQwS").is_ok();
+    let ok = gcd_305_2 == 1 && ct_eq_ok && solana_b58_ok;
+    format!(
+        "{{\"backend\":\"{}\",\"xorFoldHex\":\"{:016x}\",\"popcount\":{},\"gcd305_2\":{},\"ctEqOk\":{},\"solanaB58Ok\":{},\"ok\":{}}}",
+        escape(backend),
+        xor_fold,
+        popcnt,
+        gcd_305_2,
+        ct_eq_ok,
+        solana_b58_ok,
+        ok
+    )
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmBackendTag(
+    env: JNIEnv,
+    _class: JClass,
+) -> jstring {
+    match env.new_string(zeno_asm::asm_backend_tag()) {
+        Ok(value) => value.into_raw(),
+        Err(_) => std::ptr::null_mut(),
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmWupzXorFold(
+    mut env: JNIEnv,
+    _class: JClass,
+    data: JByteArray,
+) -> jlong {
+    match read_bytes(&mut env, &data) {
+        Ok(bytes) => zeno_asm::wupz_xor_fold_asm(&bytes) as jlong,
+        Err(msg) => {
+            set_error(msg);
+            0
+        }
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmWupzPopcount(
+    mut env: JNIEnv,
+    _class: JClass,
+    data: JByteArray,
+) -> jint {
+    match read_bytes(&mut env, &data) {
+        Ok(bytes) => zeno_asm::wupz_popcount_asm(&bytes) as jint,
+        Err(msg) => {
+            set_error(msg);
+            -1
+        }
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmGcdU64(
+    _env: JNIEnv,
+    _class: JClass,
+    a: jlong,
+    b: jlong,
+) -> jlong {
+    if a < 0 || b < 0 {
+        set_error("negative gcd input rejected".into());
+        return 0;
+    }
+    zeno_asm::gcd_u64_asm(a as u64, b as u64) as jlong
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmCtEq32(
+    mut env: JNIEnv,
+    _class: JClass,
+    a: JByteArray,
+    b: JByteArray,
+) -> jboolean {
+    let Ok(bytes_a) = read_bytes(&mut env, &a) else {
+        return JNI_FALSE;
+    };
+    let Ok(bytes_b) = read_bytes(&mut env, &b) else {
+        return JNI_FALSE;
+    };
+    let (Ok(arr_a), Ok(arr_b)) = (<[u8; 32]>::try_from(bytes_a.as_slice()), <[u8; 32]>::try_from(bytes_b.as_slice())) else {
+        set_error("ct_eq_32 requires exact 32-byte arrays".into());
+        return JNI_FALSE;
+    };
+    if zeno_asm::ct_eq_32_asm(&arr_a, &arr_b) { JNI_TRUE } else { JNI_FALSE }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_validateSolanaBase58(
+    mut env: JNIEnv,
+    _class: JClass,
+    address: JString,
+) -> jboolean {
+    let Ok(jstr) = env.get_string(&address) else {
+        return JNI_FALSE;
+    };
+    let Ok(s) = jstr.to_str() else {
+        return JNI_FALSE;
+    };
+    if s.len() > 64 {
+        return JNI_FALSE;
+    }
+    if zeno_us_core::decode_solana_pubkey(s.trim()).is_ok() { JNI_TRUE } else { JNI_FALSE }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_vaked_zeno_native_NativeBridge_asmSelfTestJson(
+    env: JNIEnv,
+    _class: JClass,
+) -> jstring {
+    match env.new_string(build_asm_self_test_json()) {
+        Ok(value) => value.into_raw(),
+        Err(_) => std::ptr::null_mut(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::build_asm_self_test_json;
+
+    #[test]
+    fn asm_jni_self_test_reports_ok_and_ct_eq() {
+        let report = build_asm_self_test_json();
+        assert!(report.contains("\"ok\":true"), "self test failed: {report}");
+        assert!(report.contains("\"ctEqOk\":true"));
+        assert!(report.contains("\"solanaB58Ok\":true"));
+        assert!(report.contains("\"gcd305_2\":1"));
     }
 }

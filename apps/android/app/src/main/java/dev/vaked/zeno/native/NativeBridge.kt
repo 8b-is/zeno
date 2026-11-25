@@ -21,4 +21,18 @@ object NativeBridge {
 
     /** JSON: {"balance":N|null,"entries":[{date,kind,stationHex,delta,balance}]} */
     external fun parseHistoryJson(raw: ByteArray): String
+
+    external fun asmBackendTag(): String
+
+    external fun asmWupzXorFold(data: ByteArray): Long
+
+    external fun asmWupzPopcount(data: ByteArray): Int
+
+    external fun asmGcdU64(a: Long, b: Long): Long
+
+    external fun asmCtEq32(a: ByteArray, b: ByteArray): Boolean
+
+    external fun validateSolanaBase58(address: String): Boolean
+
+    external fun asmSelfTestJson(): String
 }

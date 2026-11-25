@@ -32,10 +32,11 @@ pub mod api {
             "status": "online",
             "surface": "ZENO US Rust Edge Worker",
             "runtime": "cloudflare-workers-rs-0.9",
-            "version": "1.13.0",
+            "version": "1.14.0",
             "zeroFloatPQ": true,
             "pythonAllowed": false,
             "backendCrate": "apps/rust/zeno-us-core",
+            "serviceBinding": "RUST_EDGE_API",
             "uiWasmSurface": "https://zeno.vaked.dev/us-rust",
         })
     }
@@ -163,7 +164,7 @@ pub mod api {
             })
             .collect();
         json!({
-            "version": "1.13.0",
+            "version": "1.14.0",
             "currency": "USD",
             "sanpoYoshiRevenueSplitPQ": {
                 "operating": "1/2",
@@ -176,13 +177,82 @@ pub mod api {
 
     pub fn compliance_json() -> Value {
         json!({
-            "version": "1.13.0",
+            "version": "1.14.0",
             "formalCertification": false,
             "runtime": "workers-rs-rust-core",
-            "finCenBsaOfac": {
-                "travelRuleThresholdMicro": FINCEN_TRAVEL_RULE_MICRO,
-                "ctrThresholdMicro": FINCEN_CTR_THRESHOLD_MICRO,
-                "ofacAddressScreening": true,
+            "note": "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
+            "frameworks": {
+                "gdpr": {
+                    "nonExtractableWebCrypto": true,
+                    "zeroThirdPartyTrackers": true,
+                    "art17CryptoShredding": true,
+                    "art20PortabilityJson": true,
+                },
+                "finCenBsaOfac": {
+                    "travelRuleThresholdMicro": FINCEN_TRAVEL_RULE_MICRO,
+                    "ctrThresholdMicro": FINCEN_CTR_THRESHOLD_MICRO,
+                    "ofacAddressScreening": true,
+                    "liveSponsorBankFboActive": false,
+                },
+                "pciDssSaqA": {
+                    "rawPanHandled": false,
+                    "stripeHostedTokenization": true,
+                },
+                "owaspMasvsAndroid": {
+                    "allowBackup": false,
+                    "usesCleartextTraffic": false,
+                    "maxJniBytes": 16384,
+                },
+            },
+        })
+    }
+
+    pub fn solana_payout_spec_json() -> Value {
+        json!({
+            "network": "solana-mainnet-beta",
+            "runtime": "cloudflare-workers-rs-0.9",
+            "usdcMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "usdtMint": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+            "tokenProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "payoutExecutionMode": "UNSIGNED_CLIENT_OR_HSM_SIGNER_REQUIRED",
+            "solanaPayTemplate": "solana:<recipient>?amount=<exact>&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&label=ZENO%20Family%20Trust&memo=<memo>",
+            "familyTrustTiers": {
+                "tier1LiquidReserves": {
+                    "assets": ["USDC", "USDT"],
+                    "usdBackingWeight": "1/1",
+                },
+                "tier2FokenContribution": {
+                    "constellationProjects": 19,
+                    "constellationNetUtilityHours": 2406,
+                    "usdBackingWeight": "0/1",
+                    "role": "allocation_weight_no_debt_minting",
+                },
+                "tier3VakedUtility": {
+                    "chain": "polygon-pos",
+                    "vakedContract": "0x2Ae7DA713A2c8527AF70825C0F79632AF2e2ae4A",
+                    "maxSupply": 21000000,
+                    "ownerRenounced": true,
+                    "vakedUsdBackingWeight": "0/1",
+                    "financialClaim": false,
+                    "whitepaperUrl": "https://vaked.dev/whitepaper",
+                },
+            },
+        })
+    }
+
+    pub fn foken_info_json() -> Value {
+        json!({
+            "gate": "FOKEN Proof-of-Contribution (0x62)",
+            "runtime": "cloudflare-workers-rs-0.9",
+            "formula": "net = futureWorkAvoided - (workAdded + 3/2 * maintenanceDebt)",
+            "fokenToUsdMicro": MICRO_USD,
+            "backing": ["USDC", "USDT"],
+            "domains": ["zeno.vaked.dev", "zeno.8b.is"],
+            "sampleInvoice": {
+                "invoiceId": "01933b70-9831-7bc8-8123-018b1509a001",
+                "selfAssessedFokens": 400,
+                "netUtilityPQ": "107/1",
+                "usdEquivalentMicro": 400 * MICRO_USD,
             },
         })
     }
@@ -241,47 +311,68 @@ pub mod api {
         }
     }
 
-    #[derive(Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    struct FokenUtilityPayload {
-        future_work_avoided_hours: i64,
-        work_added_hours: i64,
-        maintenance_debt_hours: i64,
-    }
-
-    #[derive(Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    struct FokenEvalPayload {
-        invoice_id: String,
-        contributor: String,
-        provenance_hash: String,
-        self_assessed_fokens: u64,
-        ip_statement: String,
-        ip_signature: String,
-        net_utility: FokenUtilityPayload,
-    }
-
     pub fn foken_eval_json(body: &str) -> (u16, Value) {
-        let Ok(req) = serde_json::from_str::<FokenEvalPayload>(body) else {
-            return (400, json!({ "error": "invalid_json_payload" }));
+        let Ok(raw) = serde_json::from_str::<Value>(body) else {
+            return (400, json!({ "verdict": "FAIL", "error": "invalid_json_payload" }));
         };
-        if req.net_utility.future_work_avoided_hours < 0
-            || req.net_utility.work_added_hours < 0
-            || req.net_utility.maintenance_debt_hours < 0
-        {
-            return (422, json!({ "verdict": "FAIL", "reason": "NEGATIVE_HOURS_FORBIDDEN" }));
-        }
+        let Some(obj) = raw.as_object() else {
+            return (422, json!({ "verdict": "FAIL", "reason": "INVALID_PAYLOAD_OBJECT" }));
+        };
+
+        let invoice_id = obj.get("invoiceId").and_then(Value::as_str).unwrap_or("").trim();
+        let contributor = obj.get("contributor").and_then(Value::as_str).unwrap_or("").trim();
+        let provenance_hash = obj
+            .get("artifact")
+            .and_then(|a| a.get("provenanceHash"))
+            .and_then(Value::as_str)
+            .or_else(|| obj.get("provenanceHash").and_then(Value::as_str))
+            .unwrap_or("")
+            .trim();
+
+        let self_assessed_val = obj
+            .get("valuation")
+            .and_then(|v| v.get("selfAssessedFokens"))
+            .or_else(|| obj.get("selfAssessedFokens"));
+        let Some(self_assessed_fokens) = self_assessed_val.and_then(Value::as_u64) else {
+            return (422, json!({ "verdict": "FAIL", "reason": "INVALID_SELF_ASSESSED_FOKENS" }));
+        };
+
+        let (ip_statement, ip_signature) = if let Some(ip_obj) = obj.get("ipAssignment").and_then(Value::as_object) {
+            (
+                ip_obj.get("statement").and_then(Value::as_str).unwrap_or("").trim(),
+                ip_obj.get("signature").and_then(Value::as_str).unwrap_or("").trim(),
+            )
+        } else {
+            (
+                obj.get("ipStatement").and_then(Value::as_str).unwrap_or("").trim(),
+                obj.get("ipSignature").and_then(Value::as_str).unwrap_or("").trim(),
+            )
+        };
+
+        let Some(nu_obj) = obj.get("netUtility").and_then(Value::as_object) else {
+            return (422, json!({ "verdict": "FAIL", "reason": "MISSING_NET_UTILITY" }));
+        };
+        let Some(avoided) = nu_obj.get("futureWorkAvoidedHours").and_then(Value::as_u64) else {
+            return (422, json!({ "verdict": "FAIL", "reason": "INVALID_NON_NEGATIVE_HOURS" }));
+        };
+        let Some(added) = nu_obj.get("workAddedHours").and_then(Value::as_u64) else {
+            return (422, json!({ "verdict": "FAIL", "reason": "INVALID_NON_NEGATIVE_HOURS" }));
+        };
+        let Some(debt) = nu_obj.get("maintenanceDebtHours").and_then(Value::as_u64) else {
+            return (422, json!({ "verdict": "FAIL", "reason": "INVALID_NON_NEGATIVE_HOURS" }));
+        };
+
         let input = FokenInvoiceInput {
-            invoice_id: req.invoice_id.trim(),
-            contributor: req.contributor.trim(),
-            provenance_hash: req.provenance_hash.trim(),
-            self_assessed_fokens: req.self_assessed_fokens,
-            ip_statement: req.ip_statement.trim(),
-            ip_signature: req.ip_signature.trim(),
+            invoice_id,
+            contributor,
+            provenance_hash,
+            self_assessed_fokens,
+            ip_statement,
+            ip_signature,
             net_utility: FokenNetUtility {
-                future_work_avoided_hours: req.net_utility.future_work_avoided_hours as u64,
-                work_added_hours: req.net_utility.work_added_hours as u64,
-                maintenance_debt_hours: req.net_utility.maintenance_debt_hours as u64,
+                future_work_avoided_hours: avoided,
+                work_added_hours: added,
+                maintenance_debt_hours: debt,
             },
         };
         match evaluate_foken_gate_pq(&input) {
@@ -361,11 +452,17 @@ mod edge {
         let is_read = method == Method::Get || method == Method::Head;
 
         match path {
-            "/" | "/healthz" => {
+            "/" | "/healthz" | "/api/us/healthz" => {
                 if !is_read {
                     return json_response(405, &json!({ "error": "method_not_allowed" }), Some("GET, HEAD"));
                 }
                 json_response(200, &api::health_json(), None)
+            }
+            "/api/us/solana-payout-spec" => {
+                if !is_read {
+                    return json_response(405, &json!({ "error": "method_not_allowed" }), Some("GET, HEAD"));
+                }
+                json_response(200, &api::solana_payout_spec_json(), None)
             }
             "/api/us/architecture" => {
                 if !is_read {
@@ -410,15 +507,18 @@ mod edge {
                 }
             }
             "/api/us/foken" => {
-                if method != Method::Post {
-                    return json_response(405, &json!({ "error": "method_not_allowed" }), Some("POST"));
-                }
-                match read_bounded_body(&mut req).await {
-                    Ok(body) => {
-                        let (status, doc) = api::foken_eval_json(&body);
-                        json_response(status, &doc, None)
+                if method == Method::Post {
+                    match read_bounded_body(&mut req).await {
+                        Ok(body) => {
+                            let (status, doc) = api::foken_eval_json(&body);
+                            json_response(status, &doc, None)
+                        }
+                        Err((status, doc)) => json_response(status, &doc, None),
                     }
-                    Err((status, doc)) => json_response(status, &doc, None),
+                } else if is_read {
+                    json_response(200, &api::foken_info_json(), None)
+                } else {
+                    json_response(405, &json!({ "error": "method_not_allowed" }), Some("GET, HEAD, POST"))
                 }
             }
             _ => json_response(404, &json!({ "error": "not_found", "path": path }), None),
@@ -461,18 +561,22 @@ mod tests {
 
         let (pass_st, pass_doc) = api::foken_eval_json(
             r#"{
-                "invoiceId":"inv-rust-worker-1",
+                "invoiceId":"inv-rust-worker-nested",
                 "contributor":"0x71C8364f3B8844892cfa7D2Fa9f430589aCEE940",
-                "provenanceHash":"sha256://0abcabf86830af11bb5e8cd74dc9c9d00abcabf86830af11bb5e8cd74dc9c9d0",
-                "selfAssessedFokens":400,
-                "ipStatement":"IRREVOCABLE ASSIGNMENT TO UNIVERSAL TREASURY",
-                "ipSignature":"0x4f8a3c9b71c8364f3b88",
+                "artifact":{"provenanceHash":"sha256://0abcabf86830af11bb5e8cd74dc9c9d00abcabf86830af11bb5e8cd74dc9c9d0"},
+                "valuation":{"selfAssessedFokens":400},
+                "ipAssignment":{"statement":"IRREVOCABLE ASSIGNMENT TO UNIVERSAL TREASURY","signature":"0x4f8a3c9b71c8364f3b88"},
                 "netUtility":{"futureWorkAvoidedHours":120,"workAddedHours":10,"maintenanceDebtHours":2}
             }"#,
         );
         assert_eq!(pass_st, 200);
         assert_eq!(pass_doc["verdict"], "PASS");
         assert_eq!(pass_doc["netUtilityPQ"], "107/1");
+
+        let spec = api::solana_payout_spec_json();
+        assert_eq!(spec["usdcMint"], "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+        let finfo = api::foken_info_json();
+        assert_eq!(finfo["fokenToUsdMicro"], 1_000_000u64);
 
         let (neg_st, _) = api::foken_eval_json(
             r#"{

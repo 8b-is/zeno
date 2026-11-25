@@ -5,3 +5,7 @@ compatibility_date = "2026-10-01"
 routes = [
   { pattern = "zeno.vaked.dev", custom_domain = true }
 ]
+
+[[services]]
+binding = "RUST_EDGE_API"
+service = "zeno-us-rust-worker"

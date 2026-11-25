@@ -145,7 +145,7 @@ const RUST_WASM_SPEC_MD = ${JSON.stringify(rustWasmSpecMd)};
 const LICENSING_BOUNDARY_MD = ${JSON.stringify(licensingBoundaryMd)};
 const ACP_MANIFEST = ${JSON.stringify({
   "$schema": "https://zeno.vaked.dev/spec/acp-v1.json",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "entity": "8b-is Family Research Company (https://8b.is)",
   "crew": ["Hue", "Aye", "Taisha", "Omni"],
   "nodeId": "node_8b_is_tokyo_edge",
@@ -765,6 +765,36 @@ export default {
       });
     }
 
+    const RUST_DELEGATED_US_ROUTES = new Set([
+      "/api/us/healthz",
+      "/api/us/reserve-proof",
+      "/api/us/networks",
+      "/api/us/pricing",
+      "/api/us/compliance",
+      "/api/us/solana-payout-spec",
+      "/api/us/solana-validate",
+      "/api/us/foken",
+    ]);
+    if (RUST_DELEGATED_US_ROUTES.has(p) && env && env.RUST_EDGE_API && typeof env.RUST_EDGE_API.fetch === "function") {
+      return env.RUST_EDGE_API.fetch(request);
+    }
+
+    if (p === "/api/us/healthz") {
+      if (!isRead) return methodNotAllowed("GET, HEAD");
+      return gwJson({
+        status: "online",
+        surface: "ZENO US Edge Fallback",
+        serviceBinding: "RUST_EDGE_API",
+        version: "1.14.0",
+        zeroFloatPQ: true,
+      });
+    }
+
+    if (p === "/api/us/solana-validate") {
+      if (request.method !== "POST") return methodNotAllowed("POST");
+      return gwJson({ error: "rust_service_binding_required", binding: "RUST_EDGE_API" }, 503);
+    }
+
     if (p === "/api/us/reserve-proof") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
@@ -802,6 +832,9 @@ export default {
         asmKernelCrate: "apps/rust/zeno-asm",
         workersRsCrate: "apps/rust/zeno-edge-worker",
         rustEdgeWorkerUrl: "https://zeno-us-rust-worker.cabotage.workers.dev",
+        rustServiceBinding: "RUST_EDGE_API",
+        rustDelegatedRoutes: Array.from(RUST_DELEGATED_US_ROUTES),
+        androidJniAsmBridge: "apps/rust/zeno-native",
         zeroTelemetry: true,
         openSourceClientRoutes: [
           "/us",
@@ -819,8 +852,10 @@ export default {
           "/solana-pipeline",
           "/monetization-spec",
           "/licensing-boundary",
+          "/api/us/healthz",
           "/api/us/foken",
           "/api/us/solana-payout-spec",
+          "/api/us/solana-validate",
           "/api/us/networks",
           "/api/us/pricing",
           "/api/us/checkout",
@@ -828,14 +863,14 @@ export default {
           "/compliance-audit",
           "/rust-wasm-spec",
         ],
-        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm", "apps/rust/zeno-edge-worker"],
+        privateCoreModules: ["apps/rust/zeno-us-core", "apps/rust/zeno-issuer-angel", "apps/rust/zeno-asm", "apps/rust/zeno-edge-worker", "apps/rust/zeno-native"],
       });
     }
 
     if (p === "/api/us/compliance") {
       if (!isRead) return methodNotAllowed("GET, HEAD");
       return gwJson({
-        version: "1.13.0",
+        version: "1.14.0",
         formalCertification: false,
         note: "Engineering readiness controls implemented; not legal counsel or external SOC2/QSA certification.",
         frameworks: {
